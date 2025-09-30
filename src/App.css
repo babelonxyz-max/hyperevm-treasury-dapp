@@ -606,7 +606,7 @@ body {
 .dashboard-sidebar {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: var(--space-3);
   position: sticky;
   top: var(--space-6);
   min-width: 400px;
@@ -616,9 +616,20 @@ body {
   border-radius: var(--radius-lg);
   border: 1px solid var(--color-border);
   box-shadow: var(--shadow-lg);
-  height: fit-content;
-  max-height: calc(100vh - var(--space-20));
+  height: calc(100vh - var(--space-20));
   overflow-y: auto;
+}
+
+.dashboard-sidebar .pending-rewards-card {
+  margin-top: 0;
+  flex-shrink: 0;
+}
+
+.dashboard-sidebar .withdrawal-queue {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
 @media (max-width: 1024px) {
@@ -2539,6 +2550,11 @@ body {
   transition: all var(--transition-normal);
 }
 
+.pending-rewards-card.compact {
+  padding: var(--space-3);
+  margin-top: 0;
+}
+
 .pending-rewards-card:hover {
   box-shadow: var(--shadow-md);
   transform: translateY(-1px);
@@ -2595,6 +2611,11 @@ body {
   margin-bottom: var(--space-4);
 }
 
+.rewards-breakdown.compact {
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
 .reward-item {
   display: flex;
   justify-content: space-between;
@@ -2604,6 +2625,10 @@ body {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   transition: all var(--transition-normal);
+}
+
+.reward-item.compact {
+  padding: var(--space-2);
 }
 
 .reward-item:hover {
@@ -2626,6 +2651,11 @@ body {
   background: var(--color-brand-primary);
   border-radius: var(--radius-md);
   color: white;
+}
+
+.reward-icon.compact {
+  width: 24px;
+  height: 24px;
 }
 
 .reward-details {
@@ -2662,6 +2692,10 @@ body {
   padding: var(--space-2) var(--space-4);
   font-size: var(--text-sm);
   font-weight: var(--font-medium);
+}
+
+.btn.full-width {
+  width: 100%;
 }
 
 .rewards-info {

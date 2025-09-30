@@ -51,7 +51,7 @@ const PendingRewards = ({
   }
 
   return (
-    <div className="pending-rewards-card">
+    <div className="pending-rewards-card compact">
       <div className="card-header">
         <div className="card-title">
           <Coins className="card-icon" />
@@ -59,16 +59,15 @@ const PendingRewards = ({
         </div>
         <div className="rewards-value">
           <span className="value-amount">${pendingRewards.totalValue}</span>
-          <span className="value-label">Total</span>
         </div>
       </div>
 
       <div className="card-content">
-        <div className="rewards-breakdown">
-          <div className="reward-item">
+        <div className="rewards-breakdown compact">
+          <div className="reward-item compact">
             <div className="reward-info">
-              <div className="reward-icon">
-                <TrendingUp size={16} />
+              <div className="reward-icon compact">
+                <TrendingUp size={14} />
               </div>
               <div className="reward-details">
                 <span className="reward-amount">{pendingRewards.zHypeRewards}</span>
@@ -78,10 +77,10 @@ const PendingRewards = ({
             <div className="reward-value">~$12.45</div>
           </div>
 
-          <div className="reward-item">
+          <div className="reward-item compact">
             <div className="reward-info">
-              <div className="reward-icon">
-                <Coins size={16} />
+              <div className="reward-icon compact">
+                <Coins size={14} />
               </div>
               <div className="reward-details">
                 <span className="reward-amount">{pendingRewards.usdhRewards}</span>
@@ -94,22 +93,11 @@ const PendingRewards = ({
 
         <div className="rewards-actions">
           <button 
-            className="btn btn-primary btn-sm"
+            className="btn btn-primary btn-sm full-width"
             onClick={handleClaimRewards}
           >
             Claim All Rewards
           </button>
-        </div>
-
-        <div className="rewards-info">
-          <div className="info-item">
-            <Clock size={14} />
-            <span>Last claimed: {pendingRewards.lastClaimed}</span>
-          </div>
-          <div className="info-item">
-            <Clock size={14} />
-            <span>Next claim: {pendingRewards.nextClaim}</span>
-          </div>
         </div>
       </div>
     </div>

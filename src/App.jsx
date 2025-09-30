@@ -576,7 +576,9 @@ function App() {
                       protocolStats={protocolStats}
                     />
                   </Suspense>
-                  
+                </div>
+                
+                <div className="dashboard-sidebar">
                   <Suspense fallback={<LoadingSpinner />}>
                     <PendingRewards
                       account={account}
@@ -586,9 +588,7 @@ function App() {
                       protocolStats={protocolStats}
                     />
                   </Suspense>
-                </div>
-                
-                <div className="dashboard-sidebar">
+                  
                   <Suspense fallback={<LoadingSpinner />}>
                     <WithdrawalQueue
                       withdrawalRequests={withdrawalRequests}
