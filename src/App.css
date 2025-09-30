@@ -621,7 +621,13 @@ body {
 }
 
 .dashboard-sidebar .withdrawal-queue {
-  flex-shrink: 0;
+  flex: 1;
+  max-height: 50vh;
+  overflow-y: auto;
+}
+
+.dashboard-sidebar .card:last-child {
+  flex: 1;
   max-height: 50vh;
   overflow-y: auto;
 }
@@ -678,6 +684,79 @@ body {
 
 .dashboard-sidebar .card:last-child {
   margin-bottom: 0;
+}
+
+/* Pending Rewards specific styles */
+.rewards-breakdown.compact {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+.reward-item.compact {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-2);
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+}
+
+.reward-info {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.reward-icon.compact {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: var(--color-primary);
+  border-radius: var(--radius-sm);
+  color: white;
+}
+
+.reward-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.reward-amount {
+  font-weight: 600;
+  font-size: var(--text-sm);
+  color: var(--color-text);
+}
+
+.reward-token {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.reward-value {
+  font-weight: 500;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.rewards-actions {
+  margin-top: var(--space-3);
+}
+
+.rewards-value {
+  display: flex;
+  align-items: center;
+}
+
+.value-amount {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--color-primary);
 }
 
 @media (max-width: 1024px) {

@@ -9,6 +9,7 @@ const StakingDashboard = lazy(() => import('./components/StakingDashboard'));
 const Header = lazy(() => import('./components/Header'));
 const ThemeToggle = lazy(() => import('./components/ThemeToggle'));
 const WithdrawalQueue = lazy(() => import('./components/WithdrawalQueue'));
+const PendingRewards = lazy(() => import('./components/PendingRewards'));
 const FloatingStatsBar = lazy(() => import('./components/FloatingStatsBar'));
 
 const queryClient = new QueryClient();
@@ -558,39 +559,49 @@ function App() {
                   Connect Wallet
                 </button>
               </div>
-            ) : (
-              <div className="dashboard-layout">
-                <div className="dashboard-main">
-                  <Suspense fallback={<LoadingSpinner />}>
-                    <StakingDashboard
-                      account={account}
-                      provider={provider}
-                      signer={signer}
-                      contractAddresses={contractAddresses}
-                      treasuryContract={treasuryCoreContract}
-                      stakingRewardsContract={stakingRewardsContract}
-                      isConnected={isConnected}
-                      onConnect={connectWallet}
-                      contractAPYs={contractAPYs}
-                      protocolStats={protocolStats}
-                    />
-                  </Suspense>
+              ) : (
+                <div className="dashboard-layout">
+                  <div className="dashboard-main">
+                    <Suspense fallback={<LoadingSpinner />}>
+                      <StakingDashboard
+                        account={account}
+                        provider={provider}
+                        signer={signer}
+                        contractAddresses={contractAddresses}
+                        treasuryContract={treasuryCoreContract}
+                        stakingRewardsContract={stakingRewardsContract}
+                        isConnected={isConnected}
+                        onConnect={connectWallet}
+                        contractAPYs={contractAPYs}
+                        protocolStats={protocolStats}
+                      />
+                    </Suspense>
+                  </div>
+                  
+                  <div className="dashboard-sidebar">
+                    <Suspense fallback={<LoadingSpinner />}>
+                      <WithdrawalQueue
+                        withdrawalRequests={withdrawalRequests}
+                        loadWithdrawalRequests={loadWithdrawalRequests}
+                        account={account}
+                        isConnected={isConnected}
+                        unstakingQueueContract={unstakingQueueContract}
+                        showNotification={(message, type) => console.log(`${type}: ${message}`)}
+                      />
+                    </Suspense>
+                    
+                    <Suspense fallback={<LoadingSpinner />}>
+                      <PendingRewards
+                        account={account}
+                        isConnected={isConnected}
+                        stakingRewardsContract={stakingRewardsContract}
+                        contractAPYs={contractAPYs}
+                        protocolStats={protocolStats}
+                      />
+                    </Suspense>
+                  </div>
                 </div>
-                
-                <div className="dashboard-sidebar">
-                  <Suspense fallback={<LoadingSpinner />}>
-                    <WithdrawalQueue
-                      withdrawalRequests={withdrawalRequests}
-                      loadWithdrawalRequests={loadWithdrawalRequests}
-                      account={account}
-                      isConnected={isConnected}
-                      unstakingQueueContract={unstakingQueueContract}
-                      showNotification={(message, type) => console.log(`${type}: ${message}`)}
-                    />
-                  </Suspense>
-                </div>
-              </div>
-            )}
+              )}
           </div>
         </main>
 
