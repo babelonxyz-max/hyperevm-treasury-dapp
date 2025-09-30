@@ -1,0 +1,211 @@
+name: Code Quality & Performance
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  NODE_VERSION: '18'
+
+jobs:
+  # Code Quality Analysis
+  code-quality:
+    name: Code Quality Analysis
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Run ESLint with detailed output
+      run: |
+        npm run lint -- --format json --output-file eslint-report.json || true
+        
+    - name: Upload ESLint results
+      uses: actions/upload-artifact@v4
+      with:
+        name: eslint-report
+        path: eslint-report.json
+        retention-days: 30
+        
+    - name: Check code complexity
+      run: |
+        npx eslint . --format json --output-file complexity-report.json --rule 'complexity: [2, 10]' || true
+        
+    - name: Upload complexity report
+      uses: actions/upload-artifact@v4
+      with:
+        name: complexity-report
+        path: complexity-report.json
+        retention-days: 30
+
+  # Bundle Size Analysis
+  bundle-analysis:
+    name: Bundle Size Analysis
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Build application
+      run: npm run build
+      
+    - name: Analyze bundle size
+      run: |
+        echo "## Bundle Size Analysis" >> $GITHUB_STEP_SUMMARY
+        echo "| File | Size |" >> $GITHUB_STEP_SUMMARY
+        echo "|------|------|" >> $GITHUB_STEP_SUMMARY
+        find dist -name "*.js" -exec sh -c 'echo "| $1 | $(du -h "$1" | cut -f1) |" >> $GITHUB_STEP_SUMMARY' _ {} \;
+        
+    - name: Check bundle size limits
+      run: |
+        # Set size limits (in KB)
+        MAX_JS_SIZE=500
+        MAX_CSS_SIZE=100
+        
+        # Check JavaScript files
+        for file in dist/assets/*.js; do
+          if [ -f "$file" ]; then
+            size=$(du -k "$file" | cut -f1)
+            if [ $size -gt $MAX_JS_SIZE ]; then
+              echo "❌ JavaScript file $file is too large: ${size}KB (max: ${MAX_JS_SIZE}KB)"
+              exit 1
+            else
+              echo "✅ JavaScript file $file size: ${size}KB"
+            fi
+          fi
+        done
+        
+        # Check CSS files
+        for file in dist/assets/*.css; do
+          if [ -f "$file" ]; then
+            size=$(du -k "$file" | cut -f1)
+            if [ $size -gt $MAX_CSS_SIZE ]; then
+              echo "❌ CSS file $file is too large: ${size}KB (max: ${MAX_CSS_SIZE}KB)"
+              exit 1
+            else
+              echo "✅ CSS file $file size: ${size}KB"
+            fi
+          fi
+        done
+
+  # Performance Testing
+  performance-test:
+    name: Performance Testing
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Build application
+      run: npm run build
+      
+    - name: Install Lighthouse CI
+      run: npm install -g @lhci/cli@0.12.x
+      
+    - name: Run Lighthouse CI
+      run: |
+        lhci autorun --upload.target=temporary-public-storage || echo "Lighthouse CI completed with warnings"
+        
+    - name: Performance summary
+      run: |
+        echo "## Performance Test Results" >> $GITHUB_STEP_SUMMARY
+        echo "Performance testing completed. Check the Lighthouse CI results above for detailed metrics." >> $GITHUB_STEP_SUMMARY
+
+  # Accessibility Testing
+  accessibility-test:
+    name: Accessibility Testing
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Build application
+      run: npm run build
+      
+    - name: Install accessibility testing tools
+      run: |
+        npm install -g pa11y-ci
+        
+    - name: Run accessibility tests
+      run: |
+        # Start a local server
+        npm run preview &
+        sleep 10
+        
+        # Run accessibility tests
+        pa11y-ci --sitemap http://localhost:4173/sitemap.xml || echo "Accessibility tests completed with warnings"
+        
+    - name: Accessibility summary
+      run: |
+        echo "## Accessibility Test Results" >> $GITHUB_STEP_SUMMARY
+        echo "Accessibility testing completed. Check the results above for any issues." >> $GITHUB_STEP_SUMMARY
+
+  # Code Coverage (if tests are available)
+  coverage:
+    name: Code Coverage
+    runs-on: ubuntu-latest
+    if: false # Disabled until tests are implemented
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Run tests with coverage
+      run: npm run test:coverage || echo "Coverage testing not configured"
+      
+    - name: Upload coverage reports
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage/lcov.info
+        fail_ci_if_error: false

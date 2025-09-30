@@ -6,8 +6,20 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "lint": "eslint .",
-    "preview": "vite preview"
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
+    "type-check": "tsc --noEmit",
+    "test": "echo 'No tests configured yet' && exit 0",
+    "test:coverage": "echo 'Coverage testing not configured yet' && exit 0",
+    "preview": "vite preview",
+    "analyze": "npm run build && npx vite-bundle-analyzer dist",
+    "audit": "npm audit --audit-level moderate",
+    "audit:fix": "npm audit fix",
+    "outdated": "npm outdated",
+    "update": "npm update",
+    "clean": "rm -rf dist node_modules/.vite",
+    "prebuild": "npm run clean",
+    "postbuild": "echo 'Build completed successfully'"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.90.2",

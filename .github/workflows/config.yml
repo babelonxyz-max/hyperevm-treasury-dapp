@@ -1,0 +1,45 @@
+# CI/CD Configuration
+# This file contains shared configuration for all workflows
+
+# Workflow triggers
+default_triggers:
+  push:
+    branches: [ main, develop, feature/* ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # Weekly dependency check (Mondays at 9 AM UTC)
+    - cron: '0 9 * * 1'
+
+# Environment variables
+shared_env:
+  NODE_VERSION: '18'
+  CACHE_VERSION: 'v1'
+  
+# Build configuration
+build_config:
+  install_command: 'npm ci'
+  build_command: 'npm run build'
+  test_command: 'npm run test'
+  lint_command: 'npm run lint'
+  
+# Deployment targets
+deployment_targets:
+  production:
+    url: 'https://hyperevm-treasury-dapp.vercel.app'
+    branch: 'main'
+  staging:
+    url: 'https://hyperevm-treasury-dapp-staging.vercel.app'
+    branch: 'develop'
+    
+# Security settings
+security:
+  audit_level: 'moderate'
+  max_bundle_size_js: 500  # KB
+  max_bundle_size_css: 100  # KB
+  
+# Quality gates
+quality_gates:
+  min_coverage: 80  # Percentage
+  max_complexity: 10
+  max_duplication: 5  # Percentage

@@ -1,0 +1,34 @@
+name: Update Status Badge
+
+on:
+  workflow_run:
+    workflows: ["CI/CD Pipeline"]
+    types: [completed]
+
+jobs:
+  update-badge:
+    name: Update Status Badge
+    runs-on: ubuntu-latest
+    if: github.event.workflow_run.conclusion != 'skipped'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Update README with build status
+      run: |
+        # Get the workflow status
+        if [ "${{ github.event.workflow_run.conclusion }}" = "success" ]; then
+          STATUS="✅"
+          COLOR="green"
+        else
+          STATUS="❌"
+          COLOR="red"
+        fi
+        
+        # Update the main README if it exists
+        if [ -f "README.md" ]; then
+          # Add or update build status badge
+          sed -i "s/!\[Build Status\].*/![Build Status](https://github.com\/babelonxyz-max\/hyperevm-treasury-dapp\/workflows\/CI\/CD%20Pipeline\/badge.svg)/" README.md || \
+          echo "![Build Status](https://github.com/babelonxyz-max/hyperevm-treasury-dapp/workflows/CI/CD%20Pipeline/badge.svg)" >> README.md
+        fi

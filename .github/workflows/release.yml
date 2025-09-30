@@ -1,0 +1,194 @@
+name: Automated Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., v1.0.0)'
+        required: true
+        type: string
+
+env:
+  NODE_VERSION: '18'
+
+jobs:
+  # Create Release
+  create-release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+      release_id: ${{ steps.create_release.outputs.id }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Build application
+      run: npm run build
+      
+    - name: Generate changelog
+      id: changelog
+      run: |
+        # Get the previous tag
+        PREVIOUS_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+        
+        if [ -n "$PREVIOUS_TAG" ]; then
+          echo "## Changes since $PREVIOUS_TAG" > CHANGELOG.md
+          git log --pretty=format:"- %s (%h)" $PREVIOUS_TAG..HEAD >> CHANGELOG.md
+        else
+          echo "## Initial Release" > CHANGELOG.md
+          git log --pretty=format:"- %s (%h)" >> CHANGELOG.md
+        fi
+        
+        echo "changelog<<EOF" >> $GITHUB_OUTPUT
+        cat CHANGELOG.md >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+        
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref_name || inputs.version }}
+        release_name: Release ${{ github.ref_name || inputs.version }}
+        body: |
+          ## HyperEVM Treasury dApp ${{ github.ref_name || inputs.version }}
+          
+          ${{ steps.changelog.outputs.changelog }}
+          
+          ## Installation
+          
+          ```bash
+          git clone https://github.com/babelonxyz-max/hyperevm-treasury-dapp.git
+          cd hyperevm-treasury-dapp
+          npm install
+          npm run dev
+          ```
+          
+          ## Features
+          
+          - 🚀 Advanced liquid staking protocol
+          - 📊 Floating stats bar with real-time metrics
+          - 💰 Withdrawal queue management
+          - 🎨 Modern, responsive UI
+          - 🔒 Secure smart contract integration
+          
+          ## Deployment
+          
+          The application is automatically deployed to:
+          - **Production**: https://hyperevm-treasury-dapp.vercel.app
+          - **GitHub Pages**: https://babelonxyz-max.github.io/hyperevm-treasury-dapp
+        draft: false
+        prerelease: ${{ contains(github.ref_name || inputs.version, 'beta') || contains(github.ref_name || inputs.version, 'alpha') || contains(github.ref_name || inputs.version, 'rc') }}
+
+  # Build and Upload Assets
+  build-and-upload:
+    name: Build and Upload Assets
+    runs-on: ubuntu-latest
+    needs: create-release
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Build application
+      run: npm run build
+      
+    - name: Create deployment package
+      run: |
+        # Create a deployment package
+        tar -czf hyperevm-treasury-dapp-${{ github.ref_name || inputs.version }}.tar.gz dist/
+        zip -r hyperevm-treasury-dapp-${{ github.ref_name || inputs.version }}.zip dist/
+        
+    - name: Upload Release Assets
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ needs.create-release.outputs.upload_url }}
+        asset_path: ./hyperevm-treasury-dapp-${{ github.ref_name || inputs.version }}.tar.gz
+        asset_name: hyperevm-treasury-dapp-${{ github.ref_name || inputs.version }}.tar.gz
+        asset_content_type: application/gzip
+        
+    - name: Upload Release Assets (ZIP)
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ needs.create-release.outputs.upload_url }}
+        asset_path: ./hyperevm-treasury-dapp-${{ github.ref_name || inputs.version }}.zip
+        asset_name: hyperevm-treasury-dapp-${{ github.ref_name || inputs.version }}.zip
+        asset_content_type: application/zip
+
+  # Deploy to Production
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [create-release, build-and-upload]
+    if: github.ref_type == 'tag' && !contains(github.ref_name, 'beta') && !contains(github.ref_name, 'alpha') && !contains(github.ref_name, 'rc')
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Deploy to Vercel
+      uses: amondnet/vercel-action@v25
+      with:
+        vercel-token: ${{ secrets.VERCEL_TOKEN }}
+        vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+        vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+        working-directory: ./
+        vercel-args: '--prod'
+        
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./dist
+        cname: hyperevm-treasury-dapp.vercel.app
+
+  # Notify Deployment
+  notify-deployment:
+    name: Notify Deployment
+    runs-on: ubuntu-latest
+    needs: [create-release, deploy-production]
+    if: always()
+    
+    steps:
+    - name: Notify Success
+      if: needs.deploy-production.result == 'success'
+      run: |
+        echo "🎉 Release ${{ github.ref_name || inputs.version }} deployed successfully!"
+        echo "🚀 Production URL: https://hyperevm-treasury-dapp.vercel.app"
+        echo "📦 Release: https://github.com/babelonxyz-max/hyperevm-treasury-dapp/releases/tag/${{ github.ref_name || inputs.version }}"
+        
+    - name: Notify Failure
+      if: needs.deploy-production.result == 'failure'
+      run: |
+        echo "❌ Release deployment failed!"
+        echo "🔍 Check the logs for more details"
