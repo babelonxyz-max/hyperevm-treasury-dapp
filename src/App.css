@@ -630,6 +630,17 @@ body {
   padding-bottom: var(--space-4);
 }
 
+.dashboard-sidebar .withdrawal-queue::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--color-border);
+  z-index: 1;
+}
+
 .dashboard-sidebar .card:last-child {
   flex: 1;
   max-height: 50vh;
@@ -637,6 +648,18 @@ body {
   margin-top: var(--space-2);
   background: var(--color-surface);
   border: 1px solid var(--color-border);
+  position: relative;
+}
+
+.dashboard-sidebar .card:last-child::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--color-border);
+  z-index: 1;
 }
 
 .dashboard-sidebar .withdrawal-queue .card {
