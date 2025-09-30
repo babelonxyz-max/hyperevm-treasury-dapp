@@ -634,11 +634,12 @@ body {
   content: '';
   position: absolute;
   top: 50%;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: var(--color-border);
-  z-index: 1;
+  left: 10px;
+  right: 10px;
+  height: 3px;
+  background: #ef4444;
+  z-index: 10;
+  border-radius: 2px;
 }
 
 .dashboard-sidebar .card:last-child {
@@ -655,11 +656,12 @@ body {
   content: '';
   position: absolute;
   top: 50%;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: var(--color-border);
-  z-index: 1;
+  left: 10px;
+  right: 10px;
+  height: 3px;
+  background: #3b82f6;
+  z-index: 10;
+  border-radius: 2px;
 }
 
 .dashboard-sidebar .withdrawal-queue .card {
