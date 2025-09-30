@@ -825,47 +825,8 @@ body {
   align-items: start;
 }
 
-/* ABC 12 Grid Layout */
-.abc-grid-layout {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-6);
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: var(--space-4);
-}
-
-.abc-row-a {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: var(--space-6);
-  align-items: start;
-}
-
-.abc-row-b {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: var(--space-6);
-  align-items: start;
-}
-
-.abc-cell-b1,
-.abc-cell-b2 {
-  /* Empty cells - no content */
-}
-
-.abc-cell-b3 {
-  /* Withdrawal Queue in B3 */
-}
-
 @media (max-width: 1024px) {
   .main-cards-grid {
-    grid-template-columns: 1fr;
-    gap: var(--space-4);
-  }
-  
-  .abc-row-a,
-  .abc-row-b {
     grid-template-columns: 1fr;
     gap: var(--space-4);
   }
