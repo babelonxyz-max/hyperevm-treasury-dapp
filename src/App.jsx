@@ -58,7 +58,8 @@ function App() {
     totalHypeTVL: '0.000', 
     totalZhypeMinted: '0.000', 
     realHypeTVL: '0.000', 
-    realZhypeMinted: '0.000' 
+    realZhypeMinted: '0.000',
+    hypePrice: '0.00'
   });
 
   // Withdrawal requests
@@ -380,7 +381,8 @@ function App() {
         totalHypeTVL,
         totalZhypeMinted,
         realHypeTVL: totalHypeTVL,
-        realZhypeMinted: totalZhypeMinted
+        realZhypeMinted: totalZhypeMinted,
+        hypePrice: '0.25' // Mock HYPE price - replace with real price feed
       });
     } catch (error) {
       console.log('Protocol stats not available, using defaults');
