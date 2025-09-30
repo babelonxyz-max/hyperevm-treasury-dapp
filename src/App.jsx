@@ -595,7 +595,7 @@ function App() {
         </main>
 
         <footer className="footer">
-          <p>&copy; 2024 Babelon Protocol. Powered by Orion Ventures.</p>
+          <p>&copy; 2024 Babelon Protocol.</p>
         </footer>
 
         <Suspense fallback={<LoadingSpinner />}>
@@ -605,9 +605,6 @@ function App() {
           />
         </Suspense>
 
-        <Suspense fallback={<LoadingSpinner />}>
-          <ThemeToggle />
-        </Suspense>
       </div>
     </QueryClientProvider>
   );
