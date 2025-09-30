@@ -36,14 +36,14 @@ const PendingRewards = ({
 
   if (!isConnected) {
     return (
-      <div className="pending-rewards-card">
+      <div className="card">
         <div className="card-header">
           <div className="card-title">
             <Coins className="card-icon" />
             <h3>Pending Rewards</h3>
           </div>
         </div>
-        <div className="card-content">
+        <div className="card-body">
           <p className="connect-prompt">Connect your wallet to view pending rewards</p>
         </div>
       </div>
@@ -51,7 +51,7 @@ const PendingRewards = ({
   }
 
   return (
-    <div className="pending-rewards-card compact">
+    <div className="card">
       <div className="card-header">
         <div className="card-title">
           <Coins className="card-icon" />
@@ -62,7 +62,7 @@ const PendingRewards = ({
         </div>
       </div>
 
-      <div className="card-content">
+      <div className="card-body">
         <div className="rewards-breakdown compact">
           <div className="reward-item compact">
             <div className="reward-info">
