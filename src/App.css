@@ -606,7 +606,6 @@ body {
 .dashboard-sidebar {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
   position: sticky;
   top: var(--space-6);
   min-width: 400px;

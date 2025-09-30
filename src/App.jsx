@@ -9,7 +9,6 @@ const StakingDashboard = lazy(() => import('./components/StakingDashboard'));
 const Header = lazy(() => import('./components/Header'));
 const ThemeToggle = lazy(() => import('./components/ThemeToggle'));
 const WithdrawalQueue = lazy(() => import('./components/WithdrawalQueue'));
-const PendingRewards = lazy(() => import('./components/PendingRewards'));
 const FloatingStatsBar = lazy(() => import('./components/FloatingStatsBar'));
 
 const queryClient = new QueryClient();
@@ -587,16 +586,6 @@ function App() {
                       isConnected={isConnected}
                       unstakingQueueContract={unstakingQueueContract}
                       showNotification={(message, type) => console.log(`${type}: ${message}`)}
-                    />
-                  </Suspense>
-                  
-                  <Suspense fallback={<LoadingSpinner />}>
-                    <PendingRewards
-                      account={account}
-                      isConnected={isConnected}
-                      stakingRewardsContract={stakingRewardsContract}
-                      contractAPYs={contractAPYs}
-                      protocolStats={protocolStats}
                     />
                   </Suspense>
                 </div>
