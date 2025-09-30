@@ -160,8 +160,8 @@ const StakingDashboard = ({
         </div>
       </div>
 
-      {/* Main Staking Cards */}
-      <div className="staking-cards">
+      {/* Main Cards - 3 Column Layout */}
+      <div className="main-cards-grid">
         {/* HYPE Staking Card */}
         <div className="staking-card primary">
           <div className="card-header">
@@ -353,10 +353,8 @@ const StakingDashboard = ({
             )}
           </div>
         </div>
-      </div>
 
-      {/* Rewards Section */}
-      <div className="rewards-section">
+        {/* Pending Rewards Card */}
         <div className="rewards-card">
           <div className="rewards-header">
             <h3>Pending Rewards</h3>

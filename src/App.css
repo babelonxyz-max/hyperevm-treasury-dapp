@@ -818,6 +818,20 @@ body {
   margin: 0 auto;
 }
 
+.main-cards-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: var(--space-6);
+  align-items: start;
+}
+
+@media (max-width: 1024px) {
+  .main-cards-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+}
+
 .dashboard-header {
   display: none;
 }
