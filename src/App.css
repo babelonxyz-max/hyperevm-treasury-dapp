@@ -624,25 +624,19 @@ body {
   flex: 1;
   max-height: 50vh;
   overflow-y: auto;
-  margin-bottom: var(--space-4);
+  margin-bottom: var(--space-6);
   position: relative;
-}
-
-.dashboard-sidebar .withdrawal-queue::after {
-  content: '';
-  position: absolute;
-  bottom: calc(-1 * var(--space-2));
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: var(--color-border);
-  opacity: 0.5;
+  border-bottom: 2px solid var(--color-border);
+  padding-bottom: var(--space-4);
 }
 
 .dashboard-sidebar .card:last-child {
   flex: 1;
   max-height: 50vh;
   overflow-y: auto;
+  margin-top: var(--space-2);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
 }
 
 .dashboard-sidebar .withdrawal-queue .card {
