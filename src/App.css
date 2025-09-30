@@ -606,6 +606,7 @@ body {
 .dashboard-sidebar {
   display: flex;
   flex-direction: column;
+  gap: var(--space-3);
   position: sticky;
   top: var(--space-6);
   min-width: 400px;
@@ -617,6 +618,63 @@ body {
   box-shadow: var(--shadow-lg);
   height: calc(100vh - var(--space-20));
   overflow-y: auto;
+}
+
+.dashboard-sidebar .withdrawal-queue {
+  flex-shrink: 0;
+  max-height: 40vh;
+  overflow-y: auto;
+}
+
+.dashboard-sidebar .withdrawal-queue .card {
+  margin: 0;
+}
+
+.dashboard-sidebar .withdrawal-queue .card-body {
+  padding: var(--space-3);
+}
+
+.dashboard-sidebar .withdrawal-queue .request-item {
+  padding: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+.dashboard-sidebar .withdrawal-queue .request-header {
+  margin-bottom: var(--space-1);
+}
+
+.dashboard-sidebar .withdrawal-queue .request-details {
+  gap: var(--space-1);
+}
+
+.dashboard-sidebar .withdrawal-queue .request-details .label {
+  font-size: var(--text-xs);
+}
+
+.dashboard-sidebar .withdrawal-queue .request-details .value {
+  font-size: var(--text-xs);
+}
+
+.dashboard-sidebar .withdrawal-queue .amount {
+  font-size: var(--text-sm);
+}
+
+.dashboard-sidebar .withdrawal-queue .token {
+  font-size: var(--text-xs);
+}
+
+.dashboard-sidebar .withdrawal-queue .request-type {
+  font-size: var(--text-xs);
+}
+
+.dashboard-sidebar .withdrawal-queue .status-badge {
+  font-size: var(--text-xs);
+  padding: var(--space-1) var(--space-2);
+}
+
+.dashboard-sidebar .pending-rewards-card {
+  flex-shrink: 0;
+  margin-top: 0;
 }
 
 @media (max-width: 1024px) {
