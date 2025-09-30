@@ -357,7 +357,10 @@ const StakingDashboard = ({
         {/* Pending Rewards Card */}
         <div className="rewards-card">
           <div className="rewards-header">
-            <h3>Pending Rewards</h3>
+            <h3>
+              <Coins className="card-icon" />
+              Pending Rewards
+            </h3>
             <button
               className="claim-button"
               onClick={() => claimMutation.mutate()}
