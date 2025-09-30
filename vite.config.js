@@ -15,17 +15,26 @@ export default defineConfig({
           vendor: ['react', 'react-dom'],
           ethers: ['ethers'],
           ui: ['lucide-react'],
+          query: ['@tanstack/react-query'],
         },
       },
     },
-    chunkSizeWarningLimit: 1000,
+    chunkSizeWarningLimit: 500,
     minify: 'terser',
     terserOptions: {
       compress: {
         drop_console: true,
         drop_debugger: true,
+        pure_funcs: ['console.log', 'console.info', 'console.debug'],
+        passes: 2,
+      },
+      mangle: {
+        toplevel: true,
       },
     },
+    target: 'es2015',
+    cssCodeSplit: true,
+    sourcemap: false,
   },
   optimizeDeps: {
     include: ['react', 'react-dom', 'ethers', 'lucide-react'],

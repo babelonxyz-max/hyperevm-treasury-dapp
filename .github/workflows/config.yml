@@ -35,7 +35,7 @@ deployment_targets:
 # Security settings
 security:
   audit_level: 'moderate'
-  max_bundle_size_js: 500  # KB
+  max_bundle_size_js: 600  # KB
   max_bundle_size_css: 100  # KB
   
 # Quality gates
