@@ -1,0 +1,10 @@
+{
+  "treasury": "0x1D16B1986ffa09f72d3A467c07cc0C23b5Aa5268",
+  "zHypeToken": "0x1D16B1986ffa09f72d3A467c07cc0C23b5Aa5268",
+  "network": "hyperevm",
+  "chainId": 999,
+  "deployedAt": "2025-09-28T22:33:15.603Z",
+  "deployer": "0x89882F0fD837E1da4e19ce78240aBA5961A0fDa0",
+  "minimal": true,
+  "version": "0.1"
+}

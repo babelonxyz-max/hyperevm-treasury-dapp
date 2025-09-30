@@ -1,0 +1,25 @@
+{
+  "contracts": {
+    "treasuryCore": "0xc3d109b4978E9358B00DAE8d7F8e802E0f284F16",
+    "stakingRewards": "0x716E8c9E464736293EB46B71e81f6e9AA9c09058",
+    "unstakingQueue": "0xcBb5d9484bB7134aDc73202efFC2853D46c91fba",
+    "priceOracle": "0xA7e521535c1004eB44f297890116c99Cd5788480",
+    "stakingRewardsFixed": "0x23e07562ffe1fAD9545Ca8b7C656Cec97E80A64c",
+    "stakingRewardsSimple": "0xBd8f5961Eeb024ACE3443C93d12Dea3740e28852"
+  },
+  "owner": "0x29c1319f090c52e61c7099FD400234Fe83a82bB7",
+  "network": "hyperevm",
+  "timestamp": "2025-09-30T10:25:25.474Z",
+  "architecture": "Multi-contract modular system",
+  "features": [
+    "HYPE → zHYPE staking (TreasuryCore)",
+    "zHYPE → USDH staking (StakingRewards)",
+    "7-day unstaking queues (UnstakingQueue)",
+    "HYPE price oracle (PriceOracle)",
+    "Modular and upgradeable",
+    "Fixed USDH token transfers in StakingRewards",
+    "Real USDH token support",
+    "Proper reward claiming functionality"
+  ],
+  "deploymentTime": "2025-09-30T12:51:45.290Z"
+}

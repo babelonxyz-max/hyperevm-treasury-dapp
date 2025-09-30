@@ -1,0 +1,12 @@
+{
+  "treasury": "0x11cFB7FC36EC729B206243BBaB33C24BEAc9437e",
+  "zHypeToken": "0x11cFB7FC36EC729B206243BBaB33C24BEAc9437e",
+  "owner": "0x89882F0fD837E1da4e19ce78240aBA5961A0fDa0",
+  "ownerPrivateKey": "PROVIDE_YOUR_PRIVATE_KEY_HERE",
+  "network": "hyperevm",
+  "chainId": 999,
+  "deployedAt": "2025-09-28T22:37:08.891Z",
+  "deployer": "0x89882F0fD837E1da4e19ce78240aBA5961A0fDa0",
+  "hasOwner": true,
+  "version": "0.1"
+}

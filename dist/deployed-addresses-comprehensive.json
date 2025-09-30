@@ -1,0 +1,28 @@
+{
+  "contracts": {
+    "treasuryCore": "0xc3d109b4978E9358B00DAE8d7F8e802E0f284F16",
+    "stakingRewards": "0xdC903501E97920E8016dbAc22b2Eb73407e34F1F",
+    "unstakingQueue": "0x8e3187960353d22f1A91988a91c1c36955D4BCf0",
+    "priceOracle": "0xA7e521535c1004eB44f297890116c99Cd5788480",
+    "rewardsManager": "0x82D8218E57E6CDec0358B6c971351698Adcd27Fc",
+    "treasury": "0xc3d109b4978E9358B00DAE8d7F8e802E0f284F16",
+    "zHypeToken": "0xc3d109b4978E9358B00DAE8d7F8e802E0f284F16",
+    "hype": "0x0000000000000000000000000000000000000000",
+    "usdh": "0x111111a1a0667d36bD57c0A9f569b98057111111",
+    "vkhype": "0x9ba2edc44e0a4632eb4723e81d4142353e1bb160"
+  },
+  "deploymentTime": "2025-01-30T11:25:00.000Z",
+  "network": "hyperevm",
+  "features": [
+    "HYPE deposits with zHYPE minting",
+    "zHYPE rewards from treasury balance (500% APY) - CLAIMABLE",
+    "zHYPE staking with USDH rewards (17% APY)",
+    "Auto-invest functionality - WORKING",
+    "7-day unstaking queue",
+    "Price oracle integration",
+    "Combined rewards claiming",
+    "Treasury-based rewards calculation"
+  ]
+}
+
+
