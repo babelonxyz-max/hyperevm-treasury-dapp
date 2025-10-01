@@ -828,9 +828,9 @@ body {
 
 .main-cards-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr 1.2fr;
-  gap: var(--space-4);
-  align-items: stretch;
+  grid-template-columns: 1fr 1fr 1.4fr;
+  gap: calc(var(--space-4) + 10px);
+  align-items: start;
   width: 100%;
   max-width: 100%;
   margin: 0 auto;
@@ -841,7 +841,7 @@ body {
 .column-3-cards {
   display: flex;
   flex-direction: column;
-  gap: var(--space-6);
+  gap: calc(var(--space-6) + 10px);
   height: calc(100vh - 200px);
   justify-content: space-between;
   z-index: 1;
@@ -851,7 +851,7 @@ body {
 .column-3-cards .rewards-card,
 .column-3-cards .withdrawal-queue-card {
   flex: 0 0 auto;
-  height: calc((100vh - 200px - var(--space-6)) / 2);
+  height: calc((100vh - 200px - var(--space-6) - 10px) / 2);
   min-height: 150px;
   z-index: 2;
   position: relative;
@@ -862,13 +862,15 @@ body {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-xl);
-  padding: var(--space-5);
+  padding: var(--space-4);
+  padding-bottom: calc(var(--space-4) + 10px);
   position: relative;
   overflow: hidden;
   transition: all var(--transition-normal);
   box-shadow: var(--shadow-md);
   display: flex;
   flex-direction: column;
+  gap: var(--space-3);
   height: 100%;
   border-color: var(--color-brand-accent);
   box-shadow: 0 0 0 1px rgba(14, 165, 233, 0.1), var(--shadow-md);
@@ -926,6 +928,7 @@ body {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-xl);
   padding: var(--space-5);
+  padding-bottom: calc(var(--space-5) + 20px);
   position: relative;
   overflow: visible;
   transition: all var(--transition-normal);
@@ -1283,13 +1286,15 @@ body {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-xl);
-  padding: var(--space-5);
+  padding: var(--space-4);
+  padding-bottom: calc(var(--space-4) + 10px);
   position: relative;
   overflow: hidden;
   transition: all var(--transition-normal);
   box-shadow: var(--shadow-md);
   display: flex;
   flex-direction: column;
+  gap: var(--space-3);
   height: 100%;
   border-color: var(--color-brand-accent);
   box-shadow: 0 0 0 1px rgba(14, 165, 233, 0.1), var(--shadow-md);
