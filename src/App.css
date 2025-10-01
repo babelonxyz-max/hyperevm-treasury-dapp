@@ -997,7 +997,7 @@ body {
 .column-3-cards {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 32px;
   height: 100%;
   justify-content: flex-start;
   z-index: 1;
@@ -1012,7 +1012,7 @@ body {
   position: relative;
   width: 100%;
   min-height: 280px;
-  max-height: 320px;
+  max-height: 360px;
 }
 
 .column-3-cards .withdrawal-queue-card {
@@ -1020,8 +1020,8 @@ body {
   z-index: 2;
   position: relative;
   width: 100%;
-  min-height: 200px;
-  max-height: 240px;
+  min-height: 180px;
+  max-height: 220px;
 }
 
 /* Withdrawal Queue Card Styling */
