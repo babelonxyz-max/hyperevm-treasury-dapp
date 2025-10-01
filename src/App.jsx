@@ -597,7 +597,7 @@ function App() {
         </main>
 
         <footer className="footer">
-          <p>&copy; 2024 Babelon Protocol.</p>
+          <p>&copy; 2025 Babelon Protocol.</p>
         </footer>
 
         <Suspense fallback={<LoadingSpinner />}>
