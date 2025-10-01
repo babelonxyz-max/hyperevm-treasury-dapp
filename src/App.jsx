@@ -527,19 +527,55 @@ function App() {
           }
           
           // Process unstaking requests
+          console.log('📋 Processing unstaking requests:', unstakingRequests);
           if (unstakingRequests && unstakingRequests.length > 0) {
             for (let i = 0; i < unstakingRequests.length; i++) {
               const request = unstakingRequests[i];
-              if (request && request.amount && parseFloat(ethers.formatEther(request.amount)) > 0) {
+              console.log(`📋 Processing request ${i}:`, request);
+              
+              // Handle different data formats
+              let amount = '0';
+              let completed = false;
+              let timestamp = new Date().toISOString().split('T')[0];
+              
+              if (request && request.amount) {
+                try {
+                  amount = ethers.formatEther(request.amount);
+                } catch (e) {
+                  amount = request.amount.toString();
+                }
+              } else if (typeof request === 'string' || typeof request === 'number') {
+                amount = request.toString();
+              }
+              
+              if (request && request.completed !== undefined) {
+                completed = Boolean(request.completed);
+              }
+              
+              if (request && request.timestamp) {
+                try {
+                  timestamp = new Date(Number(request.timestamp) * 1000).toISOString().split('T')[0];
+                } catch (e) {
+                  timestamp = new Date().toISOString().split('T')[0];
+                }
+              }
+              
+              const amountNum = parseFloat(amount);
+              console.log(`📋 Processed amount: ${amountNum}, completed: ${completed}, timestamp: ${timestamp}`);
+              
+              if (amountNum > 0) {
                 allRequests.push({
-                  amount: ethers.formatEther(request.amount),
+                  amount: amount,
                   isUnstaking: true,
-                  completed: request.completed || false,
-                  timestamp: request.timestamp ? new Date(Number(request.timestamp) * 1000).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+                  completed: completed,
+                  timestamp: timestamp,
                   user: account
                 });
+                console.log('📋 Added unstaking request to allRequests');
               }
             }
+          } else {
+            console.log('📋 No unstaking requests found or empty array');
           }
         } catch (error) {
           console.error('Error fetching unstaking requests:', error);
@@ -594,51 +630,56 @@ function App() {
         }
       }
 
-      console.log('📋 Processed withdrawal requests:', allRequests);
+      console.log('📋 Final processed withdrawal requests:', allRequests);
+      console.log('📋 Total requests found:', allRequests.length);
+      console.log('📋 Unstaking requests:', allRequests.filter(r => r.isUnstaking));
+      console.log('📋 Withdrawal requests:', allRequests.filter(r => !r.isUnstaking));
       setWithdrawalRequests(allRequests);
 
-      // If no real data found, create some mock data for testing
-      if (allRequests.length === 0) {
-        console.log('📋 No real data found, creating mock data for testing');
-        const mockRequests = [
-          { 
-            amount: '0.00000000175924769', 
-            isUnstaking: false, 
-            completed: false, 
-            timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 2 days ago
-            user: account
-          },
-          { 
-            amount: '0.000000000000000001', 
-            isUnstaking: true, 
-            completed: false, 
-            timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 1 day ago
-            user: account
-          },
-          { 
-            amount: '0.000000000000000002', 
-            isUnstaking: true, 
-            completed: false, 
-            timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 3 days ago
-            user: account
-          },
-          { 
-            amount: '0.000000000000000003', 
-            isUnstaking: false, 
-            completed: false, 
-            timestamp: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 4 days ago
-            user: account
-          },
-          { 
-            amount: '0.0', 
-            isUnstaking: false, 
-            completed: true, 
-            timestamp: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 8 days ago
-            user: account
-          }
-        ];
-        setWithdrawalRequests(mockRequests);
-      }
+      // Always add some mock data for testing (temporarily)
+      console.log('📋 Adding mock data for testing...');
+      const mockRequests = [
+        { 
+          amount: '0.00000000175924769', 
+          isUnstaking: false, 
+          completed: false, 
+          timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 2 days ago
+          user: account
+        },
+        { 
+          amount: '0.000000000000000001', 
+          isUnstaking: true, 
+          completed: false, 
+          timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 1 day ago
+          user: account
+        },
+        { 
+          amount: '0.000000000000000002', 
+          isUnstaking: true, 
+          completed: false, 
+          timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 3 days ago
+          user: account
+        },
+        { 
+          amount: '0.000000000000000003', 
+          isUnstaking: false, 
+          completed: false, 
+          timestamp: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 4 days ago
+          user: account
+        },
+        { 
+          amount: '0.0', 
+          isUnstaking: false, 
+          completed: true, 
+          timestamp: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 8 days ago
+          user: account
+        }
+      ];
+      
+      // Combine real data with mock data
+      const combinedRequests = [...allRequests, ...mockRequests];
+      console.log('📋 Combined requests (real + mock):', combinedRequests);
+      setWithdrawalRequests(combinedRequests);
 
     } catch (error) {
       console.error('Error loading withdrawal requests:', error);
