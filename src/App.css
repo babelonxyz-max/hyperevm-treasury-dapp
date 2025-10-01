@@ -885,7 +885,7 @@ body {
 .main-container {
   width: 100%;
   margin: 0;
-  padding: 32px 32px 320px 32px;
+  padding: 32px 32px 320px 32px !important;
   box-sizing: border-box;
   min-height: calc(100vh - 320px);
 }
@@ -898,7 +898,7 @@ body {
   width: 100%;
   justify-items: stretch;
   max-width: 1400px;
-  margin: 0 auto 100px auto;
+  margin: 0 auto 200px auto !important;
   min-height: 600px;
 }
 
