@@ -929,6 +929,8 @@ body {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-xl);
   padding: var(--space-6);
+  padding-left: var(--space-5);
+  padding-right: var(--space-5);
   padding-bottom: calc(var(--space-6) + 30px);
   position: relative;
   overflow: visible;
@@ -1146,10 +1148,11 @@ body {
 
 .input-group {
   display: flex;
-  gap: var(--space-2);
+  gap: var(--space-3);
   margin-bottom: var(--space-5);
   align-items: stretch;
   width: 100%;
+  padding: 0 var(--space-2);
 }
 
 .amount-input {
@@ -1193,6 +1196,7 @@ body {
   letter-spacing: 0.5px;
   transition: all var(--transition-normal);
   min-width: 50px;
+  max-width: 80px;
   white-space: nowrap;
   flex-shrink: 0;
 }
@@ -1254,16 +1258,17 @@ body {
   background: var(--color-surface-secondary);
   color: var(--color-text-tertiary);
   position: relative;
+  padding-right: 48px;
 }
 
 .action-button:disabled::after {
   content: '';
   position: absolute;
   top: 50%;
-  left: 50%;
-  width: 20px;
-  height: 20px;
-  margin: -10px 0 0 -10px;
+  right: 16px;
+  width: 16px;
+  height: 16px;
+  margin: -8px 0 0 0;
   border: 2px solid var(--color-text-tertiary);
   border-top: 2px solid transparent;
   border-radius: 50%;
