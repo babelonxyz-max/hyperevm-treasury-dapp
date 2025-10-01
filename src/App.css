@@ -1054,6 +1054,21 @@ body {
   width: 100%;
 }
 
+.refresh-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: var(--space-2);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-normal);
+  color: var(--color-brand-primary);
+}
+
+.refresh-btn:hover {
+  background: var(--color-surface-hover);
+  transform: rotate(180deg);
+}
+
 @media (max-width: 1024px) {
   .main-cards-grid {
     grid-template-columns: 1fr;
@@ -1250,7 +1265,7 @@ body {
 }
 
 .balance-item:last-child {
-  background: rgba(0,0,0,0.38);
+  background: var(--color-surface-elevated);
 }
 
 .balance-label {
@@ -1592,7 +1607,7 @@ body {
 
 .claim-button {
   padding: var(--space-5) var(--space-10);
-  background: linear-gradient(135deg, var(--color-brand-primary) 0%, #f59e0b 100%);
+  background: var(--color-brand-primary);
   color: var(--color-text-inverse);
   border: none;
   border-radius: var(--radius-2xl);
