@@ -90,39 +90,36 @@ const WithdrawalQueue = ({
     );
   };
 
-  const renderRequestItem = (request) => (
-    <div key={request.id} className={`withdrawal-queue__item ${request.isCompleted ? 'completed' : 'pending'}`}>
-      <div className="withdrawal-queue__item-header">
-        <div className="withdrawal-queue__item-left">
-          {renderRequestType(request.isUnstaking)}
+  const renderRequestItem = (request) => {
+    // Calculate hours remaining for more precise time display
+    const requestTimestamp = request.requestDate;
+    const hoursElapsed = Math.floor((Date.now() - requestTimestamp) / (1000 * 60 * 60));
+    const hoursRemaining = Math.max(0, (UNSTAKING_PERIOD_DAYS * 24) - hoursElapsed);
+    const daysRemaining = Math.floor(hoursRemaining / 24);
+    const hoursLeft = hoursRemaining % 24;
+    
+    const timeDisplay = request.isCompleted 
+      ? 'Claim' 
+      : hoursRemaining > 0 
+        ? `${daysRemaining}d ${hoursLeft}h`
+        : 'Claim';
+
+    return (
+      <div key={request.id} className={`withdrawal-queue__item ${request.isCompleted ? 'completed' : 'pending'}`}>
+        <div className="withdrawal-queue__item-content">
+          <div className="withdrawal-queue__type">
+            {request.isUnstaking ? 'zHYPE Unstaking' : 'HYPE Withdrawal'}
+          </div>
           <div className="withdrawal-queue__amount">
-            <span className="withdrawal-queue__amount-value">{request.amount}</span>
-            <span className="withdrawal-queue__amount-token">{request.token}</span>
+            {request.amount}
+          </div>
+          <div className={`withdrawal-queue__time ${request.isCompleted ? 'completed' : 'pending'}`}>
+            {timeDisplay}
           </div>
         </div>
-        <div className="withdrawal-queue__item-right">
-          {renderStatusBadge(request.isCompleted, request.daysRemaining)}
-        </div>
       </div>
-      
-      <div className="withdrawal-queue__item-details">
-        <div className="withdrawal-queue__detail">
-          <span className="withdrawal-queue__detail-label">Requested</span>
-          <span className="withdrawal-queue__detail-value">{request.timestamp}</span>
-        </div>
-        <div className="withdrawal-queue__detail">
-          <span className="withdrawal-queue__detail-label">Period</span>
-          <span className="withdrawal-queue__detail-value">{UNSTAKING_PERIOD_DAYS} days</span>
-        </div>
-        {!request.isCompleted && request.daysRemaining > 0 && (
-          <div className="withdrawal-queue__detail">
-            <span className="withdrawal-queue__detail-label">Remaining</span>
-            <span className="withdrawal-queue__detail-value time-remaining">{request.daysRemaining} days</span>
-          </div>
-        )}
-      </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <div className="withdrawal-queue-card">

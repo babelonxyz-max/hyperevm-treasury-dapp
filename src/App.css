@@ -3582,8 +3582,7 @@ body {
 .withdrawal-queue__item {
   /* Layout */
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  align-items: center;
   
   /* Visual */
   background: var(--color-surface-elevated);
@@ -3591,8 +3590,8 @@ body {
   border-radius: 8px;
   
   /* Spacing */
-  padding: 12px;
-  min-height: 60px;
+  padding: 8px 12px;
+  min-height: 40px;
   
   /* Interaction */
   transition: all 0.2s ease;
@@ -3614,6 +3613,52 @@ body {
 .withdrawal-queue__item.pending {
   border-color: var(--color-warning);
   background: rgba(245, 158, 11, 0.05);
+}
+
+/* Single-line content structure */
+.withdrawal-queue__item-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 12px;
+}
+
+.withdrawal-queue__type {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-text-primary);
+  flex-shrink: 0;
+  min-width: 120px;
+}
+
+.withdrawal-queue__amount {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+  flex: 1;
+  text-align: center;
+}
+
+.withdrawal-queue__time {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+  min-width: 80px;
+  text-align: right;
+}
+
+.withdrawal-queue__time.completed {
+  color: var(--color-success);
+}
+
+.withdrawal-queue__time.pending {
+  color: var(--color-warning);
 }
 
 /* Item Header */
