@@ -57,13 +57,22 @@ const Header = ({ account, isConnected, onConnect, onDisconnect, theme, onThemeC
                 <span className="wallet-text">{formatAddress(account)}</span>
               </div>
               <button 
+                className="logout-btn"
+                onClick={onDisconnect}
+                title="Logout"
+                aria-label="Logout"
+                type="button"
+              >
+                <LogOut size={16} />
+              </button>
+              <button 
                 className="disconnect-btn"
                 onClick={onDisconnect}
                 title="Disconnect Wallet"
                 aria-label="Disconnect wallet"
                 type="button"
               >
-                <LogOut size={18} />
+                Disconnect
               </button>
             </div>
           ) : (

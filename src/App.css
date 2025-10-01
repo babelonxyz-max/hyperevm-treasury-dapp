@@ -488,6 +488,54 @@ body {
   transform: scale(1.1);
 }
 
+.logout-btn {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  background: var(--color-surface-elevated);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-right: 12px;
+}
+
+.logout-btn:hover {
+  background: var(--color-surface-hover);
+  border-color: var(--color-status-error);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.logout-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.logout-btn svg {
+  color: #000000 !important;
+  width: 18px !important;
+  height: 18px !important;
+  transition: all var(--transition-normal);
+  display: block !important;
+  fill: none !important;
+  stroke: #000000 !important;
+  stroke-width: 2.5 !important;
+  stroke-linecap: round !important;
+  stroke-linejoin: round !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.logout-btn:hover svg {
+  color: var(--color-status-error);
+  transform: scale(1.1);
+}
+
 
 
 .connect-btn {
@@ -835,8 +883,7 @@ body {
 /* Main Safe Area Container */
 .main-container {
   max-width: 1280px;
-  margin-left: auto;
-  margin-right: auto;
+  margin: 0 auto;
   padding-left: 24px;
   padding-right: 24px;
   margin-top: 28px;
@@ -844,7 +891,7 @@ body {
 
 .main-cards-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: repeat(3, 1fr);
   column-gap: 24px;
   align-items: start;
   width: 100%;
@@ -855,7 +902,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  height: 620px;
+  height: 100%;
   justify-content: flex-start;
   z-index: 1;
   position: relative;
@@ -863,15 +910,13 @@ body {
 }
 
 .column-3-cards .rewards-card {
-  height: 360px;
-  flex: 0 0 360px;
+  flex: 1;
   z-index: 2;
   position: relative;
 }
 
 .column-3-cards .withdrawal-queue-card {
-  height: 240px;
-  flex: 0 0 240px;
+  flex: 1;
   z-index: 2;
   position: relative;
 }
@@ -880,7 +925,7 @@ body {
 .withdrawal-queue-card {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: 12px;
+  border-radius: 16px;
   padding: 20px;
   position: relative;
   overflow: hidden;
@@ -888,8 +933,7 @@ body {
   box-shadow: 0 14px 32px rgba(6,8,10,0.55);
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  height: 240px;
+  gap: 16px;
   width: 100%;
   z-index: 2;
 }
@@ -898,9 +942,9 @@ body {
   background: transparent;
   padding: 0;
   border-radius: 0;
-  margin: 0 0 20px 0;
+  margin: 0 0 16px 0;
   border: none;
-  height: 56px;
+  height: 40px;
 }
 
 @media (max-width: 1024px) {
@@ -935,25 +979,25 @@ body {
   grid-template-columns: 1fr 1fr;
   gap: 24px;
   margin-bottom: 0;
-  align-items: start;
+  align-items: stretch;
   width: 100%;
-  height: 620px;
+  height: 100%;
 }
 
 .staking-card {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: 12px;
-  padding: 24px;
+  border-radius: 16px;
+  padding: 20px;
   position: relative;
   overflow: hidden;
   transition: all var(--transition-normal);
   box-shadow: 0 14px 32px rgba(6,8,10,0.55);
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
   width: 100%;
-  height: 620px;
+  height: 100%;
   box-sizing: border-box;
 }
 
@@ -996,12 +1040,12 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
   padding: 0;
   background: transparent;
   border: none;
   position: relative;
-  height: 56px;
+  height: 40px;
 }
 
 .card-title {
@@ -1064,10 +1108,10 @@ body {
   padding: 0;
   background: transparent;
   border: none;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
   align-items: stretch;
   justify-content: space-between;
-  min-height: 120px;
+  height: 72px;
 }
 
 .balance-item {
@@ -1075,14 +1119,14 @@ body {
   flex-direction: column;
   gap: 8px;
   text-align: left;
-  padding: 16px;
+  padding: 12px;
   background: rgba(255,255,255,0.02);
   border: 1px solid var(--color-border);
-  border-radius: 10px;
+  border-radius: 12px;
   flex: 1;
   align-items: flex-start;
   justify-content: center;
-  height: 120px;
+  height: 72px;
   box-sizing: border-box;
 }
 
@@ -1117,7 +1161,7 @@ body {
   padding: 0;
   gap: 12px;
   margin-top: 16px;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
   border: none;
   align-items: center;
   justify-content: center;
@@ -1126,12 +1170,12 @@ body {
 }
 
 .tab-button {
-  flex: 0 0 164px;
+  flex: 0 0 160px;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 0 18px;
+  padding: 0 16px;
   background: transparent;
   border: 1.5px solid var(--color-border);
   border-radius: 10px;
@@ -1190,7 +1234,7 @@ body {
 .input-group {
   display: flex;
   gap: 12px;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
   align-items: center;
   width: 100%;
   margin-left: 16px;
@@ -1209,7 +1253,7 @@ body {
   color: #FFFFFF;
   transition: all 160ms ease;
   text-align: right;
-  height: 46px;
+  height: 40px;
   box-sizing: border-box;
 }
 
@@ -1229,7 +1273,7 @@ body {
   padding: 0;
   background: transparent;
   border: 1.5px solid var(--color-border);
-  border-radius: 18px;
+  border-radius: 10px;
   font-size: 13px;
   font-weight: 600;
   color: var(--color-text-secondary);
@@ -1240,8 +1284,8 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.5px;
   transition: all 160ms ease;
-  width: 64px;
-  height: 36px;
+  width: 60px;
+  height: 40px;
   white-space: nowrap;
   flex-shrink: 0;
 }
@@ -1279,9 +1323,9 @@ body {
   color: #0F1113;
   font-size: 14px;
   font-weight: 600;
-  padding: 0 18px;
+  padding: 0 16px;
   height: 40px;
-  width: 164px;
+  width: 160px;
   border: 1.5px solid var(--color-border);
   border-radius: 10px;
   box-shadow: none;
@@ -1298,9 +1342,9 @@ body {
   color: #D1D7DB;
   border: 1.5px solid rgba(255,255,255,0.06);
   font-weight: 600;
-  padding: 0 18px;
+  padding: 0 16px;
   height: 40px;
-  width: 164px;
+  width: 160px;
   border-radius: 10px;
 }
 
@@ -1353,7 +1397,7 @@ body {
 .rewards-card {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: 12px;
+  border-radius: 16px;
   padding: 20px;
   position: relative;
   overflow: hidden;
@@ -1361,8 +1405,7 @@ body {
   box-shadow: 0 14px 32px rgba(6,8,10,0.55);
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  height: 360px;
+  gap: 16px;
   width: 100%;
   z-index: 2;
 }
