@@ -1036,6 +1036,8 @@ body {
   gap: var(--space-3xl);
   flex: 1;
   justify-content: space-between;
+  padding: var(--space-2);
+  box-sizing: border-box;
 }
 
 .balance-section {
@@ -1091,12 +1093,14 @@ body {
   display: flex;
   background: var(--color-surface-elevated);
   border-radius: var(--radius-lg);
-  padding: var(--space-2);
+  padding: var(--space-3);
   gap: var(--space-2);
   margin-bottom: var(--space-4);
   border: 1px solid var(--color-border);
   align-items: center;
   justify-content: center;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .tab-button {
@@ -1105,7 +1109,7 @@ body {
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
-  padding: var(--space-4) var(--space-6);
+  padding: var(--space-3) var(--space-4);
   background: transparent;
   border: none;
   border-radius: var(--radius-lg);
@@ -1118,6 +1122,7 @@ body {
   cursor: pointer;
   transition: all var(--transition-normal);
   min-height: 44px;
+  box-sizing: border-box;
 }
 
 .tab-button:hover {
