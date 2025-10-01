@@ -3440,8 +3440,7 @@ body {
 
 .withdrawal-queue__title {
   display: flex;
-  flex-direction: column;
-  gap: 6px;
+  align-items: center;
 }
 
 .withdrawal-queue__title h3 {
@@ -3462,15 +3461,21 @@ body {
   border-radius: 2px;
 }
 
+.withdrawal-queue__header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .withdrawal-queue__count {
   font-size: 12px;
   color: var(--color-text-muted);
   background: var(--color-surface-elevated);
   padding: 4px 10px;
   border-radius: 12px;
-  align-self: flex-start;
   font-weight: 500;
   border: 1px solid var(--color-border);
+  white-space: nowrap;
 }
 
 .withdrawal-queue__refresh-btn {

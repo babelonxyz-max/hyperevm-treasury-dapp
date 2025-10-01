@@ -129,16 +129,18 @@ const WithdrawalQueue = ({
       <div className="withdrawal-queue__header">
         <div className="withdrawal-queue__title">
           <h3>Withdrawal Queue</h3>
-          <span className="withdrawal-queue__count">{processedRequests.length} requests</span>
         </div>
-        <button 
-          className="withdrawal-queue__refresh-btn" 
-          onClick={handleRefresh}
-          title="Refresh Queue"
-          aria-label="Refresh withdrawal queue"
-        >
-          <Clock size={16} />
-        </button>
+        <div className="withdrawal-queue__header-actions">
+          <span className="withdrawal-queue__count">{processedRequests.length} requests</span>
+          <button 
+            className="withdrawal-queue__refresh-btn" 
+            onClick={handleRefresh}
+            title="Refresh Queue"
+            aria-label="Refresh withdrawal queue"
+          >
+            <Clock size={16} />
+          </button>
+        </div>
       </div>
       
       <div className="withdrawal-queue__body">
