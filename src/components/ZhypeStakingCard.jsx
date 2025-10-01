@@ -55,12 +55,12 @@ const ZhypeStakingCard = ({
       <div className="card-content">
         <div className="balance-section">
           <div className="balance-item">
-            <span className="balance-label">Available</span>
+            <span className="balance-label">Available zHYPE</span>
             <span className="balance-amount">{formatBalance(balances?.zhype)} zHYPE</span>
           </div>
           <div className="balance-item">
-            <span className="balance-label">Staked</span>
-            <span className="balance-amount">{formatBalance(balances?.stakedZhype)} zHYPE</span>
+            <span className="balance-label">Available HYPE</span>
+            <span className="balance-amount">{formatBalance(balances?.stakedZhype)} HYPE</span>
           </div>
         </div>
 
