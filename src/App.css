@@ -823,8 +823,6 @@ body {
   max-width: 100%;
   margin: 0 auto;
   width: 100%;
-  max-height: calc(100vh - 120px);
-  overflow-y: auto;
 }
 
 .main-cards-grid {
@@ -923,9 +921,7 @@ body {
   margin-bottom: var(--space-6);
   align-items: stretch;
   width: 100%;
-  min-height: calc(100vh - 200px);
-  max-height: calc(100vh - 200px);
-  overflow-y: auto;
+  height: calc(100vh - 200px);
 }
 
 .staking-card {
