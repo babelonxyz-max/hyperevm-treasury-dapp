@@ -890,10 +890,11 @@ body {
 
 .main-cards-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr auto;
+  grid-template-columns: 1fr 1fr 1fr;
   column-gap: 24px;
   align-items: start;
   width: 100%;
+  justify-items: stretch;
 }
 
 /* Column 3: Container for two half-height cards */
@@ -905,8 +906,7 @@ body {
   justify-content: flex-start;
   z-index: 1;
   position: relative;
-  width: 400px;
-  max-width: 400px;
+  width: 100%;
 }
 
 .column-3-cards .rewards-card {
