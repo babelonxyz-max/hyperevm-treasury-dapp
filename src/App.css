@@ -907,6 +907,7 @@ body {
   z-index: 1;
   position: relative;
   width: 100%;
+  margin-left: 500px;
 }
 
 .column-3-cards .rewards-card {
