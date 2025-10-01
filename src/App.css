@@ -312,7 +312,7 @@ body {
   background-attachment: fixed;
   min-height: 100vh;
   margin: 0;
-  padding: 0;
+  padding: 0 0 400px 0 !important;
   transition: background-color var(--transition-normal), color var(--transition-normal);
 }
 
@@ -2798,6 +2798,7 @@ body {
   padding: 16px 0;
   z-index: 1000;
   box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.15);
+  height: 80px;
 }
 
 .stats-ticker {
