@@ -563,7 +563,7 @@ function App() {
               const amountNum = parseFloat(amount);
               console.log(`📋 Processed amount: ${amountNum}, completed: ${completed}, timestamp: ${timestamp}`);
               
-              if (amountNum > 0) {
+              if (amountNum >= 0.0001) {
                 allRequests.push({
                   amount: amount,
                   isUnstaking: true,
@@ -595,7 +595,7 @@ function App() {
             if (pendingWithdrawals && pendingWithdrawals.length > 0) {
               for (let i = 0; i < pendingWithdrawals.length; i++) {
                 const withdrawal = pendingWithdrawals[i];
-                if (withdrawal && withdrawal.amount && parseFloat(ethers.formatEther(withdrawal.amount)) > 0) {
+                if (withdrawal && withdrawal.amount && parseFloat(ethers.formatEther(withdrawal.amount)) >= 0.0001) {
                   allRequests.push({
                     amount: ethers.formatEther(withdrawal.amount),
                     isUnstaking: false,
@@ -612,7 +612,7 @@ function App() {
             // Alternative: Check if there are any HYPE tokens that could be withdrawn
             try {
               const hypeBalance = await treasuryCoreContract.balanceOf(account);
-              if (parseFloat(ethers.formatEther(hypeBalance)) > 0) {
+              if (parseFloat(ethers.formatEther(hypeBalance)) >= 0.0001) {
                 allRequests.push({
                   amount: ethers.formatEther(hypeBalance),
                   isUnstaking: false,
@@ -636,50 +636,9 @@ function App() {
       console.log('📋 Withdrawal requests:', allRequests.filter(r => !r.isUnstaking));
       setWithdrawalRequests(allRequests);
 
-      // Always add some mock data for testing (temporarily)
-      console.log('📋 Adding mock data for testing...');
-      const mockRequests = [
-        { 
-          amount: '0.00000000175924769', 
-          isUnstaking: false, 
-          completed: false, 
-          timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 2 days ago
-          user: account
-        },
-        { 
-          amount: '0.000000000000000001', 
-          isUnstaking: true, 
-          completed: false, 
-          timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 1 day ago
-          user: account
-        },
-        { 
-          amount: '0.000000000000000002', 
-          isUnstaking: true, 
-          completed: false, 
-          timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 3 days ago
-          user: account
-        },
-        { 
-          amount: '0.000000000000000003', 
-          isUnstaking: false, 
-          completed: false, 
-          timestamp: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 4 days ago
-          user: account
-        },
-        { 
-          amount: '0.0', 
-          isUnstaking: false, 
-          completed: true, 
-          timestamp: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 8 days ago
-          user: account
-        }
-      ];
-      
-      // Combine real data with mock data
-      const combinedRequests = [...allRequests, ...mockRequests];
-      console.log('📋 Combined requests (real + mock):', combinedRequests);
-      setWithdrawalRequests(combinedRequests);
+      // Set only real data (no mock data)
+      console.log('📋 Setting real withdrawal requests:', allRequests);
+      setWithdrawalRequests(allRequests);
 
     } catch (error) {
       console.error('Error loading withdrawal requests:', error);

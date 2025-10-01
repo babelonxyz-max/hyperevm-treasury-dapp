@@ -23,7 +23,7 @@ const WithdrawalQueue = ({
       const isUnstaking = Boolean(request.isUnstaking);
       const isCompleted = Boolean(request.completed);
       const amount = parseFloat(request.amount) || 0;
-      const formattedAmount = amount > 0 ? amount.toFixed(8) : '0.00000000';
+      const formattedAmount = amount >= 0.0001 ? amount.toFixed(4) : '0.0000';
       
       // Calculate days remaining
       const requestTimestamp = request.timestamp ? new Date(request.timestamp).getTime() : Date.now();
