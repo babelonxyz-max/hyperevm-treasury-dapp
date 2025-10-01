@@ -33,16 +33,17 @@ const WithdrawalQueue = ({
             </div>
           ) : (
             <div className="requests-list">
-              {withdrawalRequests.map((request) => {
+              {withdrawalRequests.map((request, index) => {
                 const isUnstaking = request.isUnstaking === true;
-                const isReady = request.isReady;
+                const isCompleted = request.completed === true;
+                const amount = parseFloat(request.amount).toFixed(8);
                 
                 return (
-                  <div key={request.id} className={`request-item ${request.processed ? 'processed' : isReady ? 'ready' : 'pending'}`}>
+                  <div key={index} className={`request-item ${isCompleted ? 'processed' : 'pending'}`}>
                     <div className="request-info">
                       <div className="request-header">
                         <div className="request-amount">
-                          <span className="amount">{request.amount}</span>
+                          <span className="amount">{amount}</span>
                           <span className="token">{isUnstaking ? 'zHYPE' : 'HYPE'}</span>
                         </div>
                         <div className="request-type">
@@ -52,31 +53,19 @@ const WithdrawalQueue = ({
                       <div className="request-details">
                         <div className="request-time">
                           <span className="label">Requested:</span>
-                          <span className="value">{new Date(request.timestamp).toLocaleString()}</span>
+                          <span className="value">{request.timestamp || 'Unknown'}</span>
                         </div>
-                        <div className="request-time">
-                          <span className="label">Ready:</span>
-                          <span className="value">{new Date(request.readyTime).toLocaleString()}</span>
+                        <div className="request-status">
+                          <span className="label">Status:</span>
+                          <span className="value">{isCompleted ? 'Completed' : 'Pending'}</span>
                         </div>
                       </div>
                     </div>
                     <div className="request-status">
-                      {request.processed ? (
+                      {isCompleted ? (
                         <span className="status-badge processed">Completed</span>
-                      ) : isReady ? (
-                        <button 
-                          className="status-badge ready"
-                          onClick={() => {
-                            // Handle completion logic here
-                            showNotification('Withdrawal completed!', 'success');
-                          }}
-                        >
-                          Ready to Complete!
-                        </button>
                       ) : (
-                        <span className="status-badge pending">
-                          {Math.ceil((request.readyTime - Date.now()) / (1000 * 60 * 60 * 24))} days left
-                        </span>
+                        <span className="status-badge pending">Pending</span>
                       )}
                     </div>
                   </div>
