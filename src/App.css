@@ -1120,14 +1120,14 @@ body {
 
 .staking-card.primary {
   border-color: var(--color-brand-primary);
-  box-shadow: 0 0 0 2px rgba(245, 200, 66, 0.2), var(--shadow-lg);
-  background: linear-gradient(135deg, var(--color-surface) 0%, rgba(245, 200, 66, 0.05) 100%);
+  box-shadow: 0 0 0 2px var(--color-brand-primary), var(--shadow-lg);
+  background: var(--color-surface);
 }
 
 .staking-card.secondary {
-  border-color: var(--color-brand-accent);
-  box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.2), var(--shadow-lg);
-  background: linear-gradient(135deg, var(--color-surface) 0%, rgba(14, 165, 233, 0.05) 100%);
+  border-color: var(--color-brand-primary);
+  box-shadow: 0 0 0 2px var(--color-brand-primary), var(--shadow-lg);
+  background: var(--color-surface);
 }
 
 .staking-card::before {
@@ -1384,7 +1384,7 @@ body {
 .amount-input:focus {
   outline: none;
   border-color: var(--color-border-focus);
-  box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1);
+  box-shadow: 0 0 0 4px var(--color-border-focus);
   background: var(--color-surface);
 }
 
@@ -1479,9 +1479,9 @@ body {
 }
 
 .action-button.secondary:hover {
-  background: var(--color-brand-accent);
+  background: var(--color-brand-primary);
   color: var(--color-text-inverse);
-  border-color: var(--color-brand-accent);
+  border-color: var(--color-brand-primary);
   transform: translateY(-1px);
   box-shadow: var(--shadow-md);
 }
@@ -1788,7 +1788,7 @@ body {
   background: linear-gradient(135deg, var(--color-brand-primary), var(--color-brand-secondary));
   color: white;
   border-color: var(--color-brand-primary);
-  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+  box-shadow: 0 4px 12px var(--color-brand-primary);
   position: relative;
   overflow: hidden;
 }
