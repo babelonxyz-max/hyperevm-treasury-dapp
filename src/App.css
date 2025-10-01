@@ -827,7 +827,7 @@ body {
 
 .main-cards-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1.1fr 1.1fr 0.8fr;
   gap: var(--space-4);
   align-items: start;
   width: 100%;
