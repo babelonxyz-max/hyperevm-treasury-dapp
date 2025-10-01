@@ -3433,8 +3433,8 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
-  padding-bottom: 16px;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
   border-bottom: 1px solid var(--color-border);
 }
 
@@ -3549,7 +3549,7 @@ body {
 .withdrawal-queue__list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
   overflow-y: auto;
   padding-right: 4px;
   scrollbar-width: thin;
@@ -3578,7 +3578,7 @@ body {
   /* Layout */
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
   
   /* Visual */
   background: var(--color-surface-elevated);
@@ -3586,8 +3586,8 @@ body {
   border-radius: 12px;
   
   /* Spacing */
-  padding: 20px;
-  min-height: 100px;
+  padding: 16px;
+  min-height: 90px;
   
   /* Interaction */
   transition: all 0.2s ease;
