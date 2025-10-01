@@ -891,7 +891,7 @@ body {
 
 .main-cards-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: 1fr 1fr auto;
   column-gap: 24px;
   align-items: start;
   width: 100%;
@@ -906,19 +906,22 @@ body {
   justify-content: flex-start;
   z-index: 1;
   position: relative;
-  width: 100%;
+  width: 400px;
+  max-width: 400px;
 }
 
 .column-3-cards .rewards-card {
   flex: 1;
   z-index: 2;
   position: relative;
+  width: 100%;
 }
 
 .column-3-cards .withdrawal-queue-card {
   flex: 1;
   z-index: 2;
   position: relative;
+  width: 100%;
 }
 
 /* Withdrawal Queue Card Styling */
@@ -936,6 +939,7 @@ body {
   gap: 16px;
   width: 100%;
   z-index: 2;
+  box-sizing: border-box;
 }
 
 .withdrawal-queue-card .card-header {
@@ -1408,6 +1412,7 @@ body {
   gap: 16px;
   width: 100%;
   z-index: 2;
+  box-sizing: border-box;
 }
 
 .rewards-card:hover {
