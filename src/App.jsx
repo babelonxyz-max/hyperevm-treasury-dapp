@@ -6,6 +6,8 @@ import './App.css';
 // Lazy load components for better performance
 const WalletConnect = lazy(() => import('./components/WalletConnect'));
 const StakingDashboard = lazy(() => import('./components/StakingDashboard'));
+const HypeStakingCard = lazy(() => import('./components/HypeStakingCard'));
+const ZhypeStakingCard = lazy(() => import('./components/ZhypeStakingCard'));
 const Header = lazy(() => import('./components/Header'));
 const ThemeToggle = lazy(() => import('./components/ThemeToggle'));
 const WithdrawalQueue = lazy(() => import('./components/WithdrawalQueue'));
@@ -537,7 +539,22 @@ function App() {
                 <div className="main-container">
                   <div className="main-cards-grid">
                     <Suspense fallback={<LoadingSpinner />}>
-                      <StakingDashboard
+                      <HypeStakingCard
+                        account={account}
+                        provider={provider}
+                        signer={signer}
+                        contractAddresses={contractAddresses}
+                        treasuryContract={treasuryCoreContract}
+                        stakingRewardsContract={stakingRewardsContract}
+                        isConnected={isConnected}
+                        onConnect={connectWallet}
+                        contractAPYs={contractAPYs}
+                        protocolStats={protocolStats}
+                      />
+                    </Suspense>
+
+                    <Suspense fallback={<LoadingSpinner />}>
+                      <ZhypeStakingCard
                         account={account}
                         provider={provider}
                         signer={signer}
