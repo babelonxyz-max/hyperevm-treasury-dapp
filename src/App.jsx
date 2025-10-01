@@ -886,6 +886,7 @@ function App() {
                           unstakingQueueContract={unstakingQueueContract}
                           showNotification={(message, type) => console.log(`${type}: ${message}`)}
                         />
+                        {console.log('🔍 App.jsx passing withdrawalRequests to WithdrawalQueue:', withdrawalRequests)}
                       </Suspense>
                     </div>
                   </div>

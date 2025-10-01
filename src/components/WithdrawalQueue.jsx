@@ -12,9 +12,14 @@ const WithdrawalQueue = ({
   // Constants
   const UNSTAKING_PERIOD_DAYS = 7;
 
+  // Debug logging
+  console.log('🔍 WithdrawalQueue received withdrawalRequests:', withdrawalRequests);
+  console.log('🔍 WithdrawalQueue withdrawalRequests length:', withdrawalRequests.length);
+
   // Memoized calculations
   const processedRequests = useMemo(() => {
-    return withdrawalRequests.map((request, index) => {
+    console.log('🔍 Processing withdrawalRequests in useMemo:', withdrawalRequests);
+    const processed = withdrawalRequests.map((request, index) => {
       const isUnstaking = Boolean(request.isUnstaking);
       const isCompleted = Boolean(request.completed);
       const amount = parseFloat(request.amount) || 0;
@@ -36,6 +41,8 @@ const WithdrawalQueue = ({
         timestamp: request.timestamp || 'Unknown'
       };
     });
+    console.log('🔍 Processed requests result:', processed);
+    return processed;
   }, [withdrawalRequests, account]);
 
   // Event handlers
@@ -142,13 +149,17 @@ const WithdrawalQueue = ({
       </div>
       
       <div className="withdrawal-queue__body">
-        {processedRequests.length === 0 ? (
-          renderEmptyState()
-        ) : (
-          <div className="withdrawal-queue__list">
-            {processedRequests.map(renderRequestItem)}
-          </div>
-        )}
+        {(() => {
+          console.log('🔍 Rendering withdrawal queue body, processedRequests.length:', processedRequests.length);
+          console.log('🔍 processedRequests:', processedRequests);
+          return processedRequests.length === 0 ? (
+            renderEmptyState()
+          ) : (
+            <div className="withdrawal-queue__list">
+              {processedRequests.map(renderRequestItem)}
+            </div>
+          );
+        })()}
       </div>
     </div>
   );
