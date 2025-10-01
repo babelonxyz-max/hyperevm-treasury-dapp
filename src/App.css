@@ -509,7 +509,7 @@ body {
 }
 
 .container {
-  max-width: 1200px;
+  max-width: 100%;
   margin: 0 auto;
   padding: 0 var(--space-4);
   width: 100%;
@@ -601,9 +601,10 @@ body {
   flex-direction: column;
   gap: var(--space-6);
   min-width: 0; /* Prevents grid overflow */
-  max-width: 1200px;
+  max-width: 100%;
   margin: 0 auto;
   width: 100%;
+  padding: 0 var(--space-4);
 }
 
 .dashboard-sidebar {
@@ -814,22 +815,25 @@ body {
   flex-direction: column;
   gap: var(--space-6);
   padding: var(--space-4);
-  max-width: 1200px;
+  max-width: 100%;
   margin: 0 auto;
+  width: 100%;
 }
 
 .main-cards-grid {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  gap: var(--space-6);
+  gap: var(--space-4);
   align-items: start;
+  width: 100%;
+  max-width: 100%;
 }
 
 /* Column 3: Container for two equal-height cards */
 .column-3-cards {
   display: flex;
   flex-direction: column;
-  gap: var(--space-6);
+  gap: var(--space-4);
   height: 100%;
 }
 
@@ -888,9 +892,10 @@ body {
 .staking-cards {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--space-6);
+  gap: var(--space-4);
   margin-bottom: var(--space-6);
   align-items: start;
+  width: 100%;
 }
 
 .staking-card {
