@@ -550,28 +550,26 @@ function App() {
                     />
                   </Suspense>
                   
-                  <div className="column-3-cards">
-                    <Suspense fallback={<LoadingSpinner />}>
-                      <PendingRewards
-                        account={account}
-                        isConnected={isConnected}
-                        stakingRewardsContract={stakingRewardsContract}
-                        contractAPYs={contractAPYs}
-                        protocolStats={protocolStats}
-                      />
-                    </Suspense>
-                    
-                    <Suspense fallback={<LoadingSpinner />}>
-                      <WithdrawalQueue
-                        withdrawalRequests={withdrawalRequests}
-                        loadWithdrawalRequests={loadWithdrawalRequests}
-                        account={account}
-                        isConnected={isConnected}
-                        unstakingQueueContract={unstakingQueueContract}
-                        showNotification={(message, type) => console.log(`${type}: ${message}`)}
-                      />
-                    </Suspense>
-                  </div>
+                  <Suspense fallback={<LoadingSpinner />}>
+                    <PendingRewards
+                      account={account}
+                      isConnected={isConnected}
+                      stakingRewardsContract={stakingRewardsContract}
+                      contractAPYs={contractAPYs}
+                      protocolStats={protocolStats}
+                    />
+                  </Suspense>
+                  
+                  <Suspense fallback={<LoadingSpinner />}>
+                    <WithdrawalQueue
+                      withdrawalRequests={withdrawalRequests}
+                      loadWithdrawalRequests={loadWithdrawalRequests}
+                      account={account}
+                      isConnected={isConnected}
+                      unstakingQueueContract={unstakingQueueContract}
+                      showNotification={(message, type) => console.log(`${type}: ${message}`)}
+                    />
+                  </Suspense>
                 </div>
               )}
           </div>
