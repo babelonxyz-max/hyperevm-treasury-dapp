@@ -1741,7 +1741,7 @@ body {
   justify-content: center;
   gap: 6px;
   margin-top: auto;
-  margin-bottom: calc(50% - 10px);
+  margin-bottom: calc(50% - 50px);
 }
 
 .claim-all-button:hover {
