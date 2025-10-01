@@ -3405,21 +3405,31 @@ body {
   padding: var(--space-4);
 }
 
-/* Enhanced Withdrawal Queue Styles */
+/* ========================================
+   WITHDRAWAL QUEUE COMPONENT
+   ======================================== */
+
 .withdrawal-queue-card {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 12px;
-  padding: 24px;
+  /* Layout */
   display: flex;
   flex-direction: column;
   height: 100%;
   min-height: 280px;
   max-height: 420px;
+  
+  /* Visual */
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
   box-shadow: 0 4px 16px rgba(6, 8, 10, 0.25);
+  
+  /* Spacing */
+  padding: 24px;
+  overflow: hidden;
 }
 
-.withdrawal-queue-card .card-header {
+/* Header */
+.withdrawal-queue__header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -3428,13 +3438,13 @@ body {
   border-bottom: 1px solid var(--color-border);
 }
 
-.withdrawal-queue-card .card-title {
+.withdrawal-queue__title {
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
 
-.withdrawal-queue-card .card-title h3 {
+.withdrawal-queue__title h3 {
   font-size: 18px;
   font-weight: 600;
   color: var(--color-text-primary);
@@ -3444,7 +3454,7 @@ body {
   gap: 8px;
 }
 
-.withdrawal-queue-card .card-title h3::before {
+.withdrawal-queue__title h3::before {
   content: '';
   width: 4px;
   height: 18px;
@@ -3452,7 +3462,7 @@ body {
   border-radius: 2px;
 }
 
-.request-count {
+.withdrawal-queue__count {
   font-size: 12px;
   color: var(--color-text-muted);
   background: var(--color-surface-elevated);
@@ -3463,26 +3473,41 @@ body {
   border: 1px solid var(--color-border);
 }
 
-.refresh-btn {
-  background: transparent;
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  padding: 8px;
-  color: var(--color-text-secondary);
-  cursor: pointer;
-  transition: all 0.2s ease;
+.withdrawal-queue__refresh-btn {
+  /* Layout */
   display: flex;
   align-items: center;
   justify-content: center;
+  
+  /* Visual */
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  color: var(--color-text-secondary);
+  
+  /* Sizing */
+  padding: 8px;
+  width: 36px;
+  height: 36px;
+  
+  /* Interaction */
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-.refresh-btn:hover {
+.withdrawal-queue__refresh-btn:hover {
   background: var(--color-surface-elevated);
   border-color: var(--color-brand-primary);
   color: var(--color-brand-primary);
 }
 
-.card-body {
+.withdrawal-queue__refresh-btn:focus {
+  outline: 2px solid var(--color-brand-primary);
+  outline-offset: 2px;
+}
+
+/* Body */
+.withdrawal-queue__body {
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -3490,7 +3515,7 @@ body {
 }
 
 /* Empty State */
-.no-requests {
+.withdrawal-queue__empty {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -3501,110 +3526,113 @@ body {
   flex: 1;
 }
 
-.empty-icon {
+.withdrawal-queue__empty-icon {
   margin-bottom: 16px;
   opacity: 0.6;
-}
-
-.empty-icon svg {
   color: var(--color-text-muted);
 }
 
-.no-requests p {
+.withdrawal-queue__empty h4 {
   font-size: 16px;
   font-weight: 500;
   margin: 0 0 8px 0;
   color: var(--color-text-primary);
 }
 
-.empty-subtitle {
+.withdrawal-queue__empty p {
   font-size: 14px;
   color: var(--color-text-muted);
+  margin: 0;
 }
 
-/* Requests Container */
-.requests-container {
-  flex: 1;
-  overflow: hidden;
+/* List */
+.withdrawal-queue__list {
   display: flex;
   flex-direction: column;
-}
-
-.requests-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  gap: 12px;
   overflow-y: auto;
   padding-right: 4px;
   scrollbar-width: thin;
   scrollbar-color: var(--color-border) transparent;
 }
 
-.requests-list::-webkit-scrollbar {
+.withdrawal-queue__list::-webkit-scrollbar {
   width: 4px;
 }
 
-.requests-list::-webkit-scrollbar-track {
+.withdrawal-queue__list::-webkit-scrollbar-track {
   background: transparent;
 }
 
-.requests-list::-webkit-scrollbar-thumb {
+.withdrawal-queue__list::-webkit-scrollbar-thumb {
   background: var(--color-border);
   border-radius: 2px;
 }
 
-.requests-list::-webkit-scrollbar-thumb:hover {
+.withdrawal-queue__list::-webkit-scrollbar-thumb:hover {
   background: var(--color-text-muted);
 }
 
 /* Request Item */
-.request-item {
+.withdrawal-queue__item {
+  /* Layout */
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  
+  /* Visual */
   background: var(--color-surface-elevated);
   border: 1px solid var(--color-border);
   border-radius: 12px;
+  
+  /* Spacing */
   padding: 20px;
-  transition: all 0.2s ease;
   min-height: 100px;
+  
+  /* Interaction */
+  transition: all 0.2s ease;
+  cursor: pointer;
 }
 
-.request-item:hover {
+.withdrawal-queue__item:hover {
   border-color: var(--color-brand-primary);
   background: rgba(59, 130, 246, 0.02);
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.request-item.completed {
+.withdrawal-queue__item.completed {
   border-color: var(--color-success);
   background: rgba(34, 197, 94, 0.05);
 }
 
-.request-item.pending {
+.withdrawal-queue__item.pending {
   border-color: var(--color-warning);
   background: rgba(245, 158, 11, 0.05);
 }
 
-.request-main {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.request-header {
+/* Item Header */
+.withdrawal-queue__item-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   gap: 16px;
 }
 
-.request-type-section {
+.withdrawal-queue__item-left {
   display: flex;
   flex-direction: column;
   gap: 12px;
   flex: 1;
 }
 
-.request-type-badge {
+.withdrawal-queue__item-right {
+  display: flex;
+  align-items: center;
+}
+
+/* Type Badge */
+.withdrawal-queue__type-badge {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -3617,32 +3645,33 @@ body {
   align-self: flex-start;
 }
 
-.request-type-badge.unstaking {
+.withdrawal-queue__type-badge.unstaking {
   background: rgba(239, 201, 76, 0.1);
   color: var(--color-brand-primary);
   border: 1px solid rgba(239, 201, 76, 0.2);
 }
 
-.request-type-badge.withdrawal {
+.withdrawal-queue__type-badge.withdrawal {
   background: rgba(59, 130, 246, 0.1);
   color: var(--color-brand-primary);
   border: 1px solid rgba(59, 130, 246, 0.2);
 }
 
-.request-amount {
+/* Amount */
+.withdrawal-queue__amount {
   display: flex;
   align-items: baseline;
   gap: 8px;
 }
 
-.amount-value {
+.withdrawal-queue__amount-value {
   font-size: 20px;
   font-weight: 700;
   color: var(--color-text-primary);
   font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
 }
 
-.token-symbol {
+.withdrawal-queue__amount-token {
   font-size: 14px;
   color: var(--color-text-secondary);
   background: var(--color-surface);
@@ -3651,12 +3680,8 @@ body {
   font-weight: 500;
 }
 
-.request-status-section {
-  display: flex;
-  align-items: center;
-}
-
-.status-badge {
+/* Status Badge */
+.withdrawal-queue__status-badge {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -3668,71 +3693,39 @@ body {
   letter-spacing: 0.5px;
 }
 
-.status-badge.completed {
+.withdrawal-queue__status-badge.completed {
   background: var(--color-success);
   color: white;
 }
 
-.status-badge.pending {
+.withdrawal-queue__status-badge.pending {
   background: var(--color-warning);
   color: white;
 }
 
-.request-details {
-  display: flex;
-  gap: 24px;
-  flex-wrap: wrap;
-}
-
-.detail-item {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 120px;
-}
-
-.detail-label {
-  font-size: 11px;
-  color: var(--color-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-weight: 500;
-}
-
-.detail-value {
-  font-size: 13px;
-  color: var(--color-text-secondary);
-  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
-  font-weight: 500;
-}
-
-.detail-value.time-remaining {
-  color: var(--color-warning);
-  font-weight: 600;
-}
-
-.pending-dots {
+/* Pending Dots Animation */
+.withdrawal-queue__pending-dots {
   display: flex;
   gap: 2px;
 }
 
-.pending-dots span {
+.withdrawal-queue__pending-dots span {
   width: 4px;
   height: 4px;
   background: currentColor;
   border-radius: 50%;
-  animation: pulse 1.5s ease-in-out infinite;
+  animation: withdrawal-queue-pulse 1.5s ease-in-out infinite;
 }
 
-.pending-dots span:nth-child(2) {
+.withdrawal-queue__pending-dots span:nth-child(2) {
   animation-delay: 0.2s;
 }
 
-.pending-dots span:nth-child(3) {
+.withdrawal-queue__pending-dots span:nth-child(3) {
   animation-delay: 0.4s;
 }
 
-@keyframes pulse {
+@keyframes withdrawal-queue-pulse {
   0%, 80%, 100% {
     opacity: 0.3;
     transform: scale(0.8);
@@ -3741,6 +3734,40 @@ body {
     opacity: 1;
     transform: scale(1);
   }
+}
+
+/* Item Details */
+.withdrawal-queue__item-details {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.withdrawal-queue__detail {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 120px;
+}
+
+.withdrawal-queue__detail-label {
+  font-size: 11px;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 500;
+}
+
+.withdrawal-queue__detail-value {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+  font-weight: 500;
+}
+
+.withdrawal-queue__detail-value.time-remaining {
+  color: var(--color-warning);
+  font-weight: 600;
 }
 
 /* Responsive design for pending rewards */
