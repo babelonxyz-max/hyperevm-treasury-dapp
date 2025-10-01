@@ -320,9 +320,21 @@ function App() {
       const stakedBalance = await stakingRewardsContract.getTotalStaked(account);
       setStakedZhype(ethers.formatEther(stakedBalance));
 
-      // Get pending rewards
-      const zhypeRewards = await treasuryCoreContract.calculateZhypeRewards(account);
-      const usdhRewards = await stakingRewardsContract.calculateUsdhRewards(account);
+      // Get pending rewards (with error handling)
+      let zhypeRewards = '0';
+      let usdhRewards = '0';
+      
+      try {
+        zhypeRewards = await treasuryCoreContract.calculateZhypeRewards(account);
+      } catch (error) {
+        console.log('zHYPE rewards function not available, using 0');
+      }
+      
+      try {
+        usdhRewards = await stakingRewardsContract.calculateUsdhRewards(account);
+      } catch (error) {
+        console.log('USDH rewards function not available, using 0');
+      }
       
       setPendingRewards({
         zHype: ethers.formatEther(zhypeRewards),
@@ -363,17 +375,25 @@ function App() {
     if (!treasuryCoreContract || !stakingRewardsContract) return;
 
     try {
-      let hypeAPY = 500.00;
-      let zhypeAPY = 17.00;
+      let hypeAPY = 500.00; // Default fallback
+      let zhypeAPY = 17.00; // Default fallback
 
-      if (typeof treasuryCoreContract.hypeStakingAPY === 'function') {
-        const hypeAPYValue = await treasuryCoreContract.hypeStakingAPY();
-        hypeAPY = Number(ethers.formatEther(hypeAPYValue)) * 100;
+      try {
+        if (typeof treasuryCoreContract.hypeStakingAPY === 'function') {
+          const hypeAPYValue = await treasuryCoreContract.hypeStakingAPY();
+          hypeAPY = Number(ethers.formatEther(hypeAPYValue)) * 100;
+        }
+      } catch (error) {
+        console.log('HYPE APY function not available, using default 500%');
       }
 
-      if (typeof stakingRewardsContract.zhypeStakingAPY === 'function') {
-        const zhypeAPYValue = await stakingRewardsContract.zhypeStakingAPY();
-        zhypeAPY = Number(ethers.formatEther(zhypeAPYValue)) * 100;
+      try {
+        if (typeof stakingRewardsContract.zhypeStakingAPY === 'function') {
+          const zhypeAPYValue = await stakingRewardsContract.zhypeStakingAPY();
+          zhypeAPY = Number(ethers.formatEther(zhypeAPYValue)) * 100;
+        }
+      } catch (error) {
+        console.log('zHYPE APY function not available, using default 17%');
       }
 
       setContractAPYs({ hypeAPY, zhypeAPY });
@@ -389,17 +409,33 @@ function App() {
     try {
       let totalHypeTVL = '0.000';
       let totalZhypeMinted = '0.000';
+      let hypePrice = '0.25';
 
-      if (typeof treasuryCoreContract.getTreasuryBalance === 'function') {
-        const treasuryBalance = await treasuryCoreContract.getTreasuryBalance();
-        const realHypeTVL = ethers.formatEther(treasuryBalance);
-        totalHypeTVL = (parseFloat(realHypeTVL) + 13461).toFixed(3);
+      try {
+        if (typeof treasuryCoreContract.getTreasuryBalance === 'function') {
+          const treasuryBalance = await treasuryCoreContract.getTreasuryBalance();
+          totalHypeTVL = parseFloat(ethers.formatEther(treasuryBalance)).toFixed(3);
+        }
+      } catch (error) {
+        console.log('Treasury balance not available, using default');
       }
 
-      if (typeof treasuryCoreContract.totalSupply === 'function') {
-        const totalSupply = await treasuryCoreContract.totalSupply();
-        const realZhypeMinted = ethers.formatEther(totalSupply);
-        totalZhypeMinted = (parseFloat(realZhypeMinted) + (13461 * 100)).toFixed(3);
+      try {
+        if (typeof treasuryCoreContract.totalSupply === 'function') {
+          const totalSupply = await treasuryCoreContract.totalSupply();
+          totalZhypeMinted = parseFloat(ethers.formatEther(totalSupply)).toFixed(3);
+        }
+      } catch (error) {
+        console.log('Total supply not available, using default');
+      }
+
+      try {
+        if (priceOracleContract && typeof priceOracleContract.getHypePrice === 'function') {
+          const price = await priceOracleContract.getHypePrice();
+          hypePrice = parseFloat(ethers.formatEther(price)).toFixed(2);
+        }
+      } catch (error) {
+        console.log('HYPE price not available, using default');
       }
 
       setProtocolStats({
@@ -407,7 +443,7 @@ function App() {
         totalZhypeMinted,
         realHypeTVL: totalHypeTVL,
         realZhypeMinted: totalZhypeMinted,
-        hypePrice: '0.25' // Mock HYPE price - replace with real price feed
+        hypePrice: hypePrice
       });
     } catch (error) {
       console.log('Protocol stats not available, using defaults');
@@ -647,6 +683,7 @@ function App() {
                       </Suspense>
                     </div>
                   </div>
+                  
                 </div>
               )}
           </div>
