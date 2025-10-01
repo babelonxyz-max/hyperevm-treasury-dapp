@@ -28,7 +28,7 @@ const WithdrawalQueue = ({
       return {
         id: `${request.user || account}-${index}`,
         isUnstaking,
-        isCompleted,
+        completed: isCompleted,
         amount: formattedAmount,
         token: isUnstaking ? 'zHYPE' : 'HYPE',
         daysRemaining,
@@ -92,28 +92,29 @@ const WithdrawalQueue = ({
 
   const renderRequestItem = (request) => {
     // Calculate hours remaining for more precise time display
-    const requestTimestamp = request.requestDate;
-    const hoursElapsed = Math.floor((Date.now() - requestTimestamp) / (1000 * 60 * 60));
+    const requestTimestamp = new Date(request.timestamp).getTime();
+    const now = Date.now();
+    const hoursElapsed = Math.floor((now - requestTimestamp) / (1000 * 60 * 60));
     const hoursRemaining = Math.max(0, (UNSTAKING_PERIOD_DAYS * 24) - hoursElapsed);
     const daysRemaining = Math.floor(hoursRemaining / 24);
     const hoursLeft = hoursRemaining % 24;
     
-    const timeDisplay = request.isCompleted 
+    const timeDisplay = request.completed 
       ? 'Claim' 
       : hoursRemaining > 0 
         ? `${daysRemaining}d ${hoursLeft}h`
         : 'Claim';
 
     return (
-      <div key={request.id} className={`withdrawal-queue__item ${request.isCompleted ? 'completed' : 'pending'}`}>
+      <div key={request.id} className={`withdrawal-queue__item ${request.completed ? 'completed' : 'pending'}`}>
         <div className="withdrawal-queue__item-content">
           <div className="withdrawal-queue__type">
             {request.isUnstaking ? 'zHYPE Unstaking' : 'HYPE Withdrawal'}
           </div>
           <div className="withdrawal-queue__amount">
-            {request.amount}
+            {parseFloat(request.amount).toFixed(8)}
           </div>
-          <div className={`withdrawal-queue__time ${request.isCompleted ? 'completed' : 'pending'}`}>
+          <div className={`withdrawal-queue__time ${request.completed ? 'completed' : 'pending'}`}>
             {timeDisplay}
           </div>
         </div>
