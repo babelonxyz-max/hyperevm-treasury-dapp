@@ -827,7 +827,7 @@ body {
 
 .main-cards-grid {
   display: grid;
-  grid-template-columns: 1.5fr 1.5fr 0.1fr;
+  grid-template-columns: 1.3fr 1.3fr 0.4fr;
   gap: var(--space-6);
   align-items: start;
   width: 100%;
@@ -840,11 +840,9 @@ body {
 .column-3-cards {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: var(--space-3);
   height: 100%;
   justify-content: flex-end;
-  max-width: 280px;
-  margin-left: auto;
 }
 
 .column-3-cards .rewards-card,
@@ -858,17 +856,17 @@ body {
 .withdrawal-queue-card {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: var(--space-2);
+  border-radius: var(--radius-lg);
+  padding: var(--space-3);
   position: relative;
   overflow: hidden;
   transition: all var(--transition-normal);
-  box-shadow: var(--shadow-xs);
+  box-shadow: var(--shadow-sm);
   display: flex;
   flex-direction: column;
   height: 100%;
   border-color: var(--color-brand-accent);
-  box-shadow: 0 0 0 1px rgba(14, 165, 233, 0.2), var(--shadow-xs);
+  box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.2), var(--shadow-sm);
   background: linear-gradient(135deg, var(--color-surface) 0%, rgba(14, 165, 233, 0.05) 100%);
 }
 
@@ -1260,17 +1258,17 @@ body {
 .rewards-card {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: var(--space-2);
+  border-radius: var(--radius-lg);
+  padding: var(--space-3);
   position: relative;
   overflow: hidden;
   transition: all var(--transition-normal);
-  box-shadow: var(--shadow-xs);
+  box-shadow: var(--shadow-sm);
   display: flex;
   flex-direction: column;
   height: 100%;
   border-color: var(--color-brand-accent);
-  box-shadow: 0 0 0 1px rgba(14, 165, 233, 0.2), var(--shadow-xs);
+  box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.2), var(--shadow-sm);
   background: linear-gradient(135deg, var(--color-surface) 0%, rgba(14, 165, 233, 0.05) 100%);
   min-height: 100%;
 }
