@@ -3554,7 +3554,7 @@ body {
 .withdrawal-queue__list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   overflow-y: auto;
   padding-right: 4px;
   scrollbar-width: thin;
@@ -3583,16 +3583,16 @@ body {
   /* Layout */
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
   
   /* Visual */
   background: var(--color-surface-elevated);
   border: 1px solid var(--color-border);
-  border-radius: 12px;
+  border-radius: 8px;
   
   /* Spacing */
-  padding: 16px;
-  min-height: 90px;
+  padding: 12px;
+  min-height: 60px;
   
   /* Interaction */
   transition: all 0.2s ease;
@@ -3620,13 +3620,15 @@ body {
 .withdrawal-queue__item-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  gap: 16px;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 4px;
 }
 
 .withdrawal-queue__item-left {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  align-items: center;
   gap: 12px;
   flex: 1;
 }
@@ -3640,14 +3642,14 @@ body {
 .withdrawal-queue__type-badge {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  border-radius: 8px;
-  font-size: 12px;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  align-self: flex-start;
+  white-space: nowrap;
 }
 
 .withdrawal-queue__type-badge.unstaking {
@@ -3665,23 +3667,23 @@ body {
 /* Amount */
 .withdrawal-queue__amount {
   display: flex;
-  align-items: baseline;
-  gap: 8px;
+  align-items: center;
+  gap: 6px;
 }
 
 .withdrawal-queue__amount-value {
-  font-size: 20px;
+  font-size: 16px;
   font-weight: 700;
   color: var(--color-text-primary);
   font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
 }
 
 .withdrawal-queue__amount-token {
-  font-size: 14px;
+  font-size: 12px;
   color: var(--color-text-secondary);
   background: var(--color-surface);
-  padding: 4px 8px;
-  border-radius: 6px;
+  padding: 2px 6px;
+  border-radius: 4px;
   font-weight: 500;
 }
 
@@ -3689,13 +3691,14 @@ body {
 .withdrawal-queue__status-badge {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 12px;
-  border-radius: 8px;
-  font-size: 12px;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  white-space: nowrap;
 }
 
 .withdrawal-queue__status-badge.completed {
@@ -3744,19 +3747,20 @@ body {
 /* Item Details */
 .withdrawal-queue__item-details {
   display: flex;
-  gap: 24px;
+  gap: 16px;
   flex-wrap: wrap;
+  margin-top: 4px;
 }
 
 .withdrawal-queue__detail {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  min-width: 120px;
+  gap: 2px;
+  min-width: 80px;
 }
 
 .withdrawal-queue__detail-label {
-  font-size: 11px;
+  font-size: 10px;
   color: var(--color-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -3764,7 +3768,7 @@ body {
 }
 
 .withdrawal-queue__detail-value {
-  font-size: 13px;
+  font-size: 11px;
   color: var(--color-text-secondary);
   font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
   font-weight: 500;
