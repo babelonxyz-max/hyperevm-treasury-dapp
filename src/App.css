@@ -1143,7 +1143,8 @@ body {
   flex-direction: column;
   gap: var(--space-4);
   min-height: 200px;
-  justify-content: flex-start;
+  justify-content: flex-end;
+  margin-top: auto;
 }
 
 .input-group {
