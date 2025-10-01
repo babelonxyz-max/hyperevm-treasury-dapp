@@ -1205,12 +1205,12 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 12px 24px;
+  gap: 6px;
+  padding: 6px 12px;
   background: transparent;
   border: 1px solid var(--color-border);
-  border-radius: 8px;
-  font-size: 16px;
+  border-radius: 6px;
+  font-size: 13px;
   font-weight: 600;
   text-transform: none;
   letter-spacing: 0;
@@ -1218,7 +1218,7 @@ body {
   color: #D1D7DB;
   cursor: pointer;
   transition: all 160ms ease;
-  height: 44px;
+  height: 32px;
   box-sizing: border-box;
   min-width: 0;
   white-space: nowrap;
@@ -1250,16 +1250,16 @@ body {
 }
 
 .tab-icon {
-  width: 20px;
-  height: 20px;
+  width: 16px;
+  height: 16px;
 }
 
 .action-form {
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
-  min-height: 200px;
-  justify-content: flex-end;
+  min-height: auto;
+  justify-content: flex-start;
   margin-top: auto;
   margin-bottom: 30px;
 }
@@ -1354,16 +1354,17 @@ body {
 .action-button.primary {
   background: #EFC94C;
   color: #0F1113;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 600;
-  padding: 12px 24px;
-  height: 44px;
+  padding: 8px 16px;
+  height: 36px;
   flex: 1;
   border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border-radius: 6px;
   box-shadow: none;
   min-width: 0;
   white-space: nowrap;
+  align-self: flex-start;
 }
 
 .action-button.primary:hover {
@@ -1377,12 +1378,13 @@ body {
   color: #D1D7DB;
   border: 1px solid rgba(255,255,255,0.1);
   font-weight: 600;
-  padding: 12px 24px;
-  height: 44px;
+  padding: 8px 16px;
+  height: 36px;
   flex: 1;
-  border-radius: 8px;
+  border-radius: 6px;
   min-width: 0;
   white-space: nowrap;
+  align-self: flex-start;
 }
 
 .action-button.secondary:hover {
