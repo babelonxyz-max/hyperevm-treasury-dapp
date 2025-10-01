@@ -160,8 +160,8 @@ const StakingDashboard = ({
         </div>
       </div>
 
-      {/* Main Cards - 3 Column Layout */}
-      <div className="main-cards-grid">
+      {/* Main Staking Cards - 2 Column Layout */}
+      <div className="staking-cards">
         {/* HYPE Staking Card */}
         <div className="staking-card primary">
           <div className="card-header">
@@ -351,45 +351,6 @@ const StakingDashboard = ({
                 </button>
               </div>
             )}
-          </div>
-        </div>
-
-        {/* Pending Rewards Card */}
-        <div className="rewards-card">
-          <div className="rewards-header">
-            <h3>
-              <Coins className="card-icon" />
-              Pending Rewards
-            </h3>
-            <button
-              className="claim-button"
-              onClick={() => claimMutation.mutate()}
-              disabled={claimMutation.isPending}
-            >
-              {claimMutation.isPending ? 'Claiming...' : 'Claim All'}
-            </button>
-          </div>
-          
-          <div className="rewards-grid">
-            <div className="reward-item">
-              <div className="reward-icon">
-                <Coins />
-              </div>
-              <div className="reward-info">
-                <span className="reward-label">zHYPE Rewards</span>
-                <span className="reward-amount">{formatBalance(pendingRewards?.zhype)} zHYPE</span>
-              </div>
-            </div>
-            
-            <div className="reward-item">
-              <div className="reward-icon">
-                <TrendingUp />
-              </div>
-              <div className="reward-info">
-                <span className="reward-label">USDH Rewards</span>
-                <span className="reward-amount">{formatBalance(pendingRewards?.usdh)} USDH</span>
-              </div>
-            </div>
           </div>
         </div>
       </div>

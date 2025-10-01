@@ -9,7 +9,7 @@ const WithdrawalQueue = ({
   showNotification
 }) => {
   return (
-    <div className="card">
+    <div className="withdrawal-queue-card">
       <div className="card-header">
         <h3 className="card-title">Withdrawal Queue</h3>
         <button 

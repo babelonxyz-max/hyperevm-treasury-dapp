@@ -8,6 +8,8 @@ const WalletConnect = lazy(() => import('./components/WalletConnect'));
 const StakingDashboard = lazy(() => import('./components/StakingDashboard'));
 const Header = lazy(() => import('./components/Header'));
 const ThemeToggle = lazy(() => import('./components/ThemeToggle'));
+const WithdrawalQueue = lazy(() => import('./components/WithdrawalQueue'));
+const PendingRewards = lazy(() => import('./components/PendingRewards'));
 const FloatingStatsBar = lazy(() => import('./components/FloatingStatsBar'));
 
 const queryClient = new QueryClient();
@@ -34,7 +36,11 @@ function App() {
   // Contract instances
   const [treasuryCoreContract, setTreasuryCoreContract] = useState(null);
   const [stakingRewardsContract, setStakingRewardsContract] = useState(null);
+  const [unstakingQueueContract, setUnstakingQueueContract] = useState(null);
   const [priceOracleContract, setPriceOracleContract] = useState(null);
+
+  // Withdrawal requests
+  const [withdrawalRequests, setWithdrawalRequests] = useState([]);
 
   // User balances and data
   const [hypeBalance, setHypeBalance] = useState('0.000');
@@ -90,6 +96,7 @@ function App() {
         const addresses = {
           treasuryCore: data.contracts?.treasuryCore,
           stakingRewards: data.contracts?.stakingRewards,
+          unstakingQueue: data.contracts?.unstakingQueue,
           priceOracle: data.contracts?.priceOracle
         };
         
@@ -149,6 +156,12 @@ function App() {
             "function claimRewards() external"
           ];
 
+          // Unstaking Queue ABI
+          const unstakingABI = [
+            "function requestWithdrawHype(uint256 amount) external",
+            "function requestUnstakeZhype(uint256 amount) external",
+            "function getUserUnstakingRequests(address user) external view returns (tuple(address user, uint256 amount, uint256 timestamp, bool isUnstaking, bool completed)[])"
+          ];
 
           // Price Oracle ABI
           const priceOracleABI = [
@@ -169,6 +182,12 @@ function App() {
             const stakingRewards = new ethers.Contract(contractAddresses.stakingRewards, stakingABI, signer);
             setStakingRewardsContract(stakingRewards);
             console.log('✅ Staking Rewards contract initialized');
+          }
+
+          if (contractAddresses.unstakingQueue) {
+            const unstakingQueue = new ethers.Contract(contractAddresses.unstakingQueue, unstakingABI, signer);
+            setUnstakingQueueContract(unstakingQueue);
+            console.log('✅ Unstaking Queue contract initialized');
           }
 
 
@@ -373,7 +392,24 @@ function App() {
     refreshData();
     const interval = setInterval(refreshData, 30000); // Refresh every 30 seconds
     return () => clearInterval(interval);
-  }, [isConnected, account, treasuryCoreContract, stakingRewardsContract]);
+  }, [isConnected, account, treasuryCoreContract, stakingRewardsContract, unstakingQueueContract]);
+
+  // Load withdrawal requests
+  const loadWithdrawalRequests = async () => {
+    if (!account || !unstakingQueueContract) return;
+
+    try {
+      const requests = await unstakingQueueContract.getUserUnstakingRequests(account);
+      setWithdrawalRequests(requests);
+    } catch (error) {
+      console.error('Error loading withdrawal requests:', error);
+    }
+  };
+
+  // Load withdrawal requests when account changes
+  useEffect(() => {
+    loadWithdrawalRequests();
+  }, [account, unstakingQueueContract]);
 
   // Auto-claim timer
   useEffect(() => {
@@ -498,7 +534,7 @@ function App() {
                 </button>
               </div>
               ) : (
-                <div className="dashboard-main">
+                <div className="main-cards-grid">
                   <Suspense fallback={<LoadingSpinner />}>
                     <StakingDashboard
                       account={account}
@@ -511,6 +547,27 @@ function App() {
                       onConnect={connectWallet}
                       contractAPYs={contractAPYs}
                       protocolStats={protocolStats}
+                    />
+                  </Suspense>
+                  
+                  <Suspense fallback={<LoadingSpinner />}>
+                    <PendingRewards
+                      account={account}
+                      isConnected={isConnected}
+                      stakingRewardsContract={stakingRewardsContract}
+                      contractAPYs={contractAPYs}
+                      protocolStats={protocolStats}
+                    />
+                  </Suspense>
+                  
+                  <Suspense fallback={<LoadingSpinner />}>
+                    <WithdrawalQueue
+                      withdrawalRequests={withdrawalRequests}
+                      loadWithdrawalRequests={loadWithdrawalRequests}
+                      account={account}
+                      isConnected={isConnected}
+                      unstakingQueueContract={unstakingQueueContract}
+                      showNotification={(message, type) => console.log(`${type}: ${message}`)}
                     />
                   </Suspense>
                 </div>
