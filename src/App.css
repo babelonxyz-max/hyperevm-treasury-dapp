@@ -903,8 +903,8 @@ body {
 .staking-cards {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--space-4);
-  margin-bottom: var(--space-3);
+  gap: var(--space-6);
+  margin-bottom: var(--space-6);
   align-items: start;
   width: 100%;
 }
