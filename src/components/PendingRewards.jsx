@@ -85,26 +85,16 @@ const PendingRewards = ({
       </div>
       
       <div className="card-content">
-        {/* Rewards Balance Section */}
+        {/* Rewards Balance Section - Horizontal Layout */}
         <div className="rewards-balance-section">
           <div className="rewards-balance-item">
-            <div className="rewards-balance-header">
-              <div className="rewards-balance-icon">
-                <Coins />
-              </div>
-              <span className="rewards-balance-label">zHYPE Rewards</span>
-            </div>
+            <span className="rewards-balance-label">zHYPE Rewards</span>
             <span className="rewards-balance-amount">{formatBalance(pendingRewards?.zHypeRewards)}</span>
             <span className="rewards-balance-token">zHYPE</span>
           </div>
           
           <div className="rewards-balance-item">
-            <div className="rewards-balance-header">
-              <div className="rewards-balance-icon">
-                <TrendingUp />
-              </div>
-              <span className="rewards-balance-label">USDH Rewards</span>
-            </div>
+            <span className="rewards-balance-label">USDH Rewards</span>
             <span className="rewards-balance-amount">{formatBalance(pendingRewards?.usdhRewards)}</span>
             <span className="rewards-balance-token">USDH</span>
           </div>
