@@ -53,52 +53,82 @@ const WithdrawalQueue = ({
                 const amount = parseFloat(request.amount);
                 const formattedAmount = amount > 0 ? amount.toFixed(8) : '0.00000000';
                 
+                // Calculate days left (assuming 7-day unstaking period)
+                const unstakingPeriod = 7; // days
+                const requestDate = new Date(request.timestamp || Date.now());
+                const daysLeft = Math.max(0, unstakingPeriod - Math.floor((Date.now() - requestDate.getTime()) / (1000 * 60 * 60 * 24)));
+                
                 return (
                   <div key={index} className={`request-item ${isCompleted ? 'completed' : 'pending'}`}>
                     <div className="request-main">
-                      <div className="request-amount-section">
-                        <div className="amount-display">
-                          <span className="amount-value">{formattedAmount}</span>
-                          <span className="token-symbol">{isUnstaking ? 'zHYPE' : 'HYPE'}</span>
+                      <div className="request-header">
+                        <div className="request-type-section">
+                          <div className={`request-type-badge ${isUnstaking ? 'unstaking' : 'withdrawal'}`}>
+                            {isUnstaking ? (
+                              <>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                  <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
+                                  <path d="M21 3v5h-5"/>
+                                  <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
+                                  <path d="M3 21v-5h5"/>
+                                </svg>
+                                zHYPE Unstaking
+                              </>
+                            ) : (
+                              <>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                  <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
+                                  <path d="M21 3v5h-5"/>
+                                  <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
+                                  <path d="M3 21v-5h5"/>
+                                </svg>
+                                HYPE Withdrawal
+                              </>
+                            )}
+                          </div>
+                          <div className="request-amount">
+                            <span className="amount-value">{formattedAmount}</span>
+                            <span className="token-symbol">{isUnstaking ? 'zHYPE' : 'HYPE'}</span>
+                          </div>
                         </div>
-                        <div className="request-type-badge">
-                          {isUnstaking ? 'Unstaking' : 'Withdrawal'}
+                        
+                        <div className="request-status-section">
+                          {isCompleted ? (
+                            <div className="status-badge completed">
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M20 6L9 17l-5-5"/>
+                              </svg>
+                              Completed
+                            </div>
+                          ) : (
+                            <div className="status-badge pending">
+                              <div className="pending-dots">
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                              </div>
+                              {daysLeft > 0 ? `${daysLeft} days left` : 'Ready to claim'}
+                            </div>
+                          )}
                         </div>
                       </div>
                       
                       <div className="request-details">
-                        <div className="detail-row">
+                        <div className="detail-item">
                           <span className="detail-label">Requested</span>
                           <span className="detail-value">{request.timestamp || 'Unknown'}</span>
                         </div>
-                        <div className="detail-row">
-                          <span className="detail-label">Status</span>
-                          <div className="status-container">
-                            <div className={`status-indicator ${isCompleted ? 'completed' : 'pending'}`}></div>
-                            <span className="status-text">{isCompleted ? 'Completed' : 'Pending'}</span>
-                          </div>
+                        <div className="detail-item">
+                          <span className="detail-label">Unstaking Period</span>
+                          <span className="detail-value">7 days</span>
                         </div>
+                        {!isCompleted && daysLeft > 0 && (
+                          <div className="detail-item">
+                            <span className="detail-label">Time Remaining</span>
+                            <span className="detail-value time-remaining">{daysLeft} days</span>
+                          </div>
+                        )}
                       </div>
-                    </div>
-                    
-                    <div className="request-actions">
-                      {isCompleted ? (
-                        <div className="action-badge completed">
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M20 6L9 17l-5-5"/>
-                          </svg>
-                          Completed
-                        </div>
-                      ) : (
-                        <div className="action-badge pending">
-                          <div className="pending-dots">
-                            <span></span>
-                            <span></span>
-                            <span></span>
-                          </div>
-                          Processing
-                        </div>
-                      )}
                     </div>
                   </div>
                 );
