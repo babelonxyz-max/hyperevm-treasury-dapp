@@ -654,7 +654,7 @@ body {
 .main-content {
   flex: 1;
   padding: var(--space-4) 0;
-  padding-bottom: calc(var(--space-4) + 80px);
+  padding-bottom: 0px;
   width: 100%;
   max-width: 100%;
   overflow: visible;
