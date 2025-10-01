@@ -1150,6 +1150,7 @@ body {
   min-height: 200px;
   justify-content: flex-end;
   margin-top: auto;
+  margin-bottom: 30px;
 }
 
 .input-group {
