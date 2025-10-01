@@ -828,7 +828,7 @@ body {
 
 .main-cards-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1.2fr;
   gap: var(--space-4);
   align-items: stretch;
   width: 100%;
@@ -841,9 +841,9 @@ body {
 .column-3-cards {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: var(--space-6);
   height: calc(100vh - 200px);
-  justify-content: flex-start;
+  justify-content: space-between;
   z-index: 1;
   position: relative;
 }
@@ -851,7 +851,7 @@ body {
 .column-3-cards .rewards-card,
 .column-3-cards .withdrawal-queue-card {
   flex: 0 0 auto;
-  height: calc((100vh - 200px - var(--space-4)) / 2);
+  height: calc((100vh - 200px - var(--space-6)) / 2);
   min-height: 150px;
   z-index: 2;
   position: relative;
