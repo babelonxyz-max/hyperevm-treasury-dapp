@@ -890,7 +890,7 @@ body {
 
 .main-cards-grid {
   display: grid;
-  grid-template-columns: 4fr 4fr 1fr;
+  grid-template-columns: 4.8fr 4.8fr 1fr;
   column-gap: 7px;
   align-items: start;
   width: 100%;
