@@ -56,11 +56,11 @@ const HypeStakingCard = ({
         <div className="balance-section">
           <div className="balance-item">
             <span className="balance-label">Available HYPE</span>
-            <span className="balance-amount">{formatBalance(balances?.hype)} HYPE</span>
+            <span className="balance-amount">{formatBalance(balances?.hype)}</span>
           </div>
           <div className="balance-item">
             <span className="balance-label">Available zHYPE</span>
-            <span className="balance-amount">{formatBalance(balances?.zhype)} zHYPE</span>
+            <span className="balance-amount">{formatBalance(balances?.zhype)}</span>
           </div>
         </div>
 
