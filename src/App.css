@@ -1740,7 +1740,6 @@ body {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  margin-bottom: 16px;
 }
 
 .claim-all-button:hover {
