@@ -883,20 +883,22 @@ body {
 .main-container {
   width: 100%;
   margin: 0;
-  padding: 28px 24px 0 24px;
+  padding: 32px 32px 0 32px;
   box-sizing: border-box;
+  min-height: 100vh;
 }
 
 .main-cards-grid {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  column-gap: 16px;
+  column-gap: 24px;
   align-items: start;
   width: 100%;
   justify-items: stretch;
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
-  margin-bottom: 20px;
+  margin-bottom: 32px;
+  min-height: 600px;
 }
 
 /* Column 3: Container for two half-height cards */
@@ -909,6 +911,7 @@ body {
   z-index: 1;
   position: relative;
   width: 100%;
+  min-height: 600px;
 }
 
 .column-3-cards .rewards-card {
@@ -916,6 +919,8 @@ body {
   z-index: 2;
   position: relative;
   width: 100%;
+  min-height: 280px;
+  max-height: 320px;
 }
 
 .column-3-cards .withdrawal-queue-card {
@@ -923,6 +928,8 @@ body {
   z-index: 2;
   position: relative;
   width: 100%;
+  min-height: 200px;
+  max-height: 240px;
 }
 
 /* Withdrawal Queue Card Styling */
@@ -930,27 +937,29 @@ body {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: 16px;
-  padding: 20px;
+  padding: 24px;
   position: relative;
   overflow: hidden;
   transition: all 160ms ease;
   box-shadow: 0 8px 24px rgba(6,8,10,0.4);
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
   width: 100%;
   z-index: 2;
   box-sizing: border-box;
   max-width: 100%;
+  min-height: 200px;
 }
 
 .withdrawal-queue-card .card-header {
   background: transparent;
   padding: 0;
   border-radius: 0;
-  margin: 0 0 16px 0;
+  margin: 0 0 12px 0;
   border: none;
-  height: 40px;
+  height: 32px;
+  width: 100%;
 }
 
 @media (max-width: 1024px) {
@@ -995,19 +1004,20 @@ body {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: 16px;
-  padding: 20px;
+  padding: 28px;
   position: relative;
   overflow: hidden;
   transition: all var(--transition-normal);
   box-shadow: 0 8px 24px rgba(6,8,10,0.4);
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 24px;
   width: 100%;
   height: 100%;
   box-sizing: border-box;
   min-width: 0;
   max-width: 100%;
+  min-height: 600px;
 }
 
 .staking-card:hover {
@@ -1049,12 +1059,13 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
   padding: 0;
   background: transparent;
   border: none;
   position: relative;
-  height: 32px;
+  height: 40px;
+  width: 100%;
 }
 
 .card-title {
@@ -1113,31 +1124,33 @@ body {
 .balance-section {
   display: flex;
   flex-direction: row;
-  gap: 12px;
+  gap: 20px;
   padding: 0;
   background: transparent;
   border: none;
-  margin-bottom: 16px;
+  margin-bottom: 24px;
   align-items: stretch;
   justify-content: space-between;
-  height: 70px;
+  height: 120px;
+  width: 100%;
 }
 
 .balance-item {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 10px;
   text-align: left;
-  padding: 14px 10px;
+  padding: 20px 16px;
   background: rgba(255,255,255,0.03);
   border: 1px solid rgba(239,201,76,0.15);
-  border-radius: 10px;
+  border-radius: 12px;
   flex: 1;
   align-items: flex-start;
   justify-content: center;
-  height: 70px;
+  height: 120px;
   box-sizing: border-box;
   min-width: 0;
+  width: 100%;
 }
 
 .balance-item:first-child {
@@ -1149,25 +1162,26 @@ body {
 }
 
 .balance-label {
-  font-size: 12px;
+  font-size: 11px;
   color: #9EA8B3;
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  line-height: 1.2;
 }
 
 .balance-amount {
-  font-size: 24px;
+  font-size: 32px;
   font-weight: 700;
   color: #EFC94C;
   letter-spacing: -0.025em;
-  line-height: 1.3;
-  word-break: break-word;
-  overflow-wrap: break-word;
+  line-height: 1.1;
   text-align: left;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  width: 100%;
+  max-width: 100%;
 }
 
 .action-tabs {
@@ -1175,9 +1189,9 @@ body {
   background: transparent;
   border-radius: 0;
   padding: 0;
-  gap: 8px;
-  margin-top: 16px;
-  margin-bottom: 16px;
+  gap: 12px;
+  margin-top: 20px;
+  margin-bottom: 20px;
   border: none;
   align-items: center;
   justify-content: center;
@@ -1190,12 +1204,12 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding: 0 8px;
+  gap: 8px;
+  padding: 0 12px;
   background: transparent;
   border: 1px solid var(--color-border);
-  border-radius: 8px;
-  font-size: 12px;
+  border-radius: 10px;
+  font-size: 14px;
   font-weight: 600;
   text-transform: none;
   letter-spacing: 0;
@@ -1203,7 +1217,7 @@ body {
   color: #D1D7DB;
   cursor: pointer;
   transition: all 160ms ease;
-  height: 36px;
+  height: 40px;
   box-sizing: border-box;
   min-width: 0;
   white-space: nowrap;
@@ -1290,9 +1304,9 @@ body {
 .max-button {
   padding: 0;
   background: transparent;
-  border: 1.5px solid var(--color-border);
-  border-radius: 10px;
-  font-size: 13px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--color-text-secondary);
   cursor: pointer;
@@ -1302,8 +1316,8 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.5px;
   transition: all 160ms ease;
-  width: 60px;
-  height: 40px;
+  width: 50px;
+  height: 36px;
   white-space: nowrap;
   flex-shrink: 0;
 }
@@ -1339,13 +1353,13 @@ body {
 .action-button.primary {
   background: #EFC94C;
   color: #0F1113;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
-  padding: 0 8px;
-  height: 36px;
+  padding: 0 12px;
+  height: 40px;
   flex: 1;
   border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border-radius: 10px;
   box-shadow: none;
   min-width: 0;
   white-space: nowrap;
@@ -1362,10 +1376,10 @@ body {
   color: #D1D7DB;
   border: 1px solid rgba(255,255,255,0.1);
   font-weight: 600;
-  padding: 0 8px;
-  height: 36px;
+  padding: 0 12px;
+  height: 40px;
   flex: 1;
-  border-radius: 8px;
+  border-radius: 10px;
   min-width: 0;
   white-space: nowrap;
 }
@@ -1420,18 +1434,19 @@ body {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: 16px;
-  padding: 20px;
+  padding: 24px;
   position: relative;
   overflow: hidden;
   transition: all 160ms ease;
   box-shadow: 0 8px 24px rgba(6,8,10,0.4);
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
   width: 100%;
   z-index: 2;
   box-sizing: border-box;
   max-width: 100%;
+  min-height: 280px;
 }
 
 .rewards-card:hover {
