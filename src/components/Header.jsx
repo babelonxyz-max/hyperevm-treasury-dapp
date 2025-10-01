@@ -59,20 +59,11 @@ const Header = ({ account, isConnected, onConnect, onDisconnect, theme, onThemeC
               <button 
                 className="logout-btn"
                 onClick={onDisconnect}
-                title="Logout"
-                aria-label="Logout"
-                type="button"
-              >
-                <LogOut size={16} />
-              </button>
-              <button 
-                className="disconnect-btn"
-                onClick={onDisconnect}
                 title="Disconnect Wallet"
                 aria-label="Disconnect wallet"
                 type="button"
               >
-                Disconnect
+                <LogOut size={16} />
               </button>
             </div>
           ) : (
