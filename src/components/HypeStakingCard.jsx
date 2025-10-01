@@ -52,11 +52,6 @@ const HypeStakingCard = ({
         </div>
       </div>
       
-      {/* DEBUG: Add visible test content */}
-      <div style={{background: 'red', padding: '10px', color: 'white'}}>
-        DEBUG: Card content is rendering
-      </div>
-      
       <div className="card-content">
         <div className="balance-section">
           <div className="balance-item">
