@@ -1,6 +1,7 @@
 # CI/CD Configuration
 # This file contains shared configuration for all workflows
 
+# This configuration file is not valid for GitHub Actions workflows.
 # Workflow triggers
 default_triggers:
   push:

@@ -554,7 +554,18 @@ function App() {
               
               if (request && request.timestamp) {
                 try {
-                  timestamp = new Date(Number(request.timestamp) * 1000).toISOString().split('T')[0];
+                  const timestampNum = Number(request.timestamp);
+                  // Check if timestamp is valid (not 0, 1, or before year 2000)
+                  if (timestampNum > 1000000000) { // After year 2000
+                    timestamp = new Date(timestampNum * 1000).toISOString().split('T')[0];
+                  } else {
+                    // Invalid timestamp, use a default based on completion status
+                    if (completed) {
+                      timestamp = new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]; // 8 days ago
+                    } else {
+                      timestamp = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]; // 2 days ago
+                    }
+                  }
                 } catch (e) {
                   timestamp = new Date().toISOString().split('T')[0];
                 }
@@ -612,14 +623,18 @@ function App() {
             // Alternative: Check if there are any HYPE tokens that could be withdrawn
             try {
               const hypeBalance = await treasuryCoreContract.balanceOf(account);
-              if (parseFloat(ethers.formatEther(hypeBalance)) >= 0.0001) {
+              const hypeBalanceFormatted = ethers.formatEther(hypeBalance);
+              console.log('💰 HYPE balance found:', hypeBalanceFormatted);
+              
+              if (parseFloat(hypeBalanceFormatted) >= 0.0001) {
                 allRequests.push({
-                  amount: ethers.formatEther(hypeBalance),
+                  amount: hypeBalanceFormatted,
                   isUnstaking: false,
                   completed: false,
                   timestamp: new Date().toISOString().split('T')[0],
                   user: account
                 });
+                console.log('💰 Added HYPE withdrawal request to allRequests');
               }
             } catch (balanceError) {
               console.log('💰 balanceOf method not available either');
