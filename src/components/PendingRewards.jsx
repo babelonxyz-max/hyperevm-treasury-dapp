@@ -5,31 +5,29 @@ const PendingRewards = ({
   account, 
   isConnected, 
   stakingRewardsContract, 
+  rewardsManagerContract,
   contractAPYs,
-  protocolStats 
+  protocolStats,
+  pendingRewards,
+  onClaimRewards
 }) => {
   const [autoInvestEnabled, setAutoInvestEnabled] = useState(false);
 
-  // Mock data - replace with real contract calls
-  const pendingRewards = {
-    zHypeRewards: '12.45',
-    usdhRewards: '8.32',
-    totalValue: '20.77',
-    lastClaimed: '2 hours ago',
-    nextClaim: '3 hours'
+  // Use real data from props
+  const rewardsData = pendingRewards || {
+    zHype: '0.0000',
+    usdh: '0.0000'
   };
 
   const handleClaimRewards = async () => {
-    if (!isConnected || !stakingRewardsContract) {
-      console.log('Wallet not connected or contract not available');
+    if (!isConnected || !onClaimRewards) {
+      console.log('Wallet not connected or claim function not available');
       return;
     }
 
     try {
       console.log('Claiming rewards...');
-      // Add real contract interaction here
-      // const tx = await stakingRewardsContract.claimRewards();
-      // await tx.wait();
+      await onClaimRewards();
       console.log('Rewards claimed successfully!');
     } catch (error) {
       console.error('Error claiming rewards:', error);
@@ -89,13 +87,13 @@ const PendingRewards = ({
         <div className="rewards-balance-section">
           <div className="rewards-balance-item">
             <span className="rewards-balance-label">zHYPE Rewards</span>
-            <span className="rewards-balance-amount">{formatBalance(pendingRewards?.zHypeRewards)}</span>
+            <span className="rewards-balance-amount">{formatBalance(rewardsData?.zHype)}</span>
             <span className="rewards-balance-token">zHYPE</span>
           </div>
           
           <div className="rewards-balance-item">
             <span className="rewards-balance-label">USDH Rewards</span>
-            <span className="rewards-balance-amount">{formatBalance(pendingRewards?.usdhRewards)}</span>
+            <span className="rewards-balance-amount">{formatBalance(rewardsData?.usdh)}</span>
             <span className="rewards-balance-token">USDH</span>
           </div>
         </div>

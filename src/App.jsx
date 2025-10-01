@@ -40,6 +40,7 @@ function App() {
   const [stakingRewardsContract, setStakingRewardsContract] = useState(null);
   const [unstakingQueueContract, setUnstakingQueueContract] = useState(null);
   const [priceOracleContract, setPriceOracleContract] = useState(null);
+  const [rewardsManagerContract, setRewardsManagerContract] = useState(null);
 
   // Withdrawal requests
   const [withdrawalRequests, setWithdrawalRequests] = useState([]);
@@ -99,7 +100,8 @@ function App() {
           treasuryCore: data.contracts?.treasuryCore,
           stakingRewards: data.contracts?.stakingRewards,
           unstakingQueue: data.contracts?.unstakingQueue,
-          priceOracle: data.contracts?.priceOracle
+          priceOracle: data.contracts?.priceOracle,
+          rewardsManager: data.contracts?.rewardsManager
         };
         
         console.log('📍 Extracted addresses:', addresses);
@@ -128,7 +130,7 @@ function App() {
         contractAddresses.treasuryCore && contractAddresses.stakingRewards) {
       const initContracts = () => {
         try {
-          // Treasury Core ABI
+          // Treasury Core ABI - Enhanced
           const treasuryABI = [
             "function depositHype() external payable",
             "function withdrawHype(uint256 amount) external",
@@ -141,10 +143,16 @@ function App() {
             "function lastRewardTime() external view returns (uint256)",
             "function emergencyWithdrawHype() external",
             "function getTreasuryBalance() external view returns (uint256)",
-            "function hypeStakingAPY() external view returns (uint256)"
+            "function hypeStakingAPY() external view returns (uint256)",
+            "function getZHypeTokenAddress() external view returns (address)",
+            "function getTotalPendingUnstaking() external view returns (uint256)",
+            "function getUnstakingDelay() external pure returns (uint256)",
+            "function name() external view returns (string)",
+            "function symbol() external view returns (string)",
+            "function decimals() external view returns (uint8)"
           ];
 
-          // Staking Rewards ABI
+          // Staking Rewards ABI - Enhanced
           const stakingABI = [
             "function stakeZhype(uint256 amount) external",
             "function unstakeZhype(uint256 amount) external",
@@ -155,20 +163,42 @@ function App() {
             "function virtualZhypeStaked(address user) external view returns (uint256)",
             "function convertVirtualToReal() external",
             "function zhypeStakingAPY() external view returns (uint256)",
-            "function claimRewards() external"
+            "function claimRewards() external",
+            "function getStakingRewards(address user) external view returns (uint256)",
+            "function getTotalStakedAmount() external view returns (uint256)",
+            "function getRewardRate() external view returns (uint256)",
+            "function lastUpdateTime() external view returns (uint256)"
           ];
 
-          // Unstaking Queue ABI
+          // Unstaking Queue ABI - Enhanced
           const unstakingABI = [
             "function requestWithdrawHype(uint256 amount) external",
             "function requestUnstakeZhype(uint256 amount) external",
-            "function getUserUnstakingRequests(address user) external view returns (tuple(address user, uint256 amount, uint256 timestamp, bool isUnstaking, bool completed)[])"
+            "function getUserUnstakingRequests(address user) external view returns (tuple(address user, uint256 amount, uint256 timestamp, bool isUnstaking, bool completed)[])",
+            "function getUnstakingDelay() external view returns (uint256)",
+            "function getTotalPendingRequests() external view returns (uint256)",
+            "function canWithdraw(address user, uint256 requestId) external view returns (bool)",
+            "function executeWithdrawal(uint256 requestId) external"
           ];
 
-          // Price Oracle ABI
+          // Price Oracle ABI - Enhanced
           const priceOracleABI = [
             "function getHypePrice() external view returns (uint256)",
-            "function updatePrice() external"
+            "function updatePrice() external",
+            "function getLastUpdated() external view returns (uint256)",
+            "function getPriceDecimals() external view returns (uint8)",
+            "function isPriceValid() external view returns (bool)"
+          ];
+
+          // Rewards Manager ABI - New
+          const rewardsManagerABI = [
+            "function claimAllRewards() external",
+            "function getTotalPendingRewards(address user) external view returns (uint256, uint256)",
+            "function getZhypeRewards(address user) external view returns (uint256)",
+            "function getUsdhRewards(address user) external view returns (uint256)",
+            "function isAutoClaimEnabled(address user) external view returns (bool)",
+            "function toggleAutoClaim() external",
+            "function getRewardRates() external view returns (uint256, uint256)"
           ];
 
           console.log('Initializing contracts with addresses:', contractAddresses);
@@ -197,6 +227,12 @@ function App() {
             const priceOracle = new ethers.Contract(contractAddresses.priceOracle, priceOracleABI, signer);
             setPriceOracleContract(priceOracle);
             console.log('✅ Price Oracle contract initialized');
+          }
+
+          if (contractAddresses.rewardsManager) {
+            const rewardsManager = new ethers.Contract(contractAddresses.rewardsManager, rewardsManagerABI, signer);
+            setRewardsManagerContract(rewardsManager);
+            console.log('✅ Rewards Manager contract initialized');
           }
     } catch (error) {
           console.error('Error initializing contracts:', error);
@@ -441,6 +477,19 @@ function App() {
     }
   };
 
+  // Withdraw HYPE
+  const handleWithdrawHype = async (amount) => {
+    if (!treasuryCoreContract) return;
+
+    try {
+      const tx = await treasuryCoreContract.withdrawHype(ethers.parseEther(amount));
+      await tx.wait();
+      await refreshBalances();
+    } catch (error) {
+      console.error('Withdraw HYPE error:', error);
+    }
+  };
+
 
   // Stake zHYPE
   const handleStakeZhype = async (amount) => {
@@ -550,6 +599,10 @@ function App() {
                         onConnect={connectWallet}
                         contractAPYs={contractAPYs}
                         protocolStats={protocolStats}
+                        hypeBalance={hypeBalance}
+                        zhypeBalance={zhypeBalance}
+                        onDeposit={handleStake}
+                        onWithdraw={handleWithdrawHype}
                       />
                     </Suspense>
 
@@ -574,8 +627,11 @@ function App() {
                           account={account}
                           isConnected={isConnected}
                           stakingRewardsContract={stakingRewardsContract}
+                          rewardsManagerContract={rewardsManagerContract}
                           contractAPYs={contractAPYs}
                           protocolStats={protocolStats}
+                          pendingRewards={pendingRewards}
+                          onClaimRewards={claimRewards}
                         />
                       </Suspense>
                       

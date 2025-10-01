@@ -11,15 +11,19 @@ const HypeStakingCard = ({
   isConnected, 
   onConnect, 
   contractAPYs, 
-  protocolStats 
+  protocolStats,
+  hypeBalance,
+  zhypeBalance,
+  onDeposit,
+  onWithdraw
 }) => {
   const [activeTab, setActiveTab] = useState('deposit');
   const [amount, setAmount] = useState('');
 
-  // Mock data - replace with actual data fetching
+  // Real data from props
   const balances = {
-    hype: '0.0288',
-    zhype: '0.0000'
+    hype: hypeBalance || '0.0000',
+    zhype: zhypeBalance || '0.0000'
   };
 
   const formatBalance = (balance) => {
@@ -27,12 +31,26 @@ const HypeStakingCard = ({
     return parseFloat(balance).toFixed(4);
   };
 
-  const handleDeposit = () => {
-    console.log('Depositing HYPE:', amount);
+  const handleDeposit = async () => {
+    if (!amount || amount <= 0) return;
+    try {
+      if (onDeposit) {
+        await onDeposit(amount);
+      }
+    } catch (error) {
+      console.error('Deposit error:', error);
+    }
   };
 
-  const handleWithdraw = () => {
-    console.log('Withdrawing HYPE:', amount);
+  const handleWithdraw = async () => {
+    if (!amount || amount <= 0) return;
+    try {
+      if (onWithdraw) {
+        await onWithdraw(amount);
+      }
+    } catch (error) {
+      console.error('Withdraw error:', error);
+    }
   };
 
   const handleMaxAmount = () => {
