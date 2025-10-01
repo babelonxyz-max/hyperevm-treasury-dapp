@@ -1205,12 +1205,12 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 6px;
   padding: 0 12px;
   background: transparent;
   border: 1px solid var(--color-border);
-  border-radius: 10px;
-  font-size: 14px;
+  border-radius: 8px;
+  font-size: 12px;
   font-weight: 600;
   text-transform: none;
   letter-spacing: 0;
@@ -1218,7 +1218,7 @@ body {
   color: #D1D7DB;
   cursor: pointer;
   transition: all 160ms ease;
-  height: 40px;
+  height: 32px;
   box-sizing: border-box;
   min-width: 0;
   white-space: nowrap;
@@ -1250,8 +1250,8 @@ body {
 }
 
 .tab-icon {
-  width: 20px;
-  height: 20px;
+  width: 16px;
+  height: 16px;
 }
 
 .action-form {
@@ -1354,13 +1354,13 @@ body {
 .action-button.primary {
   background: #EFC94C;
   color: #0F1113;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 600;
-  padding: 0 12px;
-  height: 40px;
+  padding: 0 16px;
+  height: 32px;
   flex: 1;
   border: 1px solid var(--color-border);
-  border-radius: 10px;
+  border-radius: 8px;
   box-shadow: none;
   min-width: 0;
   white-space: nowrap;
@@ -1377,10 +1377,10 @@ body {
   color: #D1D7DB;
   border: 1px solid rgba(255,255,255,0.1);
   font-weight: 600;
-  padding: 0 12px;
-  height: 40px;
+  padding: 0 16px;
+  height: 32px;
   flex: 1;
-  border-radius: 10px;
+  border-radius: 8px;
   min-width: 0;
   white-space: nowrap;
 }
