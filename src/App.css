@@ -889,12 +889,12 @@ body {
 
 .main-cards-grid {
   display: grid;
-  grid-template-columns: 3fr 3fr 1fr;
-  column-gap: 24px;
+  grid-template-columns: 1fr 1fr 1fr;
+  column-gap: 20px;
   align-items: start;
   width: 100%;
   justify-items: stretch;
-  max-width: 1400px;
+  max-width: 1200px;
   margin: 0 auto;
 }
 
@@ -1127,7 +1127,7 @@ body {
   flex-direction: column;
   gap: 8px;
   text-align: left;
-  padding: 16px;
+  padding: 16px 12px;
   background: rgba(255,255,255,0.02);
   border: 1px solid var(--color-border);
   border-radius: 12px;
@@ -1136,6 +1136,7 @@ body {
   justify-content: center;
   height: 80px;
   box-sizing: border-box;
+  min-width: 0;
 }
 
 .balance-item:first-child {
@@ -1155,11 +1156,13 @@ body {
 }
 
 .balance-amount {
-  font-size: 32px;
+  font-size: 28px;
   font-weight: 700;
   color: #EFC94C;
   letter-spacing: -0.025em;
   line-height: 1.2;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .action-tabs {
@@ -1178,16 +1181,16 @@ body {
 }
 
 .tab-button {
-  flex: 0 0 160px;
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 0 16px;
+  padding: 0 12px;
   background: transparent;
   border: 1.5px solid var(--color-border);
   border-radius: 10px;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   text-transform: none;
   letter-spacing: 0;
@@ -1197,6 +1200,7 @@ body {
   transition: all 160ms ease;
   height: 40px;
   box-sizing: border-box;
+  min-width: 0;
 }
 
 .tab-button:hover {
@@ -1329,14 +1333,15 @@ body {
 .action-button.primary {
   background: #EFC94C;
   color: #0F1113;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
-  padding: 0 16px;
+  padding: 0 12px;
   height: 40px;
-  width: 160px;
+  flex: 1;
   border: 1.5px solid var(--color-border);
   border-radius: 10px;
   box-shadow: none;
+  min-width: 0;
 }
 
 .action-button.primary:hover {
@@ -1350,10 +1355,11 @@ body {
   color: #D1D7DB;
   border: 1.5px solid rgba(255,255,255,0.06);
   font-weight: 600;
-  padding: 0 16px;
+  padding: 0 12px;
   height: 40px;
-  width: 160px;
+  flex: 1;
   border-radius: 10px;
+  min-width: 0;
 }
 
 .action-button.secondary:hover {
