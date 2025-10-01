@@ -13,7 +13,7 @@ const HypeStakingCard = ({
   contractAPYs, 
   protocolStats 
 }) => {
-  const [activeTab, setActiveTab] = useState('stake');
+  const [activeTab, setActiveTab] = useState('deposit');
   const [amount, setAmount] = useState('');
 
   // Mock data - replace with actual data fetching
@@ -27,8 +27,8 @@ const HypeStakingCard = ({
     return parseFloat(balance).toFixed(4);
   };
 
-  const handleStake = () => {
-    console.log('Staking HYPE:', amount);
+  const handleDeposit = () => {
+    console.log('Depositing HYPE:', amount);
   };
 
   const handleWithdraw = () => {
@@ -44,7 +44,7 @@ const HypeStakingCard = ({
       <div className="card-header">
         <div className="card-title">
           <Coins className="card-icon" />
-          <span>HYPE Staking</span>
+          <span>HYPE Deposit</span>
         </div>
         <div className="card-apy">
           <TrendingUp className="apy-icon" />
@@ -66,11 +66,11 @@ const HypeStakingCard = ({
 
         <div className="action-tabs">
           <button 
-            className={`tab-button ${activeTab === 'stake' ? 'active' : ''}`}
-            onClick={() => setActiveTab('stake')}
+            className={`tab-button ${activeTab === 'deposit' ? 'active' : ''}`}
+            onClick={() => setActiveTab('deposit')}
           >
             <ArrowUpRight className="tab-icon" />
-            Stake
+            Deposit
           </button>
           <button 
             className={`tab-button ${activeTab === 'withdraw' ? 'active' : ''}`}
@@ -81,7 +81,7 @@ const HypeStakingCard = ({
           </button>
         </div>
 
-        {activeTab === 'stake' ? (
+        {activeTab === 'deposit' ? (
           <div className="action-form">
             <div className="input-group">
               <input
@@ -100,10 +100,10 @@ const HypeStakingCard = ({
             </div>
             <button 
               className="action-button primary"
-              onClick={handleStake}
+              onClick={handleDeposit}
             >
               <ArrowUp className="button-icon" />
-              STAKE HYPE
+              DEPOSIT HYPE
             </button>
           </div>
         ) : (
