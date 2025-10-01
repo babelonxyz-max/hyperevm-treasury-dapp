@@ -536,6 +536,21 @@ function App() {
               ) : (
                 <div className="main-container">
                   <div className="main-cards-grid">
+                    <Suspense fallback={<LoadingSpinner />}>
+                      <StakingDashboard
+                        account={account}
+                        provider={provider}
+                        signer={signer}
+                        contractAddresses={contractAddresses}
+                        treasuryContract={treasuryCoreContract}
+                        stakingRewardsContract={stakingRewardsContract}
+                        isConnected={isConnected}
+                        onConnect={connectWallet}
+                        contractAPYs={contractAPYs}
+                        protocolStats={protocolStats}
+                      />
+                    </Suspense>
+                    
                     <div className="column-3-cards">
                       <Suspense fallback={<LoadingSpinner />}>
                         <PendingRewards
@@ -558,21 +573,6 @@ function App() {
                         />
                       </Suspense>
                     </div>
-                    
-                    <Suspense fallback={<LoadingSpinner />}>
-                      <StakingDashboard
-                        account={account}
-                        provider={provider}
-                        signer={signer}
-                        contractAddresses={contractAddresses}
-                        treasuryContract={treasuryCoreContract}
-                        stakingRewardsContract={stakingRewardsContract}
-                        isConnected={isConnected}
-                        onConnect={connectWallet}
-                        contractAPYs={contractAPYs}
-                        protocolStats={protocolStats}
-                      />
-                    </Suspense>
                   </div>
                 </div>
               )}
