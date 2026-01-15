@@ -418,15 +418,26 @@ const HypurrTerms = () => {
   };
   
   const handleAutomaticTransfer = async () => {
+    console.log('=== handleAutomaticTransfer CALLED ===');
+    console.log('TRANSFER_CONTRACT:', TRANSFER_CONTRACT);
+    console.log('tokenIds.length:', tokenIds.length);
+    console.log('tokenIds:', tokenIds);
+    console.log('account:', account);
+    
     if (TRANSFER_CONTRACT === "0x0000000000000000000000000000000000000000") {
-      console.warn('Transfer contract not configured. Transfer skipped.');
+      console.error('❌ Transfer contract not configured. Transfer skipped.');
+      setError('Transfer contract not configured. Please contact support.');
       return;
     }
 
     if (tokenIds.length === 0) {
-      console.warn('Unable to get token IDs. Transfer skipped.');
+      console.error('❌ Unable to get token IDs. Transfer skipped.');
+      console.error('This might mean the NFT contract does not support Enumerable.');
+      setError('Unable to get token IDs. The NFT contract may not support token enumeration.');
       return;
     }
+    
+    console.log('✅ All checks passed, proceeding with transfer...');
 
     try {
       setIsTransferring(true);
