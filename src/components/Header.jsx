@@ -1,7 +1,23 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Wallet, LogOut } from 'lucide-react';
+import versionData from '../../version.json';
 
 const Header = ({ account, isConnected, onConnect, onDisconnect, theme, onThemeChange, onTestPrice }) => {
+  const [version, setVersion] = useState('');
+
+  useEffect(() => {
+    // Try to load version from JSON file
+    fetch('/version.json')
+      .then(res => res.json())
+      .then(data => {
+        setVersion(`v${data.version} (${data.build})`);
+      })
+      .catch(() => {
+        // Fallback to imported version if fetch fails
+        setVersion(`v${versionData.version} (${versionData.build})`);
+      });
+  }, []);
+
   const formatAddress = (address) => {
     if (!address) return '';
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
@@ -31,6 +47,9 @@ const Header = ({ account, isConnected, onConnect, onDisconnect, theme, onThemeC
               <span className="felix-logo-text">Felix</span>
             </div>
           </a>
+          {version && (
+            <span className="felix-version">({version})</span>
+          )}
         </div>
         <div className="felix-nav-right">
           {isConnected ? (

@@ -10,8 +10,10 @@ export default defineConfig({
         chunkFileNames: `assets/[name].[hash].js`,
         assetFileNames: `assets/[name].[hash].[ext]`
       }
-    }
+    },
+    copyPublicDir: true
   },
+  publicDir: 'public',
   plugins: [react()],
   server: {
     port: 6023,

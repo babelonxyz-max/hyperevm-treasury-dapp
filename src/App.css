@@ -626,6 +626,18 @@ body {
 .felix-nav-left {
   display: flex;
   align-items: center;
+  gap: 1rem;
+}
+
+.felix-version {
+  font-size: 0.75rem;
+  color: #64748B;
+  font-family: monospace;
+  font-weight: 500;
+}
+
+[data-theme="dark"] .felix-version {
+  color: #94a3b8;
 }
 
 .felix-logo {
