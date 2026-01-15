@@ -20,7 +20,7 @@
     "update": "npm update",
     "clean": "rm -rf dist node_modules/.vite",
     "increment-version": "node scripts/increment-version.js",
-    "prebuild": "npm run increment-version && npm run clean",
+    "prebuild": "npm run increment-version",
     "postbuild": "echo 'Build completed successfully'"
   },
   "dependencies": {

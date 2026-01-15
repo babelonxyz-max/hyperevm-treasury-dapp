@@ -1,20 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { Wallet, LogOut } from 'lucide-react';
-import versionData from '../../version.json';
 
 const Header = ({ account, isConnected, onConnect, onDisconnect, theme, onThemeChange, onTestPrice }) => {
   const [version, setVersion] = useState('');
 
   useEffect(() => {
-    // Try to load version from JSON file
-    fetch('/version.json')
+    // Load version from JSON file with cache busting
+    fetch(`/version.json?v=${Date.now()}`)
       .then(res => res.json())
       .then(data => {
-        setVersion(`v${data.version} (${data.build})`);
+        setVersion(`v${data.version}.${data.build}`);
       })
-      .catch(() => {
-        // Fallback to imported version if fetch fails
-        setVersion(`v${versionData.version} (${versionData.build})`);
+      .catch((err) => {
+        console.error('Failed to load version:', err);
+        setVersion('v?.?');
       });
   }, []);
 
