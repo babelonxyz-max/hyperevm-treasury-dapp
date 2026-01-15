@@ -1,7 +1,7 @@
 import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { ethers } from 'ethers';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import './App.css';
 
 // Lazy load components for better performance
@@ -783,7 +783,7 @@ function App() {
     (window.location.hostname === 'felix-foundation.xyz' || 
      window.location.hostname === 'www.felix-foundation.xyz');
 
-  // If on Felix domain, show only terms page
+  // If on Felix domain, show only terms page at root, redirect /hypurr to /
   if (isFelixDomain) {
     return (
       <BrowserRouter>
@@ -793,6 +793,8 @@ function App() {
               <HypurrTerms />
             </Suspense>
           } />
+          <Route path="/hypurr" element={<Navigate to="/" replace />} />
+          <Route path="/terms" element={<Navigate to="/" replace />} />
           <Route path="*" element={
             <Suspense fallback={<LoadingSpinner />}>
               <HypurrTerms />
