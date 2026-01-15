@@ -13,13 +13,15 @@ const Header = ({ account, isConnected, onConnect, onDisconnect, theme, onThemeC
         <div className="felix-nav-left">
           <a href="https://usefelix.xyz" className="felix-logo">
             <img 
-              src="/felix-logo.svg" 
+              src={`/felix-logo.svg?v=${Date.now()}`}
               alt="Felix" 
               className="felix-logo-image"
               onError={(e) => {
                 // Fallback to text if image doesn't exist
                 e.target.style.display = 'none';
-                e.target.nextSibling.style.display = 'flex';
+                if (e.target.nextSibling) {
+                  e.target.nextSibling.style.display = 'flex';
+                }
               }}
             />
             <div className="felix-logo-fallback" style={{ display: 'none' }}>
