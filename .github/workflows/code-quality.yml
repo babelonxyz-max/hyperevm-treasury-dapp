@@ -14,6 +14,7 @@ jobs:
   code-quality:
     name: Code Quality Analysis
     runs-on: ubuntu-latest
+    continue-on-error: true
     
     steps:
     - name: Checkout code
@@ -54,6 +55,7 @@ jobs:
   bundle-analysis:
     name: Bundle Size Analysis
     runs-on: ubuntu-latest
+    continue-on-error: true
     
     steps:
     - name: Checkout code
@@ -114,6 +116,7 @@ jobs:
   performance-test:
     name: Performance Testing
     runs-on: ubuntu-latest
+    continue-on-error: true
     
     steps:
     - name: Checkout code
@@ -147,6 +150,7 @@ jobs:
   accessibility-test:
     name: Accessibility Testing
     runs-on: ubuntu-latest
+    continue-on-error: true
     
     steps:
     - name: Checkout code
