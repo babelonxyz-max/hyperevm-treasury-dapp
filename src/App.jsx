@@ -1,6 +1,7 @@
 import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { ethers } from 'ethers';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import './App.css';
 
 // Lazy load components for better performance
@@ -13,6 +14,7 @@ const ThemeToggle = lazy(() => import('./components/ThemeToggle'));
 const WithdrawalQueue = lazy(() => import('./components/WithdrawalQueue'));
 const PendingRewards = lazy(() => import('./components/PendingRewards'));
 const FloatingStatsBar = lazy(() => import('./components/FloatingStatsBar'));
+const HypurrTerms = lazy(() => import('./components/HypurrTerms'));
 
 const queryClient = new QueryClient();
 
@@ -777,8 +779,21 @@ function App() {
   };
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <div className="app">
+    <BrowserRouter>
+      <Routes>
+        <Route path="/hypurr" element={
+          <Suspense fallback={<LoadingSpinner />}>
+            <HypurrTerms />
+          </Suspense>
+        } />
+        <Route path="/terms" element={
+          <Suspense fallback={<LoadingSpinner />}>
+            <HypurrTerms />
+          </Suspense>
+        } />
+        <Route path="*" element={
+          <QueryClientProvider client={queryClient}>
+            <div className="app">
         <Suspense fallback={<LoadingSpinner />}>
           <Header 
             account={account} 
@@ -881,8 +896,11 @@ function App() {
           />
         </Suspense>
 
-      </div>
-    </QueryClientProvider>
+            </div>
+          </QueryClientProvider>
+        } />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
