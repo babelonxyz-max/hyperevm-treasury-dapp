@@ -598,17 +598,19 @@ body {
   z-index: 0;
 }
 
-/* Felix Header Styles - Matching usefelix.xyz */
+/* Felix Header Styles - Simple like Kinetiq Foundation */
 .felix-navbar {
-  background: rgba(10, 10, 10, 0.95);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(42, 42, 42, 0.5);
+  background: #ffffff;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   position: sticky;
   top: 0;
   z-index: var(--z-sticky);
   padding: 1rem 0;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .felix-navbar {
+  background: #0a0a0a;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .felix-nav-container {
@@ -624,21 +626,29 @@ body {
 .felix-nav-left {
   display: flex;
   align-items: center;
-  gap: 3rem;
-  flex: 1;
 }
 
 .felix-logo {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
   text-decoration: none;
   transition: opacity 0.2s ease;
-  flex-shrink: 0;
 }
 
 .felix-logo:hover {
   opacity: 0.8;
+}
+
+.felix-logo-image {
+  height: 32px;
+  width: auto;
+  display: block;
+}
+
+.felix-logo-fallback {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
 }
 
 .felix-logo-icon {
@@ -650,8 +660,6 @@ body {
   align-items: center;
   justify-content: center;
   box-shadow: 0 2px 8px rgba(0, 212, 255, 0.25);
-  transition: all 0.2s ease;
-  flex-shrink: 0;
 }
 
 .felix-logo-letter {
@@ -672,62 +680,32 @@ body {
   letter-spacing: -0.02em;
 }
 
-.felix-nav-links {
-  display: flex;
-  gap: 2rem;
-  align-items: center;
-}
-
-.felix-nav-link {
-  color: #b0b0b0;
-  text-decoration: none;
-  font-size: 0.9375rem;
-  font-weight: 500;
-  transition: color 0.2s ease;
-  position: relative;
-  white-space: nowrap;
-}
-
-.felix-nav-link:hover {
-  color: #ffffff;
-}
-
-.felix-nav-link::after {
-  content: '';
-  position: absolute;
-  bottom: -4px;
-  left: 0;
-  width: 0;
-  height: 2px;
-  background: linear-gradient(135deg, #00d4ff 0%, #7b61ff 100%);
-  transition: width 0.2s ease;
-}
-
-.felix-nav-link:hover::after {
-  width: 100%;
-}
-
 .felix-nav-right {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
+  gap: 1rem;
 }
 
 .felix-wallet-info {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  flex-wrap: wrap;
+  gap: 0.75rem;
 }
 
 .felix-wallet-address {
-  color: #e0e0e0;
-  font-size: 0.9rem;
+  color: #0F172A;
+  font-size: 0.875rem;
   font-family: monospace;
   padding: 0.5rem 1rem;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(0, 0, 0, 0.04);
   border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"] .felix-wallet-address {
+  color: #e0e0e0;
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
 .felix-disconnect-btn {
@@ -737,14 +715,26 @@ body {
   width: 36px;
   height: 36px;
   border-radius: 6px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #b0b0b0;
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  color: #64748B;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
+[data-theme="dark"] .felix-disconnect-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #b0b0b0;
+}
+
 .felix-disconnect-btn:hover {
+  background: rgba(0, 0, 0, 0.08);
+  border-color: rgba(0, 0, 0, 0.15);
+  color: #0F172A;
+}
+
+[data-theme="dark"] .felix-disconnect-btn:hover {
   background: rgba(255, 255, 255, 0.1);
   border-color: rgba(255, 255, 255, 0.2);
   color: #ffffff;
@@ -755,7 +745,7 @@ body {
   align-items: center;
   gap: 0.5rem;
   padding: 0.625rem 1.25rem;
-  background: linear-gradient(135deg, #00d4ff 0%, #7b61ff 100%);
+  background: #0F172A;
   border: none;
   border-radius: 6px;
   color: #ffffff;
@@ -763,38 +753,21 @@ body {
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
+}
+
+[data-theme="dark"] .felix-connect-btn {
+  background: linear-gradient(135deg, #00d4ff 0%, #7b61ff 100%);
   box-shadow: 0 2px 8px rgba(0, 212, 255, 0.25);
 }
 
 .felix-connect-btn:hover {
+  background: #1e293b;
   transform: translateY(-1px);
+}
+
+[data-theme="dark"] .felix-connect-btn:hover {
+  background: linear-gradient(135deg, #00d4ff 0%, #7b61ff 100%);
   box-shadow: 0 4px 12px rgba(0, 212, 255, 0.35);
-}
-
-.felix-theme-toggle {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.felix-theme-toggle:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.2);
-}
-
-.felix-theme-icon {
-  color: #b0b0b0;
-  transition: color 0.2s ease;
-}
-
-.felix-theme-icon.active {
-  color: #00d4ff;
 }
 
 /* Legacy header styles - keeping for compatibility */

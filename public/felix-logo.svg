@@ -1,0 +1,11 @@
+<svg width="120" height="32" viewBox="0 0 120 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="felixGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#00d4ff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#7b61ff;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="32" height="32" rx="8" fill="url(#felixGradient)"/>
+  <text x="16" y="22" font-family="system-ui, -apple-system, sans-serif" font-size="20" font-weight="700" fill="white" text-anchor="middle" letter-spacing="-0.01em">F</text>
+  <text x="42" y="22" font-family="system-ui, -apple-system, sans-serif" font-size="20" font-weight="700" fill="url(#felixGradient)" letter-spacing="-0.02em">Felix</text>
+</svg>

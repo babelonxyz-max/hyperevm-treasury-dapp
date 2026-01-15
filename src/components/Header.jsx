@@ -1,5 +1,5 @@
 import React from 'react';
-import { Wallet, Sun, Moon, LogOut } from 'lucide-react';
+import { Wallet, LogOut } from 'lucide-react';
 
 const Header = ({ account, isConnected, onConnect, onDisconnect, theme, onThemeChange, onTestPrice }) => {
   const formatAddress = (address) => {
@@ -7,38 +7,30 @@ const Header = ({ account, isConnected, onConnect, onDisconnect, theme, onThemeC
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
   };
 
-  const handleThemeToggle = () => {
-    onThemeChange(theme === 'light' ? 'dark' : 'light');
-  };
-
   return (
     <nav className="felix-navbar">
       <div className="felix-nav-container">
         <div className="felix-nav-left">
           <a href="https://usefelix.xyz" className="felix-logo">
-            <div className="felix-logo-icon">
-              <span className="felix-logo-letter">F</span>
+            <img 
+              src="/felix-logo.svg" 
+              alt="Felix" 
+              className="felix-logo-image"
+              onError={(e) => {
+                // Fallback to text if image doesn't exist
+                e.target.style.display = 'none';
+                e.target.nextSibling.style.display = 'flex';
+              }}
+            />
+            <div className="felix-logo-fallback" style={{ display: 'none' }}>
+              <div className="felix-logo-icon">
+                <span className="felix-logo-letter">F</span>
+              </div>
+              <span className="felix-logo-text">Felix</span>
             </div>
-            <span className="felix-logo-text">Felix</span>
           </a>
-          <div className="felix-nav-links">
-            <a href="https://usefelix.xyz/borrow" className="felix-nav-link">Borrow</a>
-            <a href="https://usefelix.xyz/lend" className="felix-nav-link">Lend</a>
-            <a href="https://usefelix.xyz/docs" className="felix-nav-link">Docs</a>
-          </div>
         </div>
         <div className="felix-nav-right">
-          <button 
-            className="felix-theme-toggle" 
-            data-theme={theme}
-            onClick={handleThemeToggle}
-            title={`Switch to ${theme === 'light' ? 'dark' : 'light'} theme`}
-            aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} theme`}
-            type="button"
-          >
-            <Sun size={16} className={`felix-theme-icon ${theme === 'light' ? 'active' : ''}`} />
-            <Moon size={16} className={`felix-theme-icon ${theme === 'dark' ? 'active' : ''}`} />
-          </button>
           {isConnected ? (
             <div className="felix-wallet-info">
               <span className="felix-wallet-address">{formatAddress(account)}</span>
@@ -55,7 +47,7 @@ const Header = ({ account, isConnected, onConnect, onDisconnect, theme, onThemeC
           ) : (
             <button className="felix-connect-btn" onClick={onConnect}>
               <Wallet size={16} />
-              Connect Wallet
+              Connect
             </button>
           )}
         </div>
