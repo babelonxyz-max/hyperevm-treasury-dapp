@@ -788,6 +788,11 @@ function App() {
     return (
       <BrowserRouter>
         <Routes>
+          <Route path="/" element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <HypurrTerms />
+            </Suspense>
+          } />
           <Route path="*" element={
             <Suspense fallback={<LoadingSpinner />}>
               <HypurrTerms />
