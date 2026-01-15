@@ -26,7 +26,7 @@
     "check-deploy": "node scripts/check-vercel-deploy.js"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^5.4.0",
+    "@openzeppelin/contracts": "^5.0.0",
     "@openzeppelin/contracts-upgradeable": "^5.0.0",
     "@tanstack/react-query": "^5.90.2",
     "ethers": "^6.15.0",
