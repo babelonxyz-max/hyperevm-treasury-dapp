@@ -110,6 +110,23 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       
+    - name: Check Vercel secrets
+      run: |
+        if [ -z "${{ secrets.VERCEL_TOKEN }}" ]; then
+          echo "⚠️  VERCEL_TOKEN secret is not configured"
+          echo "📝 Configure it at: https://github.com/${{ github.repository }}/settings/secrets/actions"
+          exit 1
+        fi
+        if [ -z "${{ secrets.VERCEL_ORG_ID }}" ]; then
+          echo "⚠️  VERCEL_ORG_ID secret is not configured"
+          exit 1
+        fi
+        if [ -z "${{ secrets.VERCEL_PROJECT_ID }}" ]; then
+          echo "⚠️  VERCEL_PROJECT_ID secret is not configured"
+          exit 1
+        fi
+        echo "✅ All Vercel secrets are configured"
+      
     - name: Deploy to Vercel
       uses: amondnet/vercel-action@v25
       with:
