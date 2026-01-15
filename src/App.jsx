@@ -778,6 +778,26 @@ function App() {
     setNetworkStatus('disconnected');
   };
 
+  // Check if we're on the Felix Foundation domain
+  const isFelixDomain = typeof window !== 'undefined' && 
+    (window.location.hostname === 'felix-foundation.xyz' || 
+     window.location.hostname === 'www.felix-foundation.xyz');
+
+  // If on Felix domain, show only terms page
+  if (isFelixDomain) {
+    return (
+      <BrowserRouter>
+        <Routes>
+          <Route path="*" element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <HypurrTerms />
+            </Suspense>
+          } />
+        </Routes>
+      </BrowserRouter>
+    );
+  }
+
   return (
     <BrowserRouter>
       <Routes>

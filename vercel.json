@@ -23,6 +23,10 @@
         }
       ]
     }
+  ],
+  "domains": [
+    "felix-foundation.xyz",
+    "www.felix-foundation.xyz"
   ]
 }
 
