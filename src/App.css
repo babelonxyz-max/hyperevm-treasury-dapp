@@ -646,6 +646,9 @@ body {
   height: 32px;
   width: auto;
   display: block;
+  object-fit: contain;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
 }
 
 .felix-version {
