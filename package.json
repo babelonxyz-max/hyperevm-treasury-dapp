@@ -21,7 +21,9 @@
     "clean": "rm -rf dist node_modules/.vite",
     "increment-version": "node scripts/increment-version.js",
     "prebuild": "npm run increment-version",
-    "postbuild": "echo 'Build completed successfully'"
+    "postbuild": "echo 'Build completed successfully'",
+    "hard-deploy": "node scripts/hard-deploy.js",
+    "deploy": "npm run hard-deploy"
   },
   "dependencies": {
     "@openzeppelin/contracts": "^5.4.0",
