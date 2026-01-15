@@ -634,6 +634,7 @@ body {
 .felix-logo {
   display: flex;
   align-items: center;
+  gap: 0.5rem;
   text-decoration: none;
   transition: opacity 0.2s ease;
 }
@@ -643,12 +644,27 @@ body {
 }
 
 .felix-logo-image {
-  height: 32px;
-  width: auto;
+  height: 24px;
+  width: 24px;
   display: block;
   object-fit: contain;
   image-rendering: -webkit-optimize-contrast;
   image-rendering: crisp-edges;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.felix-logo-text {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #000000;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+[data-theme="dark"] .felix-logo-text {
+  color: #ffffff;
 }
 
 .felix-version {

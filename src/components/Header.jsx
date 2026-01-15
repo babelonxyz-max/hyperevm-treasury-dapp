@@ -57,11 +57,12 @@ const Header = ({ account, isConnected, onConnect, onDisconnect, theme, onThemeC
                 }
               }}
             />
+            <span className="felix-logo-text">Felix</span>
             <div className="felix-logo-fallback" style={{ display: 'none' }}>
               <div className="felix-logo-icon">
                 <span className="felix-logo-letter">F</span>
               </div>
-              <span className="felix-logo-text">Felix</span>
+              <span className="felix-logo-text-fallback">Felix</span>
             </div>
           </a>
           {version && (

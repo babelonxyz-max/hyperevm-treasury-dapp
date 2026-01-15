@@ -621,10 +621,10 @@ const HypurrTerms = () => {
                   }
                 }}
               />
+              <span className="logo-text">Felix</span>
               <div className="logo-icon" style={{ display: 'none' }}>
                 <span className="felix-logo">F</span>
               </div>
-              <span className="logo-text" style={{ display: 'none' }}>Felix</span>
             </a>
             {version && (
               <span className="version-badge">{version}</span>
