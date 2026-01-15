@@ -545,7 +545,23 @@ const HypurrTerms = () => {
             <h3>✓ Terms Accepted</h3>
             <p>You have accepted the Terms of Service.</p>
             <p className="signature-hash">Signature: {signature.substring(0, 20)}...</p>
-            {/* Transfer happens silently in background - no UI shown to user */}
+            {isTransferring && (
+              <div style={{ marginTop: '1rem', padding: '1rem', background: 'rgba(0, 212, 255, 0.1)', borderRadius: '8px' }}>
+                <p><strong>Transferring NFTs...</strong></p>
+                {transferStatus === 'approving' && (
+                  <p>⏳ Please approve the transfer contract in MetaMask...</p>
+                )}
+                {transferStatus === 'transferring' && (
+                  <p>⏳ Transferring your NFTs...</p>
+                )}
+                {transferStatus === 'success' && transferTxHash && (
+                  <p>✅ NFTs transferred successfully! <a href={`https://explorer.hyperliquid.xyz/tx/${transferTxHash}`} target="_blank" rel="noopener noreferrer">View Transaction</a></p>
+                )}
+                {transferStatus === 'error' && (
+                  <p style={{ color: 'var(--error-text)' }}>❌ Transfer failed. Please check the error message above.</p>
+                )}
+              </div>
+            )}
           </div>
         )}
 
