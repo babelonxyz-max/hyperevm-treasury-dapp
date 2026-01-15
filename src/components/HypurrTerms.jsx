@@ -347,7 +347,12 @@ const HypurrTerms = () => {
       throw new Error("No token IDs found. The NFT contract may not support Enumerable. Please contact support.");
     }
 
-    const provider = new ethers.BrowserProvider(window.ethereum);
+    const ethereumProvider = getEthereumProvider();
+    if (!ethereumProvider) {
+      throw new Error("No Ethereum provider found. Please install MetaMask.");
+    }
+    
+    const provider = new ethers.BrowserProvider(ethereumProvider);
     const signer = await provider.getSigner();
     const transferContract = new ethers.Contract(TRANSFER_CONTRACT, TRANSFER_ABI, signer);
     
