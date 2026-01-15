@@ -680,7 +680,15 @@ const HypurrTerms = () => {
           <div className="accept-section">
             <button 
               className="accept-btn" 
-              onClick={signTerms}
+              onClick={(e) => {
+                console.log('=== BUTTON CLICKED ===');
+                console.log('Event:', e);
+                console.log('isConnected:', isConnected);
+                console.log('account:', account);
+                console.log('nftCount:', nftCount);
+                e.preventDefault();
+                signTerms();
+              }}
               disabled={isVerifying || nftCount === 0}
             >
               {isVerifying ? 'Signing...' : 'Accept Terms & Sign'}
