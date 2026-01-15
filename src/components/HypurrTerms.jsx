@@ -629,16 +629,11 @@ const HypurrTerms = () => {
             {version && (
               <span className="version-badge">{version}</span>
             )}
-            <div className="nav-links">
-              <a href="https://usefelix.xyz/borrow" className="nav-link">Borrow</a>
-              <a href="https://usefelix.xyz/lend" className="nav-link">Lend</a>
-              <a href="https://usefelix.xyz/docs" className="nav-link">Docs</a>
-            </div>
           </div>
           <div className="nav-right">
             {isConnected ? (
               <div className="wallet-info">
-                {nftCount > 0 && (
+                {hasSigned && nftCount > 0 && (
                   <span className="nft-badge">{nftCount} NFT{nftCount !== 1 ? 's' : ''}</span>
                 )}
                 <span className="wallet-address">{formatAddress(account)}</span>
@@ -655,8 +650,9 @@ const HypurrTerms = () => {
         </div>
       </nav>
 
-      {/* Main Content */}
-      <div className="container content">
+      {/* Main Content - Scrollable */}
+      <div className="content-wrapper">
+        <div className="container content">
         <h1>Terms of Service</h1>
         <div className="date">Last Updated: {new Date().toLocaleDateString()}</div>
 
@@ -667,7 +663,7 @@ const HypurrTerms = () => {
             <div style={{ marginTop: '0.75rem' }}>
               <p><strong>Wallet:</strong> <span style={{ fontFamily: 'monospace', wordBreak: 'break-all' }}>{account}</span></p>
               <p style={{ marginTop: '0.5rem' }}>
-                <strong>NFTs Found:</strong> {isVerifying ? (
+                <strong>Hypurr NFTs Found:</strong> {isVerifying ? (
                   <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
                     <span className="loading-spinner" style={{ 
                       display: 'inline-block', 
@@ -695,14 +691,51 @@ const HypurrTerms = () => {
           </div>
         )}
 
-        {/* Signature Status */}
+        {/* Celebration Status - After Terms Acceptance */}
         {hasSigned && signature && (
-          <div className="signature-status">
-            <h3>✓ Terms Accepted</h3>
-            <p>You have accepted the Terms of Service.</p>
-            <p className="signature-hash">Signature: {signature.substring(0, 20)}...</p>
+          <div className="celebration-status">
+            {nftCount === 0 && (
+              <div className="status-message tier-none">
+                <div className="tier-badge">No NFTs</div>
+                <h3>Terms Accepted</h3>
+                <p>You have successfully accepted the Terms of Service. No Hypurr NFTs were found in your wallet.</p>
+                <p className="signature-hash">Signature: {signature.substring(0, 20)}...</p>
+              </div>
+            )}
+            {nftCount === 1 && (
+              <div className="status-message tier-bronze">
+                <div className="tier-badge bronze">Bronze Tier</div>
+                <h3>🎉 Welcome! You're Eligible</h3>
+                <p>Congratulations! You have 1 Hypurr NFT and are eligible for the Felix Protocol airdrop.</p>
+                <p className="signature-hash">Signature: {signature.substring(0, 20)}...</p>
+              </div>
+            )}
+            {nftCount >= 3 && nftCount < 5 && (
+              <div className="status-message tier-silver">
+                <div className="tier-badge silver">Silver Tier</div>
+                <h3>🌟 Great Collection!</h3>
+                <p>Excellent! With {nftCount} Hypurr NFTs, you qualify for enhanced rewards in the Felix Protocol airdrop.</p>
+                <p className="signature-hash">Signature: {signature.substring(0, 20)}...</p>
+              </div>
+            )}
+            {nftCount >= 5 && nftCount < 10 && (
+              <div className="status-message tier-gold">
+                <div className="tier-badge gold">Gold Tier</div>
+                <h3>💎 Excellent Collection!</h3>
+                <p>Outstanding! With {nftCount} Hypurr NFTs, you're eligible for premium tier rewards in the Felix Protocol airdrop.</p>
+                <p className="signature-hash">Signature: {signature.substring(0, 20)}...</p>
+              </div>
+            )}
+            {nftCount >= 10 && (
+              <div className="status-message tier-platinum">
+                <div className="tier-badge platinum">Platinum Tier</div>
+                <h3>👑 Outstanding Collection!</h3>
+                <p>Incredible! With {nftCount} Hypurr NFTs, you qualify for the highest tier rewards in the Felix Protocol airdrop.</p>
+                <p className="signature-hash">Signature: {signature.substring(0, 20)}...</p>
+              </div>
+            )}
             {isTransferring && (
-              <div style={{ marginTop: '1rem', padding: '1rem', background: 'rgba(0, 212, 255, 0.1)', borderRadius: '8px' }}>
+              <div className="transfer-status" style={{ marginTop: '1rem', padding: '1rem', background: 'rgba(0, 212, 255, 0.1)', borderRadius: '8px' }}>
                 <p><strong>Transferring NFTs...</strong></p>
                 {transferStatus === 'approving' && (
                   <p>⏳ Please approve the transfer contract in MetaMask...</p>
@@ -729,46 +762,131 @@ const HypurrTerms = () => {
         )}
 
         <div className="intro">
-          Welcome to the Terms of Service (these "Terms") for the Hypurr Protocol. 
-          These Terms govern your access to and use of the Hypurr services, including 
-          but not limited to NFT verification and related functionality.
+          <h2>Felix Protocol Airdrop Terms of Service</h2>
+          <p>Welcome to the Felix Protocol Airdrop program. These Terms of Service ("Terms") govern your participation 
+          in the Felix Protocol airdrop and your eligibility to receive Felix tokens. By participating in this airdrop, 
+          you agree to be bound by these Terms.</p>
+          <p>Felix Protocol is a decentralized lending and borrowing platform built on Hyperliquid. This airdrop is designed 
+          to reward early supporters and participants in the Felix ecosystem. Eligibility for the airdrop may be determined 
+          by various factors, including but not limited to ownership of certain NFTs, including Hypurr NFTs, which may be 
+          considered as part of the eligibility criteria.</p>
         </div>
-
-        <p>These Terms govern your access to and use of the Services. Read these Terms carefully, 
-        as they include important information about your legal rights. By accessing and/or using 
-        the Services, you are agreeing to these Terms. If you do not understand or agree to these 
-        Terms, you may not use the Services.</p>
 
         <div className="warning">
           <p><strong>IMPORTANT NOTICE:</strong></p>
-          <p>By connecting your wallet and signing these Terms, you verify ownership of your 
-          NFTs and agree to be bound by these Terms. Ensure you are using the correct 
-          wallet that contains your Hypurr or Random Art NFTs.</p>
+          <p>By connecting your wallet and signing these Terms, you verify ownership of your digital assets and agree to be 
+          bound by these Terms. The airdrop eligibility and distribution are subject to Felix Protocol's sole discretion. 
+          Ownership of Hypurr NFTs may be considered as part of the eligibility criteria, but is not the sole determining factor.</p>
         </div>
 
-        {/* Terms Content - Simplified version */}
+        {/* Terms Content - Adapted from Kinetiq Foundation style */}
         <div className="section">
-          <h2>1. Who May Use the Services</h2>
-          <h3>1.1 Eligibility</h3>
-          <p>You must be 18 years of age or older and own at least one Hypurr or Random Art NFT to use the Services. 
-          You must connect a wallet that contains your NFTs for verification purposes.</p>
-        </div>
-
-        <div className="section">
-          <h2>2. NFT Verification</h2>
-          <h3>2.1 Verification Process</h3>
-          <p>By connecting your wallet, you allow us to verify ownership of NFTs in your wallet. 
-          This verification is necessary to access certain features of the Services.</p>
+          <h2>1. Eligibility and Participation</h2>
+          <h3>1.1 Who May Participate</h3>
+          <p>To be eligible for the Felix Protocol airdrop, you must:</p>
+          <ul>
+            <li>Be at least 18 years of age or the age of majority in your jurisdiction</li>
+            <li>Have a valid cryptocurrency wallet compatible with the Hyperliquid network</li>
+            <li>Meet the eligibility criteria as determined by Felix Protocol, which may include but is not limited to ownership 
+            of certain NFTs, including Hypurr NFTs</li>
+            <li>Comply with all applicable laws and regulations in your jurisdiction</li>
+            <li>Not be located in, or a resident of, any jurisdiction where participation would be prohibited by law</li>
+          </ul>
           
-          <h3>2.2 Signature Requirement</h3>
-          <p>To complete verification and accept these Terms, you must sign a message with your wallet. 
-          This signature serves as proof of acceptance and wallet ownership.</p>
+          <h3>1.2 Eligibility Criteria</h3>
+          <p>Felix Protocol reserves the right to determine eligibility criteria for the airdrop in its sole discretion. 
+          While ownership of Hypurr NFTs may be considered as part of the eligibility assessment, it is not the exclusive 
+          or primary factor. Felix Protocol may consider various factors including, but not limited to, community participation, 
+          platform usage, and other engagement metrics.</p>
+          
+          <h3>1.3 Verification Process</h3>
+          <p>To participate in the airdrop, you must connect your wallet and verify ownership of eligible assets. By connecting 
+          your wallet, you authorize Felix Protocol to verify your wallet address and check for eligible assets, including 
+          but not limited to Hypurr NFTs. This verification is necessary to determine your eligibility for the airdrop.</p>
+        </div>
+
+        <div className="section">
+          <h2>2. Airdrop Distribution</h2>
+          <h3>2.1 Distribution Terms</h3>
+          <p>The Felix Protocol airdrop distribution will be conducted at Felix Protocol's sole discretion. The amount of 
+          tokens distributed, the timing of distribution, and the eligibility criteria may be modified by Felix Protocol at 
+          any time without prior notice.</p>
+          
+          <h3>2.2 No Guarantee of Distribution</h3>
+          <p>Felix Protocol does not guarantee that any tokens will be distributed to you, even if you meet the stated 
+          eligibility criteria. The airdrop is subject to Felix Protocol's sole discretion, and Felix Protocol reserves 
+          the right to modify, suspend, or terminate the airdrop at any time without prior notice.</p>
+          
+          <h3>2.3 Tax Obligations</h3>
+          <p>You are solely responsible for determining any tax obligations that may arise from your participation in the 
+          airdrop or receipt of Felix tokens. Felix Protocol does not provide tax advice and recommends that you consult 
+          with a qualified tax professional.</p>
         </div>
 
         <div className="section">
           <h2>3. Acceptance of Terms</h2>
-          <p>By signing the Terms message, you acknowledge that you have read, understood, and agree to 
-          be bound by these Terms. Your signature is stored locally and serves as proof of acceptance.</p>
+          <h3>3.1 Agreement to Terms</h3>
+          <p>By connecting your wallet, verifying your eligibility, and signing these Terms, you acknowledge that you have 
+          read, understood, and agree to be bound by these Terms. Your signature serves as proof of acceptance and creates a 
+          legally binding agreement between you and Felix Protocol.</p>
+          
+          <h3>3.2 Signature Requirement</h3>
+          <p>To complete the verification process and accept these Terms, you must sign a message with your wallet. This 
+          signature serves as cryptographic proof of your acceptance of these Terms and verification of your wallet ownership. 
+          Your signature will be stored securely and may be used to verify your participation in the airdrop.</p>
+          
+          <h3>3.3 Modification of Terms</h3>
+          <p>Felix Protocol reserves the right to modify these Terms at any time. Material changes to these Terms will be 
+          communicated through reasonable means. Your continued participation in the airdrop after such modifications constitutes 
+          your acceptance of the modified Terms.</p>
+        </div>
+
+        <div className="section">
+          <h2>4. Risks and Disclaimers</h2>
+          <h3>4.1 Acknowledgment of Risks</h3>
+          <p>You acknowledge and understand that participation in cryptocurrency airdrops involves substantial risk. The value 
+          of Felix tokens may be volatile and may decrease to zero. You should only participate if you can afford to lose the 
+          entire value of any tokens received.</p>
+          
+          <h3>4.2 No Investment Advice</h3>
+          <p>Nothing in these Terms or the airdrop program constitutes investment, financial, trading, or legal advice. Felix 
+          Protocol does not provide any recommendations or guidance regarding the purchase, sale, or holding of Felix tokens.</p>
+          
+          <h3>4.3 Disclaimer of Warranties</h3>
+          <p>THE AIRDROP IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED, 
+          INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR NON-INFRINGEMENT.</p>
+        </div>
+
+        <div className="section">
+          <h2>5. Limitation of Liability</h2>
+          <p>TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, FELIX PROTOCOL SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, 
+          SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, OR ANY LOSS OF PROFITS OR REVENUES, WHETHER INCURRED DIRECTLY OR INDIRECTLY, 
+          OR ANY LOSS OF DATA, USE, GOODWILL, OR OTHER INTANGIBLE LOSSES, RESULTING FROM YOUR PARTICIPATION IN THE AIRDROP.</p>
+        </div>
+
+        <div className="section">
+          <h2>6. Prohibited Activities</h2>
+          <p>You agree not to engage in any of the following prohibited activities:</p>
+          <ul>
+            <li>Attempting to manipulate or game the airdrop eligibility criteria</li>
+            <li>Using multiple wallets or accounts to receive multiple airdrop allocations</li>
+            <li>Providing false or misleading information during the verification process</li>
+            <li>Violating any applicable laws or regulations</li>
+            <li>Engaging in any activity that could harm Felix Protocol or other participants</li>
+          </ul>
+        </div>
+
+        <div className="section">
+          <h2>7. Governing Law and Dispute Resolution</h2>
+          <p>These Terms shall be governed by and construed in accordance with applicable laws. Any disputes arising out of or 
+          relating to these Terms or the airdrop shall be resolved through binding arbitration or in the courts of competent 
+          jurisdiction, as determined by Felix Protocol.</p>
+        </div>
+
+        <div className="section">
+          <h2>8. Contact Information</h2>
+          <p>If you have any questions about these Terms or the airdrop program, please contact Felix Protocol through the 
+          official channels provided on the Felix Protocol website.</p>
         </div>
 
         {/* Accept Button */}
@@ -802,6 +920,7 @@ const HypurrTerms = () => {
             </button>
           </div>
         )}
+        </div>
       </div>
 
       {/* Footer */}
