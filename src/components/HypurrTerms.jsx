@@ -58,16 +58,34 @@ const HypurrTerms = () => {
     checkWalletConnection();
     checkExistingSignature();
     
-    // Load version
-    fetch(`/version.json?v=${Date.now()}`)
-      .then(res => res.json())
-      .then(data => {
-        setVersion(`v${data.version}.${data.build}`);
+    // Load version with aggressive cache busting
+    const loadVersion = () => {
+      fetch(`/version.json?t=${Date.now()}&v=${Math.random()}`, {
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
       })
-      .catch((err) => {
-        console.error('Failed to load version:', err);
-        setVersion('');
-      });
+        .then(res => {
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          return res.json();
+        })
+        .then(data => {
+          const versionString = `v${data.version}.${data.build}`;
+          setVersion(versionString);
+          console.log('✅ Version loaded:', versionString);
+        })
+        .catch((err) => {
+          console.error('❌ Failed to load version:', err);
+          setVersion('');
+        });
+    };
+    
+    loadVersion();
+    // Retry after delay in case of cache issues
+    const retryTimer = setTimeout(loadVersion, 2000);
+    return () => clearTimeout(retryTimer);
   }, []);
 
   // Get the correct Ethereum provider (prefer MetaMask)

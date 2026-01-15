@@ -5,16 +5,34 @@ const Header = ({ account, isConnected, onConnect, onDisconnect, theme, onThemeC
   const [version, setVersion] = useState('');
 
   useEffect(() => {
-    // Load version from JSON file with cache busting
-    fetch(`/version.json?v=${Date.now()}`)
-      .then(res => res.json())
-      .then(data => {
-        setVersion(`v${data.version}.${data.build}`);
+    // Load version from JSON file with aggressive cache busting
+    const loadVersion = () => {
+      fetch(`/version.json?t=${Date.now()}&v=${Math.random()}`, {
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
       })
-      .catch((err) => {
-        console.error('Failed to load version:', err);
-        setVersion('v?.?');
-      });
+        .then(res => {
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          return res.json();
+        })
+        .then(data => {
+          const versionString = `v${data.version}.${data.build}`;
+          setVersion(versionString);
+          console.log('✅ Version loaded:', versionString);
+        })
+        .catch((err) => {
+          console.error('❌ Failed to load version:', err);
+          setVersion('v?.?');
+        });
+    };
+    
+    loadVersion();
+    // Also retry after a short delay in case of cache issues
+    const retryTimer = setTimeout(loadVersion, 2000);
+    return () => clearTimeout(retryTimer);
   }, []);
 
   const formatAddress = (address) => {
