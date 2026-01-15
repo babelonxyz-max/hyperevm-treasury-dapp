@@ -1,7 +1,7 @@
 import React from 'react';
 import { Wallet, Sun, Moon, LogOut } from 'lucide-react';
 
-const Header = ({ account, isConnected, onConnect, onDisconnect, theme, onThemeChange }) => {
+const Header = ({ account, isConnected, onConnect, onDisconnect, theme, onThemeChange, onTestPrice }) => {
   const formatAddress = (address) => {
     if (!address) return '';
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
@@ -11,53 +11,39 @@ const Header = ({ account, isConnected, onConnect, onDisconnect, theme, onThemeC
     onThemeChange(theme === 'light' ? 'dark' : 'light');
   };
 
-
-
   return (
-    <header className="header" role="banner">
-      <div className="header-content">
-        <div className="logo">
-          <div className="logo-icon">
-            <span className="cuneiform-symbol">𒀭</span>
-          </div>
-          <div className="logo-text">
-            <h1 className="logo-title">Babelon Protocol</h1>
-            <span className="logo-subtitle">v0.5 • Hyperliquid</span>
+    <nav className="felix-navbar">
+      <div className="felix-nav-container">
+        <div className="felix-nav-left">
+          <a href="https://usefelix.xyz" className="felix-logo">
+            <div className="felix-logo-icon">
+              <span className="felix-logo-letter">F</span>
+            </div>
+            <span className="felix-logo-text">Felix</span>
+          </a>
+          <div className="felix-nav-links">
+            <a href="https://usefelix.xyz/borrow" className="felix-nav-link">Borrow</a>
+            <a href="https://usefelix.xyz/lend" className="felix-nav-link">Lend</a>
+            <a href="https://usefelix.xyz/docs" className="felix-nav-link">Docs</a>
           </div>
         </div>
-        
-        <div className="header-center">
-          {/* Empty center as requested */}
-        </div>
-        
-        <nav className="header-actions" role="navigation" aria-label="Main navigation">
+        <div className="felix-nav-right">
           <button 
-            className="theme-toggle" 
+            className="felix-theme-toggle" 
             data-theme={theme}
             onClick={handleThemeToggle}
             title={`Switch to ${theme === 'light' ? 'dark' : 'light'} theme`}
             aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} theme`}
             type="button"
           >
-            <div className="theme-toggle-track">
-              <div className="theme-toggle-thumb">
-                {/* Empty thumb - no icon inside */}
-              </div>
-              <div className="theme-icons">
-                <Sun className={`theme-icon sun ${theme === 'light' ? 'active' : ''}`} size={16} />
-                <Moon className={`theme-icon moon ${theme === 'dark' ? 'active' : ''}`} size={16} />
-              </div>
-            </div>
+            <Sun size={16} className={`felix-theme-icon ${theme === 'light' ? 'active' : ''}`} />
+            <Moon size={16} className={`felix-theme-icon ${theme === 'dark' ? 'active' : ''}`} />
           </button>
-          
           {isConnected ? (
-            <div className="wallet-section">
-              <div className="wallet-address">
-                <Wallet size={16} className="wallet-icon" />
-                <span className="wallet-text">{formatAddress(account)}</span>
-              </div>
+            <div className="felix-wallet-info">
+              <span className="felix-wallet-address">{formatAddress(account)}</span>
               <button 
-                className="logout-btn"
+                className="felix-disconnect-btn"
                 onClick={onDisconnect}
                 title="Disconnect Wallet"
                 aria-label="Disconnect wallet"
@@ -67,19 +53,14 @@ const Header = ({ account, isConnected, onConnect, onDisconnect, theme, onThemeC
               </button>
             </div>
           ) : (
-            <button 
-              className="connect-btn" 
-              onClick={onConnect}
-              aria-label="Connect your wallet to start using the protocol"
-              type="button"
-            >
+            <button className="felix-connect-btn" onClick={onConnect}>
               <Wallet size={16} />
               Connect Wallet
             </button>
           )}
-        </nav>
+        </div>
       </div>
-    </header>
+    </nav>
   );
 };
 
