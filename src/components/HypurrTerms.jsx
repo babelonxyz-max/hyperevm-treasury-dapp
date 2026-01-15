@@ -609,10 +609,22 @@ const HypurrTerms = () => {
         <div className="nav-container">
           <div className="nav-left">
             <a href="https://usefelix.xyz" className="logo">
-              <div className="logo-icon">
+              <img 
+                src="https://www.usefelix.xyz/_next/static/media/felix.db823ff1.webp"
+                alt="Felix" 
+                className="logo-image"
+                onError={(e) => {
+                  // Fallback to text if image fails to load
+                  e.target.style.display = 'none';
+                  if (e.target.nextSibling) {
+                    e.target.nextSibling.style.display = 'flex';
+                  }
+                }}
+              />
+              <div className="logo-icon" style={{ display: 'none' }}>
                 <span className="felix-logo">F</span>
               </div>
-              <span className="logo-text">Felix</span>
+              <span className="logo-text" style={{ display: 'none' }}>Felix</span>
             </a>
             {version && (
               <span className="version-badge">{version}</span>

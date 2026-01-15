@@ -46,11 +46,11 @@ const Header = ({ account, isConnected, onConnect, onDisconnect, theme, onThemeC
         <div className="felix-nav-left">
           <a href="https://usefelix.xyz" className="felix-logo">
             <img 
-              src={`/felix-logo.svg?v=${Date.now()}`}
+              src="https://www.usefelix.xyz/_next/static/media/felix.db823ff1.webp"
               alt="Felix" 
               className="felix-logo-image"
               onError={(e) => {
-                // Fallback to text if image doesn't exist
+                // Fallback to text if image fails to load
                 e.target.style.display = 'none';
                 if (e.target.nextSibling) {
                   e.target.nextSibling.style.display = 'flex';
