@@ -604,8 +604,10 @@ body {
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   position: sticky;
   top: 0;
-  z-index: var(--z-sticky);
+  z-index: 10000;
   padding: 1rem 0;
+  width: 100%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 [data-theme="dark"] .felix-navbar {
@@ -627,17 +629,6 @@ body {
   display: flex;
   align-items: center;
   gap: 1rem;
-}
-
-.felix-version {
-  font-size: 0.75rem;
-  color: #64748B;
-  font-family: monospace;
-  font-weight: 500;
-}
-
-[data-theme="dark"] .felix-version {
-  color: #94a3b8;
 }
 
 .felix-logo {
@@ -663,6 +654,7 @@ body {
   color: rgba(0, 0, 0, 0.5);
   font-weight: 500;
   font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+  white-space: nowrap;
 }
 
 [data-theme="dark"] .felix-version {

@@ -47,7 +47,7 @@ const Header = ({ account, isConnected, onConnect, onDisconnect, theme, onThemeC
             </div>
           </a>
           {version && (
-            <span className="felix-version">({version})</span>
+            <span className="felix-version">{version}</span>
           )}
         </div>
         <div className="felix-nav-right">
