@@ -3,6 +3,9 @@ import { ethers } from 'ethers';
 import './HypurrTerms.css';
 
 const HypurrTerms = () => {
+  console.log('=== HypurrTerms COMPONENT RENDERED ===');
+  console.log('Component loaded at:', new Date().toISOString());
+  
   const [account, setAccount] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
