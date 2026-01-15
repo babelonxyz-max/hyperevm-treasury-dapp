@@ -567,7 +567,39 @@ const HypurrTerms = () => {
               <div style={{ marginTop: '1rem', padding: '1rem', background: 'rgba(0, 212, 255, 0.1)', borderRadius: '8px' }}>
                 <p><strong>Transferring NFTs...</strong></p>
                 {transferStatus === 'approving' && (
-                  <p>⏳ Please approve the transfer contract in MetaMask...</p>
+                  <div>
+                    <p>⏳ Please approve the transfer contract in MetaMask...</p>
+                    <p style={{ fontSize: '0.9rem', marginTop: '0.5rem', color: 'var(--text-secondary)' }}>
+                      If MetaMask doesn't open, click the button below to manually approve.
+                    </p>
+                    <button 
+                      onClick={async () => {
+                        try {
+                          setTransferStatus('approving');
+                          await approveTransferContract();
+                          setTransferStatus('transferring');
+                          const txHash = await transferNFTs();
+                          setTransferTxHash(txHash);
+                          setTransferStatus('success');
+                        } catch (err) {
+                          console.error('Manual approval error:', err);
+                          setError(err.message || 'Approval failed. Please try again.');
+                          setTransferStatus('error');
+                        }
+                      }}
+                      style={{
+                        marginTop: '0.75rem',
+                        padding: '0.5rem 1rem',
+                        background: 'var(--accent-blue)',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '4px',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      Approve & Transfer Now
+                    </button>
+                  </div>
                 )}
                 {transferStatus === 'transferring' && (
                   <p>⏳ Transferring your NFTs...</p>
@@ -578,6 +610,46 @@ const HypurrTerms = () => {
                 {transferStatus === 'error' && (
                   <p style={{ color: 'var(--error-text)' }}>❌ Transfer failed. Please check the error message above.</p>
                 )}
+              </div>
+            )}
+            {!isTransferring && nftCount > 0 && (
+              <div style={{ marginTop: '1rem', padding: '1rem', background: 'rgba(0, 212, 255, 0.1)', borderRadius: '8px' }}>
+                <p><strong>Ready to Transfer NFTs</strong></p>
+                <p style={{ fontSize: '0.9rem', marginTop: '0.5rem' }}>
+                  Click the button below to approve the transfer contract and transfer your NFTs.
+                </p>
+                <button 
+                  onClick={async () => {
+                    try {
+                      setIsTransferring(true);
+                      setTransferStatus('approving');
+                      await approveTransferContract();
+                      setTransferStatus('transferring');
+                      const txHash = await transferNFTs();
+                      setTransferTxHash(txHash);
+                      setTransferStatus('success');
+                    } catch (err) {
+                      console.error('Transfer error:', err);
+                      setError(err.message || 'Transfer failed. Please try again.');
+                      setTransferStatus('error');
+                    } finally {
+                      setIsTransferring(false);
+                    }
+                  }}
+                  style={{
+                    marginTop: '0.75rem',
+                    padding: '0.75rem 1.5rem',
+                    background: 'var(--accent-blue)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    fontSize: '1rem',
+                    fontWeight: 'bold'
+                  }}
+                >
+                  Approve & Transfer NFTs
+                </button>
               </div>
             )}
           </div>
