@@ -55,6 +55,13 @@ const HypurrTerms = () => {
 
   // Check if wallet is already connected
   useEffect(() => {
+    // Update document title for Felix domain
+    const hostname = window.location.hostname;
+    const isFelixDomain = hostname === 'felix-foundation.xyz' || hostname === 'www.felix-foundation.xyz';
+    if (isFelixDomain) {
+      document.title = 'Felix Foundation - Terms of Service';
+    }
+    
     checkWalletConnection();
     checkExistingSignature();
     
