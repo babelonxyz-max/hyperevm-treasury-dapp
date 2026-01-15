@@ -3,16 +3,6 @@ import react from '@vitejs/plugin-react'
 
 // https://vite.dev/config/
 export default defineConfig({
-  build: {
-    rollupOptions: {
-      output: {
-        entryFileNames: `assets/[name].[hash].js`,
-        chunkFileNames: `assets/[name].[hash].js`,
-        assetFileNames: `assets/[name].[hash].[ext]`
-      }
-    },
-    copyPublicDir: true
-  },
   publicDir: 'public',
   plugins: [react()],
   server: {
@@ -22,6 +12,9 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
+        entryFileNames: `assets/[name].[hash].js`,
+        chunkFileNames: `assets/[name].[hash].js`,
+        assetFileNames: `assets/[name].[hash].[ext]`,
         manualChunks: {
           vendor: ['react', 'react-dom'],
           ethers: ['ethers'],
@@ -30,6 +23,7 @@ export default defineConfig({
         },
       },
     },
+    copyPublicDir: true,
     chunkSizeWarningLimit: 500,
     minify: 'terser',
     terserOptions: {
