@@ -19,7 +19,8 @@
     "outdated": "npm outdated",
     "update": "npm update",
     "clean": "rm -rf dist node_modules/.vite",
-    "prebuild": "npm run clean",
+    "increment-version": "node scripts/increment-version.js",
+    "prebuild": "npm run increment-version && npm run clean",
     "postbuild": "echo 'Build completed successfully'"
   },
   "dependencies": {
