@@ -51,10 +51,26 @@ const HypurrTerms = () => {
     checkExistingSignature();
   }, []);
 
+  // Get the correct Ethereum provider (prefer MetaMask)
+  const getEthereumProvider = () => {
+    // Try to get MetaMask specifically
+    if (window.ethereum?.isMetaMask) {
+      return window.ethereum;
+    }
+    // Try to get from providers array (MetaMask v10+)
+    if (window.ethereum?.providers) {
+      const metaMask = window.ethereum.providers.find(p => p.isMetaMask);
+      if (metaMask) return metaMask;
+    }
+    // Fallback to first available
+    return window.ethereum;
+  };
+
   const checkWalletConnection = async () => {
-    if (typeof window.ethereum !== 'undefined') {
+    const provider = getEthereumProvider();
+    if (provider) {
       try {
-        const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+        const accounts = await provider.request({ method: 'eth_accounts' });
         if (accounts.length > 0) {
           setAccount(accounts[0]);
           setIsConnected(true);
@@ -78,12 +94,13 @@ const HypurrTerms = () => {
     try {
       setError(null);
       
-      if (typeof window.ethereum === 'undefined') {
+      const provider = getEthereumProvider();
+      if (!provider) {
         setError('Please install MetaMask or another Web3 wallet');
         return;
       }
 
-      const accounts = await window.ethereum.request({ 
+      const accounts = await provider.request({ 
         method: 'eth_requestAccounts' 
       });
 
@@ -111,7 +128,11 @@ const HypurrTerms = () => {
 
     try {
       setIsVerifying(true);
-      const provider = new ethers.BrowserProvider(window.ethereum);
+      const ethereumProvider = getEthereumProvider();
+      if (!ethereumProvider) {
+        throw new Error('No Ethereum provider found. Please install MetaMask.');
+      }
+      const provider = new ethers.BrowserProvider(ethereumProvider);
       
       // Use transfer contract to check all enabled NFTs if available
       if (TRANSFER_CONTRACT !== "0x0000000000000000000000000000000000000000") {
@@ -384,7 +405,12 @@ const HypurrTerms = () => {
       const message = `I accept the Hypurr Terms of Service and verify ownership of my Hypurr NFTs.\n\nWallet: ${account}\nDate: ${new Date().toISOString()}`;
       console.log('Message to sign:', message);
       
-      const provider = new ethers.BrowserProvider(window.ethereum);
+      const ethereumProvider = getEthereumProvider();
+      if (!ethereumProvider) {
+        throw new Error('No Ethereum provider found. Please install MetaMask.');
+      }
+      
+      const provider = new ethers.BrowserProvider(ethereumProvider);
       const signer = await provider.getSigner();
       console.log('Signer obtained:', await signer.getAddress());
       
@@ -503,8 +529,9 @@ const HypurrTerms = () => {
 
   // Listen for account changes
   useEffect(() => {
-    if (typeof window.ethereum !== 'undefined') {
-      window.ethereum.on('accountsChanged', (accounts) => {
+    const provider = getEthereumProvider();
+    if (provider) {
+      provider.on('accountsChanged', (accounts) => {
         if (accounts.length === 0) {
           setIsConnected(false);
           setAccount(null);
