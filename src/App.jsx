@@ -779,12 +779,22 @@ function App() {
   };
 
   // Check if we're on the Felix Foundation domain
-  const isFelixDomain = typeof window !== 'undefined' && 
-    (window.location.hostname === 'felix-foundation.xyz' || 
-     window.location.hostname === 'www.felix-foundation.xyz');
+  const [isFelixDomain, setIsFelixDomain] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const hostname = window.location.hostname;
+      const isFelix = hostname === 'felix-foundation.xyz' || 
+                      hostname === 'www.felix-foundation.xyz' ||
+                      hostname.includes('felix-foundation');
+      setIsFelixDomain(isFelix);
+      console.log('🌐 Domain check:', { hostname, isFelix });
+    }
+  }, []);
 
   // If on Felix domain, show only terms page at root, redirect /hypurr to /
   if (isFelixDomain) {
+    console.log('✅ Showing Felix Terms Page for domain:', window.location.hostname);
     return (
       <BrowserRouter>
         <Routes>
