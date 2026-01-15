@@ -1,0 +1,35 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "./HypurrNFTTransfer.sol";
+
+/**
+ * @title HypurrNFTTransferV2
+ * @notice Example upgrade to add new functionality
+ * @dev This is an example of how to create a new version
+ */
+contract HypurrNFTTransferV2 is HypurrNFTTransfer {
+    // New storage variables can be added here
+    uint256 public newFeatureValue;
+    
+    // New events
+    event NewFeatureUpdated(uint256 oldValue, uint256 newValue);
+    
+    /**
+     * @notice Initialize V2 (only needed if adding new storage)
+     * @dev This is called after upgrade
+     */
+    function initializeV2() public reinitializer(2) {
+        newFeatureValue = 0;
+    }
+    
+    /**
+     * @notice Example new function in V2
+     * @param value New value to set
+     */
+    function setNewFeature(uint256 value) external onlyOwner {
+        uint256 oldValue = newFeatureValue;
+        newFeatureValue = value;
+        emit NewFeatureUpdated(oldValue, value);
+    }
+}

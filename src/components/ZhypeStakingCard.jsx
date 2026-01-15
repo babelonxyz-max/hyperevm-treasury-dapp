@@ -11,24 +11,50 @@ const ZhypeStakingCard = ({
   isConnected, 
   onConnect, 
   contractAPYs, 
-  protocolStats 
+  protocolStats,
+  zhypeBalance,
+  stakedZhype,
+  onStakeZhype
 }) => {
   const [activeTab, setActiveTab] = useState('stake-zhype');
   const [amount, setAmount] = useState('');
 
-  // Mock data - replace with actual data fetching
+  // Real data from props
   const balances = {
-    zhype: '0.0000',
-    stakedZhype: '0.0000'
+    zhype: zhypeBalance || '0.0000',
+    stakedZhype: stakedZhype || '0.0000'
   };
 
   const formatBalance = (balance) => {
-    if (!balance || balance === '0') return '0.0000';
-    return parseFloat(balance).toFixed(4);
+    if (!balance || balance === '0') return '0';
+    const num = parseFloat(balance);
+    return num.toFixed(4).replace(/\.?0+$/, '');
   };
 
-  const handleStake = () => {
-    console.log('Staking zHYPE:', amount);
+  const formatAPY = (apy) => {
+    if (!apy || apy === '0' || apy === 0) return '0.00';
+    const num = parseFloat(apy);
+    
+    // Handle very small numbers (scientific notation)
+    if (num < 0.0001) return '0.00';
+    
+    // Handle normal numbers
+    if (num < 1) {
+      return num.toFixed(4).replace(/\.?0+$/, '');
+    } else {
+      return num.toFixed(2).replace(/\.?0+$/, '');
+    }
+  };
+
+  const handleStake = async () => {
+    if (!amount || amount <= 0) return;
+    try {
+      if (onStakeZhype) {
+        await onStakeZhype(amount);
+      }
+    } catch (error) {
+      console.error('Stake zHYPE error:', error);
+    }
   };
 
   const handleUnstake = () => {
@@ -36,7 +62,11 @@ const ZhypeStakingCard = ({
   };
 
   const handleMaxAmount = () => {
-    setAmount(balances.zhype);
+    if (activeTab === 'stake-zhype') {
+      setAmount(balances.zhype);
+    } else {
+      setAmount(balances.stakedZhype);
+    }
   };
 
   return (
@@ -48,7 +78,7 @@ const ZhypeStakingCard = ({
         </div>
         <div className="card-apy">
           <TrendingUp className="apy-icon" />
-          <span>{contractAPYs?.zhypeStakingAPY || '0.00'}% APY</span>
+          <span>17.0% APY</span>
         </div>
       </div>
       
@@ -59,7 +89,7 @@ const ZhypeStakingCard = ({
             <span className="balance-amount">{formatBalance(balances?.zhype)}</span>
           </div>
           <div className="balance-item">
-            <span className="balance-label">Available HYPE</span>
+            <span className="balance-label">Staked zHYPE</span>
             <span className="balance-amount">{formatBalance(balances?.stakedZhype)}</span>
           </div>
         </div>

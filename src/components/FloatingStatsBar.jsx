@@ -1,22 +1,33 @@
 import React from 'react';
-import { TrendingUp, Zap, Coins, Shield, DollarSign, Scale, Tag } from 'lucide-react';
+import { TrendingUp, Zap, Coins, Shield, DollarSign, Scale, Tag, Loader2 } from 'lucide-react';
 
-const FloatingStatsBar = ({ contractAPYs, protocolStats }) => {
+const FloatingStatsBar = ({ 
+  contractAPYs, 
+  protocolStats, 
+  dynamicZhypeAPY,
+  isPriceLoading = false
+}) => {
+  // Debug logging
+  console.log('🔍 FloatingStatsBar props:', {
+    protocolStats,
+    isPriceLoading,
+    hypePrice: protocolStats?.hypePrice
+  });
   const stats = [
     {
       icon: <TrendingUp size={14} />,
       symbol: 'HYPE APY',
-      value: `${contractAPYs?.hypeAPY?.toFixed(2) || '0.00'}%`,
+      value: `${dynamicZhypeAPY?.toFixed(1) || '0.0'}%`,
       color: '#3B82F6'
     },
     {
       icon: <Zap size={14} />,
       symbol: 'zHYPE APY',
-      value: `${contractAPYs?.zhypeAPY?.toFixed(2) || '0.00'}%`,
+      value: '17.0%',
       color: '#8B5CF6'
     },
     {
-      icon: <DollarSign size={14} />,
+      icon: isPriceLoading ? <Loader2 size={14} className="animate-spin" /> : <DollarSign size={14} />,
       symbol: 'HYPE',
       value: `$${protocolStats?.hypePrice || '0.00'}`,
       color: '#10B981'
@@ -24,13 +35,13 @@ const FloatingStatsBar = ({ contractAPYs, protocolStats }) => {
     {
       icon: <Coins size={14} />,
       symbol: 'TVL',
-      value: `${parseFloat(protocolStats?.totalHypeTVL || '0').toFixed(1)} HYPE`,
+      value: `${parseFloat(protocolStats?.totalHypeTVL || '0').toFixed(4).replace(/\.?0+$/, '')} HYPE`,
       color: '#F59E0B'
     },
     {
       icon: <Shield size={14} />,
       symbol: 'Minted',
-      value: `${parseFloat(protocolStats?.totalZhypeMinted || '0').toFixed(1)} zHYPE`,
+      value: `${parseFloat(protocolStats?.totalZhypeMinted || '0').toFixed(4).replace(/\.?0+$/, '')} zHYPE`,
       color: '#EF4444'
     },
     {
@@ -41,7 +52,7 @@ const FloatingStatsBar = ({ contractAPYs, protocolStats }) => {
     },
     {
       icon: <Tag size={14} />,
-      symbol: 'v0.5',
+      symbol: 'v0.9',
       value: '',
       color: '#8B5CF6'
     },
@@ -51,7 +62,7 @@ const FloatingStatsBar = ({ contractAPYs, protocolStats }) => {
     <div className="floating-stats-bar">
       <div className="stats-ticker">
         {stats.map((stat, index) => (
-          <div key={index} className={`ticker-item ${stat.symbol === 'v0.5' ? 'version-item' : ''}`}>
+          <div key={index} className={`ticker-item ${stat.symbol === 'v0.9' ? 'version-item' : ''}`}>
             <div className="ticker-icon" style={{ color: stat.color }}>
               {stat.icon}
             </div>

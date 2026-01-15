@@ -166,7 +166,9 @@ const AdminPanelWithAPY = ({ account, provider, signer, contractAddresses, treas
 
   const formatBalance = (balance) => {
     if (!balance) return '0';
-    return ethers.formatUnits(balance, 18);
+    const formatted = ethers.formatUnits(balance, 18);
+    const num = parseFloat(formatted);
+    return num.toFixed(4).replace(/\.?0+$/, '');
   };
 
   const formatAPY = (apy) => {

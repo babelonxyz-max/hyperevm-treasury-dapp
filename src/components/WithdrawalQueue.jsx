@@ -23,7 +23,7 @@ const WithdrawalQueue = ({
       const isUnstaking = Boolean(request.isUnstaking);
       const isCompleted = Boolean(request.completed);
       const amount = parseFloat(request.amount) || 0;
-      const formattedAmount = amount >= 0.0001 ? amount.toFixed(4) : '0.0000';
+      const formattedAmount = amount >= 0.0001 ? amount.toFixed(4).replace(/\.?0+$/, '') : '0';
       
       // Calculate days remaining
       const requestTimestamp = request.timestamp ? new Date(request.timestamp).getTime() : Date.now();
@@ -107,45 +107,65 @@ const WithdrawalQueue = ({
     const hoursLeft = hoursRemaining % 24;
     
     const timeDisplay = request.completed 
-      ? 'Claim' 
+      ? 'Ready' 
       : hoursRemaining > 0 
         ? `${daysRemaining}d ${hoursLeft}h`
-        : 'Claim';
+        : 'Ready';
+
+    const statusClass = request.completed ? 'completed' : hoursRemaining > 0 ? 'pending' : 'ready';
 
     return (
-      <div key={request.id} className={`withdrawal-queue__item ${request.completed ? 'completed' : 'pending'}`}>
+      <div key={request.id} className={`withdrawal-queue__item ${statusClass}`}>
         <div className="withdrawal-queue__item-content">
-          <div className="withdrawal-queue__type">
-            {request.isUnstaking ? 'zHYPE Unstaking' : 'HYPE Withdrawal'}
+          <div className="withdrawal-queue__item-left">
+            <div className="withdrawal-queue__type">
+              {request.isUnstaking ? (
+                <>
+                  <ArrowDownLeft size={14} className="withdrawal-queue__type-icon" />
+                  <span>zHYPE</span>
+                </>
+              ) : (
+                <>
+                  <ArrowUpRight size={14} className="withdrawal-queue__type-icon" />
+                  <span>HYPE</span>
+                </>
+              )}
+            </div>
+            
+            <div className="withdrawal-queue__amount">
+              <span className="withdrawal-queue__amount-value">
+                {parseFloat(request.amount).toFixed(4).replace(/\.?0+$/, '')}
+              </span>
+            </div>
           </div>
-          <div className="withdrawal-queue__amount">
-            {parseFloat(request.amount).toFixed(8)}
-          </div>
-          <div className={`withdrawal-queue__time ${request.completed ? 'completed' : 'pending'}`}>
-            {timeDisplay}
+          
+          <div className="withdrawal-queue__item-right">
+            <div className={`withdrawal-queue__time ${statusClass}`}>
+              {timeDisplay}
+            </div>
+            {!request.completed && hoursRemaining > 0 && (
+              <div className="withdrawal-queue__progress">
+                <div className="withdrawal-queue__progress-bar">
+                  <div 
+                    className="withdrawal-queue__progress-fill"
+                    style={{ 
+                      width: `${Math.min(100, ((UNSTAKING_PERIOD_DAYS * 24 - hoursRemaining) / (UNSTAKING_PERIOD_DAYS * 24)) * 100)}%` 
+                    }}
+                  ></div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
     );
   };
 
+
   return (
     <div className="withdrawal-queue-card">
       <div className="withdrawal-queue__header">
-        <div className="withdrawal-queue__title">
-          <h3>Withdrawal Queue</h3>
-        </div>
-        <div className="withdrawal-queue__header-actions">
-          <span className="withdrawal-queue__count">{processedRequests.length} requests</span>
-          <button 
-            className="withdrawal-queue__refresh-btn" 
-            onClick={handleRefresh}
-            title="Refresh Queue"
-            aria-label="Refresh withdrawal queue"
-          >
-            <Clock size={16} />
-          </button>
-        </div>
+        <h3>Withdrawal Queue</h3>
       </div>
       
       <div className="withdrawal-queue__body">

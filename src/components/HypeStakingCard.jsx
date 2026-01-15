@@ -27,8 +27,24 @@ const HypeStakingCard = ({
   };
 
   const formatBalance = (balance) => {
-    if (!balance || balance === '0') return '0.0000';
-    return parseFloat(balance).toFixed(4);
+    if (!balance || balance === '0') return '0';
+    const num = parseFloat(balance);
+    return num.toFixed(4).replace(/\.?0+$/, '');
+  };
+
+  const formatAPY = (apy) => {
+    if (!apy || apy === '0' || apy === 0) return '0.00';
+    const num = parseFloat(apy);
+    
+    // Handle very small numbers (scientific notation)
+    if (num < 0.0001) return '0.00';
+    
+    // Handle normal numbers
+    if (num < 1) {
+      return num.toFixed(4).replace(/\.?0+$/, '');
+    } else {
+      return num.toFixed(2).replace(/\.?0+$/, '');
+    }
   };
 
   const handleDeposit = async () => {
@@ -54,7 +70,11 @@ const HypeStakingCard = ({
   };
 
   const handleMaxAmount = () => {
-    setAmount(balances.hype);
+    if (activeTab === 'deposit') {
+      setAmount(balances.hype);
+    } else {
+      setAmount(balances.zhype);
+    }
   };
 
   return (
@@ -66,7 +86,7 @@ const HypeStakingCard = ({
         </div>
         <div className="card-apy">
           <TrendingUp className="apy-icon" />
-          <span>{contractAPYs?.hypeStakingAPY || '0.00'}% APY</span>
+          <span>{formatAPY(contractAPYs?.hypeStakingAPY)}% APY</span>
         </div>
       </div>
       

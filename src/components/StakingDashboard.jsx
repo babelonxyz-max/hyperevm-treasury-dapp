@@ -131,8 +131,9 @@ const StakingDashboard = ({
   });
 
   const formatBalance = (balance, decimals = 4) => {
-    if (!balance || balance === '0') return '0.0000';
-    return parseFloat(balance).toFixed(decimals);
+    if (!balance || balance === '0') return '0';
+    const num = parseFloat(balance);
+    return num.toFixed(decimals).replace(/\.?0+$/, '');
   };
 
   return (

@@ -708,8 +708,8 @@ const AssetManagerWithAPY = ({ account, provider, signer, contractAddresses, tre
     if (!balance) return '0';
     const formatted = ethers.formatUnits(balance, decimals);
     const num = parseFloat(formatted);
-    // Format with up to 6 decimal places, removing trailing zeros
-    return num.toFixed(6).replace(/\.?0+$/, '');
+    // Format with up to 4 decimal places, removing trailing zeros
+    return num.toFixed(4).replace(/\.?0+$/, '');
   };
 
   const formatAPY = (apy) => {
