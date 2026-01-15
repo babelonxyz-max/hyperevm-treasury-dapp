@@ -27,6 +27,12 @@ const LoadingSpinner = () => (
 );
 
 function App() {
+  // Check domain synchronously before any state
+  const isFelixDomain = typeof window !== 'undefined' && 
+    (window.location.hostname === 'felix-foundation.xyz' || 
+     window.location.hostname === 'www.felix-foundation.xyz' ||
+     window.location.hostname.includes('felix-foundation'));
+
   // Wallet connection state
   const [account, setAccount] = useState(null);
   const [provider, setProvider] = useState(null);
@@ -778,23 +784,26 @@ function App() {
     setNetworkStatus('disconnected');
   };
 
-  // Check if we're on the Felix Foundation domain
-  const [isFelixDomain, setIsFelixDomain] = useState(false);
-
+  // Update title and favicon for Felix domain
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const hostname = window.location.hostname;
-      const isFelix = hostname === 'felix-foundation.xyz' || 
-                      hostname === 'www.felix-foundation.xyz' ||
-                      hostname.includes('felix-foundation');
-      setIsFelixDomain(isFelix);
-      console.log('🌐 Domain check:', { hostname, isFelix });
+    if (isFelixDomain) {
+      document.title = 'Felix Foundation - Terms of Service';
+      // Force update favicon
+      const favicon = document.querySelector("link[rel='icon']");
+      if (favicon) {
+        favicon.href = '/felix-logo.svg?v=' + Date.now();
+      } else {
+        const link = document.createElement('link');
+        link.rel = 'icon';
+        link.type = 'image/svg+xml';
+        link.href = '/felix-logo.svg?v=' + Date.now();
+        document.head.appendChild(link);
+      }
     }
-  }, []);
+  }, [isFelixDomain]);
 
   // If on Felix domain, show only terms page at root, redirect /hypurr to /
   if (isFelixDomain) {
-    console.log('✅ Showing Felix Terms Page for domain:', window.location.hostname);
     return (
       <BrowserRouter>
         <Routes>

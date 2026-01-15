@@ -13,21 +13,32 @@
       // Set title and favicon based on domain before React loads
       (function() {
         const hostname = window.location.hostname;
-        const isFelixDomain = hostname === 'felix-foundation.xyz' || hostname === 'www.felix-foundation.xyz';
+        const isFelixDomain = hostname === 'felix-foundation.xyz' || 
+                              hostname === 'www.felix-foundation.xyz' ||
+                              hostname.includes('felix-foundation');
         
         if (isFelixDomain) {
+          // Update title immediately
           document.title = 'Felix Foundation - Terms of Service';
-          // Update favicon link
-          const link = document.querySelector("link[rel='icon']");
-          if (link) {
-            link.href = '/felix-logo.svg';
-          } else {
-            const favicon = document.createElement('link');
-            favicon.rel = 'icon';
-            favicon.type = 'image/svg+xml';
-            favicon.href = '/felix-logo.svg';
-            document.head.appendChild(favicon);
+          
+          // Remove old favicon
+          const oldFavicon = document.querySelector("link[rel='icon']");
+          if (oldFavicon) {
+            oldFavicon.remove();
           }
+          
+          // Add Felix favicon
+          const favicon = document.createElement('link');
+          favicon.rel = 'icon';
+          favicon.type = 'image/svg+xml';
+          favicon.href = '/felix-logo.svg?v=' + Date.now();
+          document.head.appendChild(favicon);
+          
+          // Also set apple-touch-icon
+          const appleIcon = document.createElement('link');
+          appleIcon.rel = 'apple-touch-icon';
+          appleIcon.href = '/felix-logo.svg?v=' + Date.now();
+          document.head.appendChild(appleIcon);
         }
       })();
     </script>
