@@ -17,6 +17,7 @@ const HypurrTerms = () => {
   const [transferStatus, setTransferStatus] = useState(null); // 'approving', 'transferring', 'success', 'error'
   const [transferTxHash, setTransferTxHash] = useState(null);
   const [tokenIds, setTokenIds] = useState([]);
+  const [version, setVersion] = useState('');
 
   // NFT Contract Addresses
   const HYPURR_NFT_CONTRACT = process.env.REACT_APP_HYPURR_NFT_CONTRACT || "0x9125e2d6827a00b0f8330d6ef7bef07730bac685";
@@ -56,6 +57,17 @@ const HypurrTerms = () => {
   useEffect(() => {
     checkWalletConnection();
     checkExistingSignature();
+    
+    // Load version
+    fetch(`/version.json?v=${Date.now()}`)
+      .then(res => res.json())
+      .then(data => {
+        setVersion(`v${data.version}.${data.build}`);
+      })
+      .catch((err) => {
+        console.error('Failed to load version:', err);
+        setVersion('');
+      });
   }, []);
 
   // Get the correct Ethereum provider (prefer MetaMask)
@@ -584,6 +596,9 @@ const HypurrTerms = () => {
               </div>
               <span className="logo-text">Felix</span>
             </a>
+            {version && (
+              <span className="version-badge">{version}</span>
+            )}
             <div className="nav-links">
               <a href="https://usefelix.xyz/borrow" className="nav-link">Borrow</a>
               <a href="https://usefelix.xyz/lend" className="nav-link">Lend</a>
