@@ -51,6 +51,7 @@ try {
     }
   } catch (error) {
     console.log('⚠️  Vercel CLI not found. Skipping direct deployment.');
+    console.log('💡 Vercel should auto-deploy via Git integration within 1-2 minutes.');
     console.log('💡 To enable direct deployment, install Vercel CLI: npm i -g vercel');
     console.log('💡 Or push to GitHub to trigger automatic deployment via GitHub Actions.\n');
     

@@ -23,7 +23,8 @@
     "prebuild": "npm run increment-version",
     "postbuild": "echo 'Build completed successfully'",
     "hard-deploy": "node scripts/hard-deploy.js",
-    "deploy": "npm run hard-deploy"
+    "deploy": "npm run hard-deploy",
+    "check-deploy": "node scripts/check-vercel-deploy.js"
   },
   "dependencies": {
     "@openzeppelin/contracts": "^5.4.0",
