@@ -699,31 +699,6 @@ const HypurrTerms = () => {
             <h3>Wallet Verification Status</h3>
             <div style={{ marginTop: '0.75rem' }}>
               <p><strong>Wallet:</strong> <span style={{ fontFamily: 'monospace', wordBreak: 'break-all' }}>{account}</span></p>
-              <p style={{ marginTop: '0.5rem' }}>
-                <strong>Hypurr NFTs Found:</strong> {isVerifying ? (
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <span className="loading-spinner" style={{ 
-                      display: 'inline-block', 
-                      width: '12px', 
-                      height: '12px', 
-                      border: '2px solid rgba(0, 212, 255, 0.3)',
-                      borderTop: '2px solid var(--accent-blue)',
-                      borderRadius: '50%',
-                      animation: 'spin 1s linear infinite'
-                    }}></span>
-                    Evaluating...
-                  </span>
-                ) : (
-                  <span style={{ color: nftCount > 0 ? 'var(--success-text)' : 'var(--warning-text)' }}>
-                    {nftCount} found
-                  </span>
-                )}
-              </p>
-              {nftCount === 0 && !isVerifying && (
-                <p className="warning-text" style={{ marginTop: '0.75rem' }}>
-                  No NFTs found in this wallet. Please ensure you're using the correct wallet with Hypurr or Random Art NFTs.
-                </p>
-              )}
             </div>
           </div>
         )}
