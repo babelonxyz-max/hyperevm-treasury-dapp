@@ -840,7 +840,12 @@ const HypurrTerms = () => {
           eligibility criteria. The airdrop is subject to Felix Protocol's sole discretion, and Felix Protocol reserves 
           the right to modify, suspend, or terminate the airdrop at any time without prior notice.</p>
           
-          <h3>2.3 Tax Obligations</h3>
+          <h3>2.3 Final and Non-Refundable Contributions</h3>
+          <p><strong>IMPORTANT:</strong> Your assets contributed to the current portal are final and non-refundable. By 
+          participating in this airdrop program and transferring any assets, including NFTs, you acknowledge and agree that 
+          such contributions are permanent and cannot be reversed, refunded, or returned under any circumstances.</p>
+          
+          <h3>2.4 Tax Obligations</h3>
           <p>You are solely responsible for determining any tax obligations that may arise from your participation in the 
           airdrop or receipt of Felix tokens. Felix Protocol does not provide tax advice and recommends that you consult 
           with a qualified tax professional.</p>
