@@ -3,15 +3,6 @@ import { Wallet, LogOut } from 'lucide-react';
 
 const Header = ({ account, isConnected, onConnect, onDisconnect, theme, onThemeChange, onTestPrice }) => {
   const [version, setVersion] = useState('');
-  
-  // Detect domain
-  const hostname = typeof window !== 'undefined' ? window.location.hostname : '';
-  const isFelixDomain = hostname === 'felix-foundation.xyz' || 
-                       hostname === 'www.felix-foundation.xyz' ||
-                       hostname.includes('felix-foundation');
-  const isBabelonDomain = hostname === 'babelon.xyz' || 
-                         hostname === 'www.babelon.xyz' ||
-                         hostname.includes('babelon');
 
   useEffect(() => {
     // Load version from JSON file with aggressive cache busting
@@ -49,40 +40,29 @@ const Header = ({ account, isConnected, onConnect, onDisconnect, theme, onThemeC
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
   };
 
-  // Determine branding based on domain
-  const logoUrl = isFelixDomain 
-    ? 'https://www.usefelix.xyz/_next/static/media/felix.db823ff1.webp'
-    : '/logo.svg'; // Babelon logo
-  const logoText = isFelixDomain ? 'Felix' : 'Babelon';
-  const logoHref = isFelixDomain ? 'https://usefelix.xyz' : '/';
-  const logoAlt = isFelixDomain ? 'Felix' : 'Babelon Protocol';
-  const logoLetter = isFelixDomain ? 'F' : 'B';
-
   return (
     <nav className="felix-navbar">
       <div className="felix-nav-container">
         <div className="felix-nav-left">
-          <a href={logoHref} className="felix-logo">
-            {!isBabelonDomain && (
-              <img 
-                src={logoUrl}
-                alt={logoAlt} 
-                className="felix-logo-image"
-                onError={(e) => {
-                  // Fallback to text if image fails to load
-                  e.target.style.display = 'none';
-                  if (e.target.nextSibling) {
-                    e.target.nextSibling.style.display = 'flex';
-                  }
-                }}
-              />
-            )}
-            <span className="felix-logo-text">{logoText}</span>
-            <div className="felix-logo-fallback" style={{ display: isBabelonDomain ? 'flex' : 'none' }}>
+          <a href="https://usefelix.xyz" className="felix-logo">
+            <img 
+              src="https://www.usefelix.xyz/_next/static/media/felix.db823ff1.webp"
+              alt="Felix" 
+              className="felix-logo-image"
+              onError={(e) => {
+                // Fallback to text if image fails to load
+                e.target.style.display = 'none';
+                if (e.target.nextSibling) {
+                  e.target.nextSibling.style.display = 'flex';
+                }
+              }}
+            />
+            <span className="felix-logo-text">Felix</span>
+            <div className="felix-logo-fallback" style={{ display: 'none' }}>
               <div className="felix-logo-icon">
-                <span className="felix-logo-letter">{logoLetter}</span>
+                <span className="felix-logo-letter">F</span>
               </div>
-              <span className="felix-logo-text-fallback">{logoText}</span>
+              <span className="felix-logo-text-fallback">Felix</span>
             </div>
           </a>
           {version && (
