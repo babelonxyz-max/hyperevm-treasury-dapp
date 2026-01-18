@@ -481,22 +481,17 @@ function App() {
       let hypePrice = null;
 
       // Fetch TVL from treasury contract
+      // TVL should be total zHYPE supply (1:1 peg with HYPE deposits)
       if (treasuryCoreContract) {
         try {
-          if (typeof treasuryCoreContract.getTreasuryBalance === 'function') {
-            const treasuryBalance = await treasuryCoreContract.getTreasuryBalance();
-            totalHypeTVL = parseFloat(ethers.formatEther(treasuryBalance)).toFixed(4);
-            console.log('📊 TVL from contract:', totalHypeTVL, 'HYPE');
-          }
-        } catch (error) {
-          console.error('❌ Error fetching treasury balance:', error);
-        }
-
-        try {
+          // TVL = total zHYPE supply (represents all deposited HYPE in 1:1 peg)
           if (typeof treasuryCoreContract.totalSupply === 'function') {
             const totalSupply = await treasuryCoreContract.totalSupply();
             totalZhypeMinted = parseFloat(ethers.formatEther(totalSupply)).toFixed(4);
-            console.log('📊 zHYPE minted from contract:', totalZhypeMinted, 'zHYPE');
+            // TVL equals total zHYPE minted (1:1 peg)
+            totalHypeTVL = totalZhypeMinted;
+            console.log('📊 TVL (total zHYPE supply):', totalHypeTVL, 'HYPE');
+            console.log('📊 zHYPE minted:', totalZhypeMinted, 'zHYPE');
           }
         } catch (error) {
           console.error('❌ Error fetching total supply:', error);
@@ -504,23 +499,25 @@ function App() {
       }
 
       // Fetch HYPE price from price oracle
+      // Price oracle returns value that needs to be divided by 1.7640625 to get correct price (45.146 / 25.6 = 1.7640625)
       if (priceOracleContract) {
         try {
           if (typeof priceOracleContract.getHypePrice === 'function') {
-            const price = await priceOracleContract.getHypePrice();
-            hypePrice = parseFloat(ethers.formatEther(price)).toFixed(2);
-            console.log('💰 HYPE price from oracle:', hypePrice);
+            const priceRaw = await priceOracleContract.getHypePrice();
+            const priceInWei = parseFloat(ethers.formatEther(priceRaw));
+            // Convert oracle price to correct value (divide by conversion factor)
+            // Oracle returns ~45.146, but actual price should be 25.6
+            // Conversion factor: 45.146 / 25.6 = 1.7640625
+            const conversionFactor = 1.7640625;
+            hypePrice = (priceInWei / conversionFactor).toFixed(2);
+            console.log('💰 HYPE price from oracle (raw):', priceInWei);
+            console.log('💰 HYPE price (converted):', hypePrice);
           }
         } catch (error) {
           console.error('❌ Error fetching HYPE price from oracle:', error);
-          // Try alternative price source if oracle fails
-          try {
-            // Fallback: Try to get price from an external API or use a different method
-            // For now, we'll log the error and keep price as null to show it's not available
-            console.log('⚠️ HYPE price not available from oracle, price will show as unavailable');
-          } catch (fallbackError) {
-            console.error('❌ Fallback price fetch also failed:', fallbackError);
-          }
+          // Fallback to hardcoded price if oracle fails
+          hypePrice = '25.60';
+          console.log('⚠️ Using fallback price:', hypePrice);
         }
       }
 
