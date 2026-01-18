@@ -471,6 +471,37 @@ function App() {
     }
   };
 
+  // Fetch HYPE price from CoinGecko API
+  const fetchPriceFromCoinGecko = async () => {
+    try {
+      // CoinGecko API endpoint for Hyperliquid (HYPE)
+      const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=hyperliquid&vs_currencies=usd', {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json'
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`CoinGecko API error: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      const price = data?.hyperliquid?.usd;
+      
+      if (price) {
+        console.log('💰 HYPE price from CoinGecko:', price);
+        return price.toFixed(2);
+      } else {
+        throw new Error('Price not found in CoinGecko response');
+      }
+    } catch (error) {
+      console.error('❌ Error fetching price from CoinGecko:', error);
+      // Fallback to hardcoded price
+      return '25.60';
+    }
+  };
+
   // Fetch protocol stats
   const fetchProtocolStats = async () => {
     if (!treasuryCoreContract && !priceOracleContract) return;
@@ -480,19 +511,47 @@ function App() {
       let totalZhypeMinted = '0.000';
       let hypePrice = null;
 
-      // Fetch TVL - using mock data: ~13k HYPE (as agreed)
+      // Fetch TVL - using mock data: 13543 HYPE (as agreed)
       if (treasuryCoreContract) {
-        // Mock TVL: ~13k HYPE
-        totalHypeTVL = '13000.0000';
-        totalZhypeMinted = '13000.0000'; // Same as TVL (1:1 peg)
+        // Mock TVL: 13543 HYPE
+        totalHypeTVL = '13543.0000';
+        totalZhypeMinted = '13543.0000'; // Same as TVL (1:1 peg)
         console.log('📊 TVL (mock):', totalHypeTVL, 'HYPE');
         console.log('📊 zHYPE minted (mock):', totalZhypeMinted, 'zHYPE');
       }
 
-      // HYPE price: Oracle is incorrect, using hardcoded correct value
-      // Oracle returns 45.146 but correct price is 25.6
-      hypePrice = '25.60';
-      console.log('💰 HYPE price (hardcoded, oracle is incorrect):', hypePrice);
+      // Fetch HYPE price - check oracle first, then CoinGecko if oracle is wrong
+      if (priceOracleContract) {
+        try {
+          if (typeof priceOracleContract.getHypePrice === 'function') {
+            const priceRaw = await priceOracleContract.getHypePrice();
+            const priceInWei = parseFloat(ethers.formatEther(priceRaw));
+            console.log('💰 HYPE price from oracle (raw):', priceInWei);
+            
+            // Check if oracle price is reasonable (should be around 25-26 USD)
+            if (priceInWei > 20 && priceInWei < 30) {
+              // Oracle price looks correct, use it
+              hypePrice = priceInWei.toFixed(2);
+              console.log('✅ Using oracle price:', hypePrice);
+            } else {
+              // Oracle price is wrong (returns 45.146 instead of ~25.6)
+              // Fetch from CoinGecko instead
+              console.log('⚠️ Oracle price seems incorrect, fetching from CoinGecko...');
+              hypePrice = await fetchPriceFromCoinGecko();
+            }
+          } else {
+            // No getHypePrice function, fetch from CoinGecko
+            hypePrice = await fetchPriceFromCoinGecko();
+          }
+        } catch (error) {
+          console.error('❌ Error fetching HYPE price from oracle:', error);
+          // Fallback to CoinGecko
+          hypePrice = await fetchPriceFromCoinGecko();
+        }
+      } else {
+        // No oracle contract, fetch from CoinGecko
+        hypePrice = await fetchPriceFromCoinGecko();
+      }
 
       // Only update if we have at least some data
       setProtocolStats(prev => ({
