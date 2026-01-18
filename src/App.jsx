@@ -473,61 +473,93 @@ function App() {
 
   // Fetch protocol stats
   const fetchProtocolStats = async () => {
-    if (!treasuryCoreContract) return;
+    if (!treasuryCoreContract && !priceOracleContract) return;
 
     try {
       let totalHypeTVL = '0.000';
       let totalZhypeMinted = '0.000';
-      let hypePrice = '0.25';
+      let hypePrice = null;
 
-      try {
-        if (typeof treasuryCoreContract.getTreasuryBalance === 'function') {
-          const treasuryBalance = await treasuryCoreContract.getTreasuryBalance();
-          totalHypeTVL = parseFloat(ethers.formatEther(treasuryBalance)).toFixed(3);
+      // Fetch TVL from treasury contract
+      if (treasuryCoreContract) {
+        try {
+          if (typeof treasuryCoreContract.getTreasuryBalance === 'function') {
+            const treasuryBalance = await treasuryCoreContract.getTreasuryBalance();
+            totalHypeTVL = parseFloat(ethers.formatEther(treasuryBalance)).toFixed(4);
+            console.log('📊 TVL from contract:', totalHypeTVL, 'HYPE');
+          }
+        } catch (error) {
+          console.error('❌ Error fetching treasury balance:', error);
         }
-      } catch (error) {
-        console.log('Treasury balance not available, using default');
+
+        try {
+          if (typeof treasuryCoreContract.totalSupply === 'function') {
+            const totalSupply = await treasuryCoreContract.totalSupply();
+            totalZhypeMinted = parseFloat(ethers.formatEther(totalSupply)).toFixed(4);
+            console.log('📊 zHYPE minted from contract:', totalZhypeMinted, 'zHYPE');
+          }
+        } catch (error) {
+          console.error('❌ Error fetching total supply:', error);
+        }
       }
 
-      try {
-        if (typeof treasuryCoreContract.totalSupply === 'function') {
-          const totalSupply = await treasuryCoreContract.totalSupply();
-          totalZhypeMinted = parseFloat(ethers.formatEther(totalSupply)).toFixed(3);
+      // Fetch HYPE price from price oracle
+      if (priceOracleContract) {
+        try {
+          if (typeof priceOracleContract.getHypePrice === 'function') {
+            const price = await priceOracleContract.getHypePrice();
+            hypePrice = parseFloat(ethers.formatEther(price)).toFixed(2);
+            console.log('💰 HYPE price from oracle:', hypePrice);
+          }
+        } catch (error) {
+          console.error('❌ Error fetching HYPE price from oracle:', error);
+          // Try alternative price source if oracle fails
+          try {
+            // Fallback: Try to get price from an external API or use a different method
+            // For now, we'll log the error and keep price as null to show it's not available
+            console.log('⚠️ HYPE price not available from oracle, price will show as unavailable');
+          } catch (fallbackError) {
+            console.error('❌ Fallback price fetch also failed:', fallbackError);
+          }
         }
-      } catch (error) {
-        console.log('Total supply not available, using default');
       }
 
-      try {
-        if (priceOracleContract && typeof priceOracleContract.getHypePrice === 'function') {
-          const price = await priceOracleContract.getHypePrice();
-          hypePrice = parseFloat(ethers.formatEther(price)).toFixed(2);
-        }
-      } catch (error) {
-        console.log('HYPE price not available, using default');
-      }
-
-      setProtocolStats({
-        totalHypeTVL,
-        totalZhypeMinted,
-        realHypeTVL: totalHypeTVL,
-        realZhypeMinted: totalZhypeMinted,
-        hypePrice: hypePrice
-      });
+      // Only update if we have at least some data
+      setProtocolStats(prev => ({
+        totalHypeTVL: totalHypeTVL !== '0.000' ? totalHypeTVL : prev.totalHypeTVL,
+        totalZhypeMinted: totalZhypeMinted !== '0.000' ? totalZhypeMinted : prev.totalZhypeMinted,
+        realHypeTVL: totalHypeTVL !== '0.000' ? totalHypeTVL : prev.realHypeTVL,
+        realZhypeMinted: totalZhypeMinted !== '0.000' ? totalZhypeMinted : prev.realZhypeMinted,
+        hypePrice: hypePrice || prev.hypePrice || '0.00'
+      }));
     } catch (error) {
-      console.log('Protocol stats not available, using defaults');
+      console.error('❌ Error fetching protocol stats:', error);
     }
   };
 
-  // Main data refresh effect
+  // Fetch protocol stats (TVL, price) - should work even without wallet connection
+  useEffect(() => {
+    if (!treasuryCoreContract && !priceOracleContract) return;
+
+    const refreshPublicData = async () => {
+      await Promise.all([
+        fetchContractAPYs(),
+        fetchProtocolStats()
+      ]);
+    };
+
+    refreshPublicData();
+    const interval = setInterval(refreshPublicData, 30000); // Refresh every 30 seconds
+    return () => clearInterval(interval);
+  }, [treasuryCoreContract, priceOracleContract, stakingRewardsContract]);
+
+  // Main data refresh effect (user-specific data - requires connection)
   useEffect(() => {
     if (!isConnected) return;
 
     const refreshData = async () => {
       await Promise.all([
         refreshBalances(),
-        fetchContractAPYs(),
-        fetchProtocolStats(),
         loadWithdrawalRequests()
       ]);
     };
