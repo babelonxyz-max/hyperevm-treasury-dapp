@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Wallet, LogOut } from 'lucide-react';
+import { Wallet, Sun, Moon, LogOut } from 'lucide-react';
 
-const Header = ({ account, isConnected, onConnect, onDisconnect, theme, onThemeChange, onTestPrice }) => {
+const Header = ({ account, isConnected, onConnect, onDisconnect, theme, onThemeChange }) => {
   const [version, setVersion] = useState('');
 
   useEffect(() => {
@@ -25,7 +25,7 @@ const Header = ({ account, isConnected, onConnect, onDisconnect, theme, onThemeC
         })
         .catch((err) => {
           console.error('❌ Failed to load version:', err);
-          setVersion('v?.?');
+          setVersion('');
         });
     };
     
@@ -40,41 +40,55 @@ const Header = ({ account, isConnected, onConnect, onDisconnect, theme, onThemeC
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
   };
 
+  const handleThemeToggle = () => {
+    onThemeChange(theme === 'light' ? 'dark' : 'light');
+  };
+
   return (
-    <nav className="felix-navbar">
-      <div className="felix-nav-container">
-        <div className="felix-nav-left">
-          <a href="https://usefelix.xyz" className="felix-logo">
-            <img 
-              src="https://www.usefelix.xyz/_next/static/media/felix.db823ff1.webp"
-              alt="Felix" 
-              className="felix-logo-image"
-              onError={(e) => {
-                // Fallback to text if image fails to load
-                e.target.style.display = 'none';
-                if (e.target.nextSibling) {
-                  e.target.nextSibling.style.display = 'flex';
-                }
-              }}
-            />
-            <span className="felix-logo-text">Felix</span>
-            <div className="felix-logo-fallback" style={{ display: 'none' }}>
-              <div className="felix-logo-icon">
-                <span className="felix-logo-letter">F</span>
-              </div>
-              <span className="felix-logo-text-fallback">Felix</span>
-            </div>
-          </a>
-          {version && (
-            <span className="felix-version">{version}</span>
-          )}
+    <header className="header" role="banner">
+      <div className="header-content">
+        <div className="logo">
+          <div className="logo-icon">
+            <span className="cuneiform-symbol">𒀭</span>
+          </div>
+          <div className="logo-text">
+            <h1 className="logo-title">Babelon Protocol</h1>
+            <span className="logo-subtitle">{version ? version : 'v0.5'} • Hyperliquid</span>
+          </div>
         </div>
-        <div className="felix-nav-right">
+        
+        <div className="header-center">
+          {/* Empty center as requested */}
+        </div>
+        
+        <nav className="header-actions" role="navigation" aria-label="Main navigation">
+          <button 
+            className="theme-toggle" 
+            data-theme={theme}
+            onClick={handleThemeToggle}
+            title={`Switch to ${theme === 'light' ? 'dark' : 'light'} theme`}
+            aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} theme`}
+            type="button"
+          >
+            <div className="theme-toggle-track">
+              <div className="theme-toggle-thumb">
+                {/* Empty thumb - no icon inside */}
+              </div>
+              <div className="theme-icons">
+                <Sun className={`theme-icon sun ${theme === 'light' ? 'active' : ''}`} size={16} />
+                <Moon className={`theme-icon moon ${theme === 'dark' ? 'active' : ''}`} size={16} />
+              </div>
+            </div>
+          </button>
+          
           {isConnected ? (
-            <div className="felix-wallet-info">
-              <span className="felix-wallet-address">{formatAddress(account)}</span>
+            <div className="wallet-section">
+              <div className="wallet-address">
+                <Wallet size={16} className="wallet-icon" />
+                <span className="wallet-text">{formatAddress(account)}</span>
+              </div>
               <button 
-                className="felix-disconnect-btn"
+                className="logout-btn"
                 onClick={onDisconnect}
                 title="Disconnect Wallet"
                 aria-label="Disconnect wallet"
@@ -84,14 +98,19 @@ const Header = ({ account, isConnected, onConnect, onDisconnect, theme, onThemeC
               </button>
             </div>
           ) : (
-            <button className="felix-connect-btn" onClick={onConnect}>
+            <button 
+              className="connect-btn" 
+              onClick={onConnect}
+              aria-label="Connect your wallet to start using the protocol"
+              type="button"
+            >
               <Wallet size={16} />
-              Connect
+              Connect Wallet
             </button>
           )}
-        </div>
+        </nav>
       </div>
-    </nav>
+    </header>
   );
 };
 

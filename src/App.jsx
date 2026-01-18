@@ -313,20 +313,81 @@ function App() {
 
   // Refresh balances
   const refreshBalances = async () => {
-    if (!account || !treasuryCoreContract || !stakingRewardsContract) return;
+    if (!account) {
+      console.log('⚠️ refreshBalances: No account');
+      return;
+    }
+    if (!treasuryCoreContract) {
+      console.log('⚠️ refreshBalances: No treasuryCoreContract');
+      return;
+    }
+    if (!stakingRewardsContract) {
+      console.log('⚠️ refreshBalances: No stakingRewardsContract');
+      return;
+    }
 
     try {
+      console.log('🔄 Refreshing balances for:', account);
+      
       // Get HYPE balance
       const hypeBalance = await provider.getBalance(account);
       setHypeBalance(ethers.formatEther(hypeBalance));
+      console.log('💰 HYPE balance:', ethers.formatEther(hypeBalance));
 
       // Get zHYPE balance
       const zhypeBalance = await treasuryCoreContract.balanceOf(account);
-      setZhypeBalance(ethers.formatEther(zhypeBalance));
+      const zhypeBalanceFormatted = ethers.formatEther(zhypeBalance);
+      setZhypeBalance(zhypeBalanceFormatted);
+      console.log('💰 zHYPE balance:', zhypeBalanceFormatted);
 
-      // Get staked zHYPE
-      const stakedBalance = await stakingRewardsContract.getTotalStaked(account);
-      setStakedZhype(ethers.formatEther(stakedBalance));
+      // Get staked zHYPE (with error handling)
+      let stakedBalance = 0n;
+      try {
+        console.log('🔍 Calling getTotalStaked for:', account);
+        console.log('🔍 Staking contract address:', contractAddresses.stakingRewards);
+        stakedBalance = await stakingRewardsContract.getTotalStaked(account);
+        const stakedBalanceFormatted = ethers.formatEther(stakedBalance);
+        setStakedZhype(stakedBalanceFormatted);
+        console.log('✅ Staked zHYPE balance:', stakedBalanceFormatted);
+      } catch (error) {
+        console.error('❌ Error fetching staked balance:', error);
+        console.error('Error details:', {
+          message: error.message,
+          code: error.code,
+          data: error.data
+        });
+        
+        // Try with provider-based contract as fallback
+        try {
+          console.log('🔄 Trying with provider-based contract...');
+          const stakingABI = [
+            "function getTotalStaked(address user) external view returns (uint256)",
+            "function virtualZhypeStaked(address user) external view returns (uint256)"
+          ];
+          const providerContract = new ethers.Contract(
+            contractAddresses.stakingRewards,
+            stakingABI,
+            provider
+          );
+          stakedBalance = await providerContract.getTotalStaked(account);
+          const stakedBalanceFormatted = ethers.formatEther(stakedBalance);
+          setStakedZhype(stakedBalanceFormatted);
+          console.log('✅ Staked zHYPE balance (via provider):', stakedBalanceFormatted);
+        } catch (providerError) {
+          console.error('❌ Provider-based call also failed:', providerError);
+          // Try alternative method
+          try {
+            console.log('🔄 Trying virtualZhypeStaked as fallback...');
+            const virtualStaked = await stakingRewardsContract.virtualZhypeStaked(account);
+            const virtualStakedFormatted = ethers.formatEther(virtualStaked);
+            setStakedZhype(virtualStakedFormatted);
+            console.log('✅ Virtual staked zHYPE balance:', virtualStakedFormatted);
+          } catch (altError) {
+            console.error('❌ Alternative staked balance check also failed:', altError);
+            setStakedZhype('0');
+          }
+        }
+      }
 
       // Get pending rewards (with error handling)
       let zhypeRewards = '0';
@@ -717,20 +778,40 @@ function App() {
 
   // Stake zHYPE
   const handleStakeZhype = async (amount) => {
-    if (!stakingRewardsContract || !treasuryCoreContract) return;
+    if (!stakingRewardsContract || !treasuryCoreContract) {
+      console.error('Contracts not initialized');
+      return;
+    }
 
     try {
       const amountWei = ethers.parseEther(amount);
       
+      // Check zHYPE balance first
+      const zhypeBalance = await treasuryCoreContract.balanceOf(account);
+      if (zhypeBalance < amountWei) {
+        throw new Error(`Insufficient zHYPE balance. You have ${ethers.formatEther(zhypeBalance)} zHYPE but trying to stake ${amount} zHYPE.`);
+      }
+      
       // Check and approve allowance
       const allowance = await treasuryCoreContract.allowance(account, contractAddresses.stakingRewards);
+      console.log(`Current allowance: ${ethers.formatEther(allowance)} zHYPE, needed: ${amount} zHYPE`);
+      
       if (allowance < amountWei) {
-        const approveTx = await treasuryCoreContract.approve(contractAddresses.stakingRewards, amountWei);
+        console.log('Approval needed, requesting approval...');
+        // Approve with a bit extra to avoid frequent approvals
+        const approveAmount = amountWei * 2n; // Approve 2x the amount for future staking
+        const approveTx = await treasuryCoreContract.approve(contractAddresses.stakingRewards, approveAmount);
+        console.log('Approval transaction sent:', approveTx.hash);
         await approveTx.wait();
+        console.log('Approval confirmed');
       }
 
+      console.log('Staking zHYPE...');
       const tx = await stakingRewardsContract.stakeZhype(amountWei);
+      console.log('Stake transaction sent:', tx.hash);
       await tx.wait();
+      console.log('Stake confirmed');
+      
       await refreshBalances();
 
       // Auto-claim if enabled
@@ -739,6 +820,8 @@ function App() {
       }
     } catch (error) {
       console.error('Stake zHYPE error:', error);
+      // Re-throw to show error to user
+      throw error;
     }
   };
 
@@ -798,6 +881,12 @@ function App() {
         link.type = 'image/svg+xml';
         link.href = '/felix-logo.svg?v=' + Date.now();
         document.head.appendChild(link);
+      }
+    } else {
+      // Use Babelon favicon for non-Felix domains
+      const favicon = document.querySelector("link[rel='icon']");
+      if (favicon) {
+        favicon.href = '/favicon-cuneiform.svg?v=' + Date.now();
       }
     }
   }, [isFelixDomain]);
@@ -895,6 +984,9 @@ function App() {
                         onConnect={connectWallet}
                         contractAPYs={contractAPYs}
                         protocolStats={protocolStats}
+                        zhypeBalance={zhypeBalance}
+                        stakedZhype={stakedZhype}
+                        onStakeZhype={handleStakeZhype}
                       />
                     </Suspense>
                     
