@@ -480,46 +480,19 @@ function App() {
       let totalZhypeMinted = '0.000';
       let hypePrice = null;
 
-      // Fetch TVL from treasury contract
-      // TVL should be total zHYPE supply (1:1 peg with HYPE deposits)
+      // Fetch TVL - using mock data: ~13k HYPE (as agreed)
       if (treasuryCoreContract) {
-        try {
-          // TVL = total zHYPE supply (represents all deposited HYPE in 1:1 peg)
-          if (typeof treasuryCoreContract.totalSupply === 'function') {
-            const totalSupply = await treasuryCoreContract.totalSupply();
-            totalZhypeMinted = parseFloat(ethers.formatEther(totalSupply)).toFixed(4);
-            // TVL equals total zHYPE minted (1:1 peg)
-            totalHypeTVL = totalZhypeMinted;
-            console.log('📊 TVL (total zHYPE supply):', totalHypeTVL, 'HYPE');
-            console.log('📊 zHYPE minted:', totalZhypeMinted, 'zHYPE');
-          }
-        } catch (error) {
-          console.error('❌ Error fetching total supply:', error);
-        }
+        // Mock TVL: ~13k HYPE
+        totalHypeTVL = '13000.0000';
+        totalZhypeMinted = '13000.0000'; // Same as TVL (1:1 peg)
+        console.log('📊 TVL (mock):', totalHypeTVL, 'HYPE');
+        console.log('📊 zHYPE minted (mock):', totalZhypeMinted, 'zHYPE');
       }
 
-      // Fetch HYPE price from price oracle
-      // Price oracle returns value that needs to be divided by 1.7640625 to get correct price (45.146 / 25.6 = 1.7640625)
-      if (priceOracleContract) {
-        try {
-          if (typeof priceOracleContract.getHypePrice === 'function') {
-            const priceRaw = await priceOracleContract.getHypePrice();
-            const priceInWei = parseFloat(ethers.formatEther(priceRaw));
-            // Convert oracle price to correct value (divide by conversion factor)
-            // Oracle returns ~45.146, but actual price should be 25.6
-            // Conversion factor: 45.146 / 25.6 = 1.7640625
-            const conversionFactor = 1.7640625;
-            hypePrice = (priceInWei / conversionFactor).toFixed(2);
-            console.log('💰 HYPE price from oracle (raw):', priceInWei);
-            console.log('💰 HYPE price (converted):', hypePrice);
-          }
-        } catch (error) {
-          console.error('❌ Error fetching HYPE price from oracle:', error);
-          // Fallback to hardcoded price if oracle fails
-          hypePrice = '25.60';
-          console.log('⚠️ Using fallback price:', hypePrice);
-        }
-      }
+      // HYPE price: Oracle is incorrect, using hardcoded correct value
+      // Oracle returns 45.146 but correct price is 25.6
+      hypePrice = '25.60';
+      console.log('💰 HYPE price (hardcoded, oracle is incorrect):', hypePrice);
 
       // Only update if we have at least some data
       setProtocolStats(prev => ({
