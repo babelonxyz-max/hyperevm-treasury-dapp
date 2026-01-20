@@ -44,8 +44,8 @@
       ]
     },
     "/Users/mark/hyperevm-treasury-dapp/node_modules/@openzeppelin/contracts/utils/ReentrancyGuard.sol": {
-      "lastModificationDate": 1768454864402,
-      "contentHash": "190613e556d509d9e9a0ea43dc5d891d",
+      "lastModificationDate": 1768461910589,
+      "contentHash": "a92331adac11b453a4de0323fc948119",
       "sourceName": "@openzeppelin/contracts/utils/ReentrancyGuard.sol",
       "solcConfig": {
         "version": "0.8.21",
@@ -81,8 +81,8 @@
       ]
     },
     "/Users/mark/hyperevm-treasury-dapp/node_modules/@openzeppelin/contracts/token/ERC721/IERC721.sol": {
-      "lastModificationDate": 1768454864400,
-      "contentHash": "f62e11dbd302e17a5621a1438f4e054c",
+      "lastModificationDate": 1768461910584,
+      "contentHash": "5df8fdb527e563085847cad29e3c5f2e",
       "sourceName": "@openzeppelin/contracts/token/ERC721/IERC721.sol",
       "solcConfig": {
         "version": "0.8.21",
@@ -113,15 +113,15 @@
         "../../utils/introspection/IERC165.sol"
       ],
       "versionPragmas": [
-        ">=0.6.2"
+        "^0.8.20"
       ],
       "artifacts": [
         "IERC721"
       ]
     },
     "/Users/mark/hyperevm-treasury-dapp/node_modules/@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol": {
-      "lastModificationDate": 1768454864400,
-      "contentHash": "d61660a41ce200e99816e4734f7fd202",
+      "lastModificationDate": 1768461910585,
+      "contentHash": "fc8a9841f4bdd6329c26a00d5e75f4b3",
       "sourceName": "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol",
       "solcConfig": {
         "version": "0.8.21",
@@ -150,14 +150,14 @@
       },
       "imports": [],
       "versionPragmas": [
-        ">=0.5.0"
+        "^0.8.20"
       ],
       "artifacts": [
         "IERC721Receiver"
       ]
     },
     "/Users/mark/hyperevm-treasury-dapp/node_modules/@openzeppelin/contracts/access/Ownable.sol": {
-      "lastModificationDate": 1768454864401,
+      "lastModificationDate": 1768461910589,
       "contentHash": "d3c790edc9ccf808a17c5a6cd13614fd",
       "sourceName": "@openzeppelin/contracts/access/Ownable.sol",
       "solcConfig": {
@@ -196,8 +196,8 @@
       ]
     },
     "/Users/mark/hyperevm-treasury-dapp/node_modules/@openzeppelin/contracts/utils/introspection/IERC165.sol": {
-      "lastModificationDate": 1768454864398,
-      "contentHash": "7074c93b1ea0a122063f26ddd1db1032",
+      "lastModificationDate": 1768461910581,
+      "contentHash": "de0163561b417b800d01749cbbe2147e",
       "sourceName": "@openzeppelin/contracts/utils/introspection/IERC165.sol",
       "solcConfig": {
         "version": "0.8.21",
@@ -226,15 +226,15 @@
       },
       "imports": [],
       "versionPragmas": [
-        ">=0.4.16"
+        "^0.8.20"
       ],
       "artifacts": [
         "IERC165"
       ]
     },
     "/Users/mark/hyperevm-treasury-dapp/node_modules/@openzeppelin/contracts/utils/Context.sol": {
-      "lastModificationDate": 1768454864390,
-      "contentHash": "67bfbc07588eb8683b3fd8f6f909563e",
+      "lastModificationDate": 1768461910563,
+      "contentHash": "01c847e2af51f468cb66d9ed83bc3cec",
       "sourceName": "@openzeppelin/contracts/utils/Context.sol",
       "solcConfig": {
         "version": "0.8.21",
@@ -270,8 +270,8 @@
       ]
     },
     "/Users/mark/hyperevm-treasury-dapp/node_modules/@openzeppelin/contracts/token/ERC721/ERC721.sol": {
-      "lastModificationDate": 1768454864395,
-      "contentHash": "522ec023bce510c30dfbf61584f5a190",
+      "lastModificationDate": 1768461910572,
+      "contentHash": "1e64e2ad597dc5b2dae11346502baad4",
       "sourceName": "@openzeppelin/contracts/token/ERC721/ERC721.sol",
       "solcConfig": {
         "version": "0.8.21",
@@ -300,8 +300,8 @@
       },
       "imports": [
         "./IERC721.sol",
+        "./IERC721Receiver.sol",
         "./extensions/IERC721Metadata.sol",
-        "./utils/ERC721Utils.sol",
         "../../utils/Context.sol",
         "../../utils/Strings.sol",
         "../../utils/introspection/ERC165.sol",
@@ -315,8 +315,8 @@
       ]
     },
     "/Users/mark/hyperevm-treasury-dapp/node_modules/@openzeppelin/contracts/utils/Strings.sol": {
-      "lastModificationDate": 1768454864403,
-      "contentHash": "d8f70caf0e0c77dc908176ed44812fb7",
+      "lastModificationDate": 1768461910591,
+      "contentHash": "ba57ff4ddf1d9cae9d2009792795b7f6",
       "sourceName": "@openzeppelin/contracts/utils/Strings.sol",
       "solcConfig": {
         "version": "0.8.21",
@@ -345,7 +345,6 @@
       },
       "imports": [
         "./math/Math.sol",
-        "./math/SafeCast.sol",
         "./math/SignedMath.sol"
       ],
       "versionPragmas": [
@@ -356,8 +355,8 @@
       ]
     },
     "/Users/mark/hyperevm-treasury-dapp/node_modules/@openzeppelin/contracts/interfaces/draft-IERC6093.sol": {
-      "lastModificationDate": 1768454864392,
-      "contentHash": "5041977bbe908de2e6ed0270447f79ad",
+      "lastModificationDate": 1768461910564,
+      "contentHash": "4aefc698f77ecbace7f401257dfe182d",
       "sourceName": "@openzeppelin/contracts/interfaces/draft-IERC6093.sol",
       "solcConfig": {
         "version": "0.8.21",
@@ -386,7 +385,7 @@
       },
       "imports": [],
       "versionPragmas": [
-        ">=0.8.4"
+        "^0.8.20"
       ],
       "artifacts": [
         "IERC1155Errors",
@@ -395,8 +394,8 @@
       ]
     },
     "/Users/mark/hyperevm-treasury-dapp/node_modules/@openzeppelin/contracts/utils/introspection/ERC165.sol": {
-      "lastModificationDate": 1768454864393,
-      "contentHash": "0906d06dca25210d4696dcef6dad2909",
+      "lastModificationDate": 1768461910567,
+      "contentHash": "6a55c353946e471d9792965d06208295",
       "sourceName": "@openzeppelin/contracts/utils/introspection/ERC165.sol",
       "solcConfig": {
         "version": "0.8.21",
@@ -434,8 +433,8 @@
       ]
     },
     "/Users/mark/hyperevm-treasury-dapp/node_modules/@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol": {
-      "lastModificationDate": 1768454864400,
-      "contentHash": "136c64eca25bcb8a68f43ac6605559f9",
+      "lastModificationDate": 1768461910585,
+      "contentHash": "12c206f185cb951213799561fdcaa40d",
       "sourceName": "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol",
       "solcConfig": {
         "version": "0.8.21",
@@ -466,55 +465,15 @@
         "../IERC721.sol"
       ],
       "versionPragmas": [
-        ">=0.6.2"
+        "^0.8.20"
       ],
       "artifacts": [
         "IERC721Metadata"
       ]
     },
-    "/Users/mark/hyperevm-treasury-dapp/node_modules/@openzeppelin/contracts/token/ERC721/utils/ERC721Utils.sol": {
-      "lastModificationDate": 1768454864395,
-      "contentHash": "4cefad279a37c895b709bce2b901816e",
-      "sourceName": "@openzeppelin/contracts/token/ERC721/utils/ERC721Utils.sol",
-      "solcConfig": {
-        "version": "0.8.21",
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
-          "evmVersion": "paris",
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [
-        "../IERC721Receiver.sol",
-        "../../../interfaces/draft-IERC6093.sol"
-      ],
-      "versionPragmas": [
-        "^0.8.20"
-      ],
-      "artifacts": [
-        "ERC721Utils"
-      ]
-    },
     "/Users/mark/hyperevm-treasury-dapp/node_modules/@openzeppelin/contracts/utils/math/Math.sol": {
-      "lastModificationDate": 1768454864401,
-      "contentHash": "5ec781e33d3a9ac91ffdc83d94420412",
+      "lastModificationDate": 1768461910588,
+      "contentHash": "718fa8ba0ff269c92e364c1429d9de57",
       "sourceName": "@openzeppelin/contracts/utils/math/Math.sol",
       "solcConfig": {
         "version": "0.8.21",
@@ -541,10 +500,7 @@
           }
         }
       },
-      "imports": [
-        "../Panic.sol",
-        "./SafeCast.sol"
-      ],
+      "imports": [],
       "versionPragmas": [
         "^0.8.20"
       ],
@@ -553,8 +509,8 @@
       ]
     },
     "/Users/mark/hyperevm-treasury-dapp/node_modules/@openzeppelin/contracts/utils/math/SignedMath.sol": {
-      "lastModificationDate": 1768454864402,
-      "contentHash": "ae3528afb8bdb0a7dcfba5b115ee8074",
+      "lastModificationDate": 1768461910591,
+      "contentHash": "b6c6bdc7aaca4fe5b680760a72e09d3e",
       "sourceName": "@openzeppelin/contracts/utils/math/SignedMath.sol",
       "solcConfig": {
         "version": "0.8.21",
@@ -581,9 +537,7 @@
           }
         }
       },
-      "imports": [
-        "./SafeCast.sol"
-      ],
+      "imports": [],
       "versionPragmas": [
         "^0.8.20"
       ],
@@ -628,46 +582,9 @@
         "SafeCast"
       ]
     },
-    "/Users/mark/hyperevm-treasury-dapp/node_modules/@openzeppelin/contracts/utils/Panic.sol": {
-      "lastModificationDate": 1768454864402,
-      "contentHash": "2133dc13536b4a6a98131e431fac59e1",
-      "sourceName": "@openzeppelin/contracts/utils/Panic.sol",
-      "solcConfig": {
-        "version": "0.8.21",
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
-          "evmVersion": "paris",
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [],
-      "versionPragmas": [
-        "^0.8.20"
-      ],
-      "artifacts": [
-        "Panic"
-      ]
-    },
     "/Users/mark/hyperevm-treasury-dapp/node_modules/@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol": {
-      "lastModificationDate": 1768454864395,
-      "contentHash": "1e4b432e9069bd6f5935e071b74d180c",
+      "lastModificationDate": 1768461910573,
+      "contentHash": "6f49fe93ad40dc0bd4cac0cc124d0415",
       "sourceName": "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol",
       "solcConfig": {
         "version": "0.8.21",
@@ -707,8 +624,8 @@
       ]
     },
     "/Users/mark/hyperevm-treasury-dapp/node_modules/@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol": {
-      "lastModificationDate": 1768454864400,
-      "contentHash": "09d80d577d5abfc679455e7b67c5b537",
+      "lastModificationDate": 1768461910585,
+      "contentHash": "3fdc14aab706458ae99314f6f7f529a2",
       "sourceName": "@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol",
       "solcConfig": {
         "version": "0.8.21",
@@ -739,7 +656,7 @@
         "../IERC721.sol"
       ],
       "versionPragmas": [
-        ">=0.6.2"
+        "^0.8.20"
       ],
       "artifacts": [
         "IERC721Enumerable"
@@ -785,6 +702,477 @@
       ],
       "artifacts": [
         "RandomArtNFT"
+      ]
+    },
+    "/Users/mark/hyperevm-treasury-dapp/contracts/HypurrNFTTransfer.sol": {
+      "lastModificationDate": 1768870632527,
+      "contentHash": "e8f83655889b28e2b56f3eb70eaa2d73",
+      "sourceName": "contracts/HypurrNFTTransfer.sol",
+      "solcConfig": {
+        "version": "0.8.21",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/token/ERC721/IERC721.sol",
+        "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol",
+        "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol",
+        "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol",
+        "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol",
+        "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "HypurrNFTTransfer"
+      ]
+    },
+    "/Users/mark/hyperevm-treasury-dapp/node_modules/@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol": {
+      "lastModificationDate": 1768455125309,
+      "contentHash": "77d30f3cd93f46b80b6f8f1ebc574ee4",
+      "sourceName": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol",
+      "solcConfig": {
+        "version": "0.8.21",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../utils/ContextUpgradeable.sol",
+        "../proxy/utils/Initializable.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "OwnableUpgradeable"
+      ]
+    },
+    "/Users/mark/hyperevm-treasury-dapp/node_modules/@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol": {
+      "lastModificationDate": 1768455125309,
+      "contentHash": "a5bcbeef155f4b5dfb458e420afbaca6",
+      "sourceName": "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol",
+      "solcConfig": {
+        "version": "0.8.21",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../proxy/utils/Initializable.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "ReentrancyGuardUpgradeable"
+      ]
+    },
+    "/Users/mark/hyperevm-treasury-dapp/node_modules/@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol": {
+      "lastModificationDate": 1768455125309,
+      "contentHash": "f0cedd674b4863ee90d1521a92ab82df",
+      "sourceName": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol",
+      "solcConfig": {
+        "version": "0.8.21",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "Initializable"
+      ]
+    },
+    "/Users/mark/hyperevm-treasury-dapp/node_modules/@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol": {
+      "lastModificationDate": 1768455125310,
+      "contentHash": "0488cb927068c0c94b864ea40a34d1ea",
+      "sourceName": "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol",
+      "solcConfig": {
+        "version": "0.8.21",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/interfaces/draft-IERC1822.sol",
+        "@openzeppelin/contracts/proxy/ERC1967/ERC1967Utils.sol",
+        "./Initializable.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "UUPSUpgradeable"
+      ]
+    },
+    "/Users/mark/hyperevm-treasury-dapp/node_modules/@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol": {
+      "lastModificationDate": 1768455125302,
+      "contentHash": "0c3c7a637fd6a91b3f5eb94fb6e9fc1f",
+      "sourceName": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol",
+      "solcConfig": {
+        "version": "0.8.21",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../proxy/utils/Initializable.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "ContextUpgradeable"
+      ]
+    },
+    "/Users/mark/hyperevm-treasury-dapp/node_modules/@openzeppelin/contracts/interfaces/draft-IERC1822.sol": {
+      "lastModificationDate": 1768461910563,
+      "contentHash": "5a6f0412127636d802db818a7d6ac404",
+      "sourceName": "@openzeppelin/contracts/interfaces/draft-IERC1822.sol",
+      "solcConfig": {
+        "version": "0.8.21",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "IERC1822Proxiable"
+      ]
+    },
+    "/Users/mark/hyperevm-treasury-dapp/node_modules/@openzeppelin/contracts/proxy/ERC1967/ERC1967Utils.sol": {
+      "lastModificationDate": 1768461910567,
+      "contentHash": "838bc3ef3bcf0376af7d9b2041989b6a",
+      "sourceName": "@openzeppelin/contracts/proxy/ERC1967/ERC1967Utils.sol",
+      "solcConfig": {
+        "version": "0.8.21",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../beacon/IBeacon.sol",
+        "../../utils/Address.sol",
+        "../../utils/StorageSlot.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "ERC1967Utils"
+      ]
+    },
+    "/Users/mark/hyperevm-treasury-dapp/node_modules/@openzeppelin/contracts/utils/StorageSlot.sol": {
+      "lastModificationDate": 1768461910591,
+      "contentHash": "08cbccfefa284405c12b4bfa8c8c9c2b",
+      "sourceName": "@openzeppelin/contracts/utils/StorageSlot.sol",
+      "solcConfig": {
+        "version": "0.8.21",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "StorageSlot"
+      ]
+    },
+    "/Users/mark/hyperevm-treasury-dapp/node_modules/@openzeppelin/contracts/utils/Address.sol": {
+      "lastModificationDate": 1768461910561,
+      "contentHash": "79c699f80eb8a9b168cb34e37816f894",
+      "sourceName": "@openzeppelin/contracts/utils/Address.sol",
+      "solcConfig": {
+        "version": "0.8.21",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "Address"
+      ]
+    },
+    "/Users/mark/hyperevm-treasury-dapp/node_modules/@openzeppelin/contracts/proxy/beacon/IBeacon.sol": {
+      "lastModificationDate": 1768461910579,
+      "contentHash": "0a5c323fd908535580597848b8e550fb",
+      "sourceName": "@openzeppelin/contracts/proxy/beacon/IBeacon.sol",
+      "solcConfig": {
+        "version": "0.8.21",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "IBeacon"
+      ]
+    },
+    "/Users/mark/hyperevm-treasury-dapp/contracts/TermsEvaluator.sol": {
+      "lastModificationDate": 1768900611205,
+      "contentHash": "12b95eb8154130330ae676bffb3fe40e",
+      "sourceName": "contracts/TermsEvaluator.sol",
+      "solcConfig": {
+        "version": "0.8.21",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/token/ERC721/IERC721.sol",
+        "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol",
+        "@openzeppelin/contracts/access/Ownable.sol",
+        "@openzeppelin/contracts/utils/ReentrancyGuard.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "TermsEvaluator"
       ]
     }
   }

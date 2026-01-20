@@ -10,6 +10,71 @@
     <!-- Deployment timestamp: 2026-01-15T07:00:00Z -->
     <title>Babelon Protocol</title>
     <script>
+      // Pre-React fatal overlay: catches module load/init crashes that happen before React mounts.
+      (function () {
+        function escapeHtml(s) {
+          return String(s ?? '')
+            .replaceAll('&', '&amp;')
+            .replaceAll('<', '&lt;')
+            .replaceAll('>', '&gt;');
+        }
+
+        function showFatal(title, message, details) {
+          try {
+            const html = `
+              <div style="min-height:100vh; padding: 24px; background:#0b0b0f; color:#fff; font-family: ui-sans-serif, system-ui, -apple-system;">
+                <div style="max-width: 980px; margin: 0 auto;">
+                  <h1 style="margin:0 0 10px; font-size: 22px;">${escapeHtml(title)}</h1>
+                  <p style="margin:0 0 14px; color:#cbd5e1;">${escapeHtml(message)}</p>
+                  ${details ? `<pre style="white-space:pre-wrap; word-break:break-word; background:#111827; border:1px solid #1f2937; padding:12px; border-radius:10px; overflow:auto;">${escapeHtml(details)}</pre>` : ''}
+                  <button onclick="window.location.reload()" style="margin-top:14px; padding:10px 14px; border-radius:10px; border:1px solid #334155; background:#111827; color:#fff; cursor:pointer;">Reload</button>
+                </div>
+              </div>
+            `;
+            document.documentElement.style.background = '#0b0b0f';
+            document.body.innerHTML = html;
+          } catch (_) {
+            // ignore
+          }
+        }
+
+        // Resource load errors (failed module scripts, CSS, etc.)
+        window.addEventListener(
+          'error',
+          (event) => {
+            const target = event && event.target;
+            if (target && target !== window && target.tagName) {
+              const tag = target.tagName.toLowerCase();
+              const url = target.src || target.href || '';
+              showFatal(
+                'App failed to load',
+                `Failed to load ${tag}${url ? `: ${url}` : ''}`,
+                'This is usually a blocked script/module, a network error, or a bad cached asset.'
+              );
+            }
+          },
+          true
+        );
+
+        // JS runtime errors
+        window.addEventListener('error', (event) => {
+          if (!event) return;
+          // Ignore errors originating from browser extensions (they can break unrelated sites)
+          const filename = event && event.filename;
+          const stack = event && event.error && (event.error.stack || String(event.error));
+          if (String(filename || '').startsWith('chrome-extension://')) return;
+          if (String(stack || '').includes('chrome-extension://')) return;
+          // Some browsers provide very little info for cross-origin script errors
+          showFatal('App crashed', event.message || 'Unhandled error', event.error && (event.error.stack || String(event.error)));
+        });
+
+        window.addEventListener('unhandledrejection', (event) => {
+          const reason = event && event.reason;
+          showFatal('Unhandled promise rejection', 'A promise was rejected without a handler', reason && (reason.stack || String(reason)));
+        });
+      })();
+    </script>
+    <script>
       // Set title and favicon based on domain before React loads
       (function() {
         const hostname = window.location.hostname;
@@ -52,9 +117,5 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
-    <script type="module">
-      import { createIcons, icons } from 'lucide';
-      createIcons({ icons });
-    </script>
   </body>
 </html>

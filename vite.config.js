@@ -37,7 +37,10 @@ export default defineConfig({
         toplevel: true,
       },
     },
-    target: 'es2015',
+    // BigInt is used by viem/wagmi/ethers. If we downlevel to es2015, BigInt
+    // exponentiation may get transformed into Math.pow(BigInt, BigInt) which
+    // hard-crashes at runtime ("Cannot convert a BigInt value to a number").
+    target: 'es2020',
     cssCodeSplit: true,
     sourcemap: false,
   },

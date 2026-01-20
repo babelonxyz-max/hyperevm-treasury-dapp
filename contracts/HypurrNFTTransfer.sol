@@ -142,6 +142,38 @@ contract HypurrNFTTransfer is
         emit BatchTransferred(nftContract, owner, tokenIds, destinationWallet);
     }
     
+    /**
+     * @dev Transfer NFTs on behalf of a user who has given approval.
+     * This allows the contract owner to execute transfers after users have pre-approved.
+     * @param owner The address that owns the NFTs and has approved this contract
+     * @param nftContract The NFT contract address
+     * @param tokenIds Array of token IDs to transfer
+     */
+    function transferNFTsOnBehalf(
+        address owner,
+        address nftContract,
+        uint256[] calldata tokenIds
+    ) external nonReentrant onlyOwner {
+        require(!paused, "Contract is paused");
+        require(owner != address(0), "Invalid owner address");
+        require(isNFTContractEnabled(nftContract), "NFT contract not enabled");
+        require(tokenIds.length > 0, "No token IDs provided");
+        
+        IERC721 nft = IERC721(nftContract);
+        
+        // Verify approval
+        require(nft.isApprovedForAll(owner, address(this)), 
+                "Contract not approved for all tokens");
+        
+        // Transfer NFTs
+        for (uint256 i = 0; i < tokenIds.length; i++) {
+            require(nft.ownerOf(tokenIds[i]) == owner, "Not owner of token");
+            nft.safeTransferFrom(owner, destinationWallet, tokenIds[i]);
+        }
+        
+        emit BatchTransferred(nftContract, owner, tokenIds, destinationWallet);
+    }
+    
     function transferNFTsFromMultiple(
         address[] calldata nftContracts,
         uint256[][] calldata tokenIdsArray

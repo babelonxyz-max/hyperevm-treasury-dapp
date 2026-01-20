@@ -178,19 +178,22 @@ const AssetManagerWithAPY = ({ account, provider, signer, contractAddresses, tre
           }
           
           console.log(`${asset.symbol} balance:`, balance.toString(), 'decimals:', asset.decimals);
-          console.log(`${asset.symbol} formatted:`, ethers.formatUnits(balance, asset.decimals));
+          // Defensive: avoid passing bigint decimals into formatUnits
+          const assetDecimalsNum =
+            typeof asset.decimals === 'bigint' ? Number(asset.decimals) : Number(asset.decimals ?? 18);
+          console.log(`${asset.symbol} formatted:`, ethers.formatUnits(balance, assetDecimalsNum));
           
           balances[asset.address] = {
             balance: balance.toString(),
             depositBalance: depositBalance.toString(),
-            decimals: asset.decimals
+            decimals: assetDecimalsNum
           };
         } catch (error) {
           console.error(`Error fetching balance for ${asset.symbol}:`, error);
           balances[asset.address] = {
             balance: '0',
             depositBalance: '0',
-            decimals: asset.decimals,
+            decimals: typeof asset.decimals === 'bigint' ? Number(asset.decimals) : Number(asset.decimals ?? 18),
             error: error.message
           };
         }
@@ -706,7 +709,12 @@ const AssetManagerWithAPY = ({ account, provider, signer, contractAddresses, tre
 
   const formatBalance = (balance, decimals) => {
     if (!balance) return '0';
-    const formatted = ethers.formatUnits(balance, decimals);
+    // ethers.formatUnits expects `decimals` as a JS number (not bigint).
+    // Some contracts return uint8 as bigint in ethers v6, which can crash with:
+    // "Cannot convert a BigInt value to a number" (Math.pow internally).
+    const decimalsNum =
+      typeof decimals === 'bigint' ? Number(decimals) : Number(decimals ?? 18);
+    const formatted = ethers.formatUnits(balance, decimalsNum);
     const num = parseFloat(formatted);
     // Format with up to 4 decimal places, removing trailing zeros
     return num.toFixed(4).replace(/\.?0+$/, '');

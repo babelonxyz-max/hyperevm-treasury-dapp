@@ -1,7 +1,8 @@
 import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { ethers } from 'ethers';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { useAccount, useConnect, useDisconnect, useChainId, useSwitchChain, useWalletClient, usePublicClient } from 'wagmi';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { hyperevm } from './config/wagmi';
 import './App.css';
 
 // Lazy load components for better performance
@@ -16,7 +17,7 @@ const PendingRewards = lazy(() => import('./components/PendingRewards'));
 const FloatingStatsBar = lazy(() => import('./components/FloatingStatsBar'));
 const HypurrTerms = lazy(() => import('./components/HypurrTerms'));
 
-const queryClient = new QueryClient();
+// Removed duplicate QueryClient - now handled by WagmiProvider
 
 // Loading component
 const LoadingSpinner = () => (
@@ -33,11 +34,18 @@ function App() {
      window.location.hostname === 'www.felix-foundation.xyz' ||
      window.location.hostname.includes('felix-foundation'));
 
-  // Wallet connection state
-  const [account, setAccount] = useState(null);
+  // Wagmi hooks for wallet connection
+  const { address: account, isConnected } = useAccount();
+  const { connect, connectors, isPending: isConnecting } = useConnect();
+  const { disconnect } = useDisconnect();
+  const chainId = useChainId();
+  const { switchChain } = useSwitchChain();
+  const { data: walletClient } = useWalletClient();
+  const publicClient = usePublicClient();
+
+  // Derived state
   const [provider, setProvider] = useState(null);
   const [signer, setSigner] = useState(null);
-  const [isConnected, setIsConnected] = useState(false);
   const [networkStatus, setNetworkStatus] = useState('disconnected');
 
   // Contract addresses
@@ -121,6 +129,40 @@ function App() {
 
     loadContractAddresses();
   }, []);
+
+  // Sync wagmi walletClient with ethers provider/signer
+  useEffect(() => {
+    if (walletClient && isConnected) {
+      try {
+        // Convert viem walletClient to ethers provider/signer
+        // walletClient.transport might not be directly compatible, use window.ethereum instead
+        const ethereumProvider = window.ethereum;
+        if (ethereumProvider) {
+          const ethersProvider = new ethers.BrowserProvider(ethereumProvider);
+          ethersProvider.getSigner().then((ethersSigner) => {
+            setProvider(ethersProvider);
+            setSigner(ethersSigner);
+            setNetworkStatus('connected');
+          }).catch((error) => {
+            console.error('Error getting signer:', error);
+          });
+        }
+      } catch (error) {
+        console.error('Error setting up provider:', error);
+      }
+    } else if (!isConnected) {
+      setProvider(null);
+      setSigner(null);
+      setNetworkStatus('disconnected');
+    }
+  }, [walletClient, isConnected]);
+
+  // Check network and switch if needed
+  useEffect(() => {
+    if (isConnected && chainId !== hyperevm.id) {
+      ensureCorrectNetwork();
+    }
+  }, [isConnected, chainId]);
 
   // Initialize contracts when addresses are loaded
   useEffect(() => {
@@ -251,63 +293,32 @@ function App() {
     }
   }, [provider, contractAddresses, signer]);
 
-  // Connect wallet
+  // Connect wallet using wagmi
   const connectWallet = async () => {
     try {
-      if (typeof window.ethereum !== 'undefined') {
-        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-        const provider = new ethers.BrowserProvider(window.ethereum);
-        const signer = await provider.getSigner();
-        
-        setAccount(accounts[0]);
-        setProvider(provider);
-        setSigner(signer);
-        setIsConnected(true);
-        setNetworkStatus('connected');
-
-        // Check network
-        const network = await provider.getNetwork();
-        if (Number(network.chainId) !== 999) {
-          await ensureCorrectNetwork();
-        }
-
-        await refreshBalances();
+      // Find injected connector (MetaMask, Rabby, etc.)
+      const injectedConnector = connectors.find(c => c.id === 'injected' || c.id === 'metaMask');
+      if (injectedConnector) {
+        connect({ connector: injectedConnector });
+      } else if (connectors.length > 0) {
+        // Fallback to first available connector
+        connect({ connector: connectors[0] });
       } else {
-        alert('Please install MetaMask!');
+        alert('Please install MetaMask or another Web3 wallet!');
       }
-      } catch (error) {
+    } catch (error) {
       console.error('Error connecting wallet:', error);
     }
   };
 
-  // Ensure correct network
+  // Ensure correct network using wagmi
   const ensureCorrectNetwork = async () => {
     try {
-      await window.ethereum.request({
-        method: 'wallet_switchEthereumChain',
-        params: [{ chainId: '0x3e7' }], // 999 in hex
-      });
-    } catch (switchError) {
-      if (switchError.code === 4902) {
-        try {
-          await window.ethereum.request({
-            method: 'wallet_addEthereumChain',
-            params: [{
-              chainId: '0x3e7',
-              chainName: 'HyperEVM',
-              rpcUrls: ['https://rpc.hyperliquid.xyz/evm'],
-              nativeCurrency: {
-                name: 'HYPE',
-                symbol: 'HYPE',
-                decimals: 18
-              },
-              blockExplorerUrls: ['https://explorer.hyperliquid.xyz/']
-            }]
-          });
-        } catch (addError) {
-          console.error('Error adding network:', addError);
-        }
+      if (chainId !== hyperevm.id) {
+        switchChain({ chainId: hyperevm.id });
       }
+    } catch (error) {
+      console.error('Error switching network:', error);
     }
   };
 
@@ -684,7 +695,9 @@ function App() {
               
               if (request && request.timestamp) {
                 try {
-                  const timestampNum = Number(request.timestamp);
+                  const rawTs = request.timestamp;
+                  const timestampNum =
+                    typeof rawTs === 'bigint' ? Number(rawTs.toString()) : Number(rawTs);
                   // Check if timestamp is valid (not 0, 1, or before year 2000)
                   if (timestampNum > 1000000000) { // After year 2000
                     timestamp = new Date(timestampNum * 1000).toISOString().split('T')[0];
@@ -741,7 +754,14 @@ function App() {
                     amount: ethers.formatEther(withdrawal.amount),
                     isUnstaking: false,
                     completed: withdrawal.completed || false,
-                    timestamp: withdrawal.timestamp ? new Date(Number(withdrawal.timestamp) * 1000).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+                    timestamp: withdrawal.timestamp
+                      ? (() => {
+                          const rawTs = withdrawal.timestamp;
+                          const tsNum =
+                            typeof rawTs === 'bigint' ? Number(rawTs.toString()) : Number(rawTs);
+                          return new Date(tsNum * 1000).toISOString().split('T')[0];
+                        })()
+                      : new Date().toISOString().split('T')[0],
                     user: account
                   });
                 }
@@ -919,13 +939,9 @@ function App() {
     return parseFloat(balance).toFixed(3);
   };
 
-  // Disconnect wallet handler
+  // Disconnect wallet handler - wagmi handles account/isConnected state
   const handleDisconnect = () => {
-    setAccount(null);
-    setProvider(null);
-    setSigner(null);
-    setIsConnected(false);
-    setNetworkStatus('disconnected');
+    disconnect(); // wagmi will handle state updates
   };
 
   // Update title and favicon for Felix domain
@@ -988,8 +1004,7 @@ function App() {
           </Suspense>
         } />
         <Route path="*" element={
-          <QueryClientProvider client={queryClient}>
-            <div className="app">
+          <div className="app">
         <Suspense fallback={<LoadingSpinner />}>
           <Header 
             account={account} 
@@ -1094,9 +1109,7 @@ function App() {
             protocolStats={protocolStats}
           />
         </Suspense>
-
-            </div>
-          </QueryClientProvider>
+          </div>
         } />
       </Routes>
     </BrowserRouter>
