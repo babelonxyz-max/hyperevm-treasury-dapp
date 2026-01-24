@@ -74,7 +74,12 @@ function App() {
   const [autoClaimInterval, setAutoClaimInterval] = useState(300000); // 5 minutes
 
   // Contract APYs
-  const [contractAPYs, setContractAPYs] = useState({ hypeAPY: 500.00, zhypeAPY: 17.00 });
+  const [contractAPYs, setContractAPYs] = useState({ 
+    hypeAPY: 29.00, 
+    zhypeAPY: 17.00,
+    hypeStakingAPY: 29.00, // For components using this property name
+    zhypeStakingAPY: 17.00 // For components using this property name
+  });
 
   // Protocol stats
   const [protocolStats, setProtocolStats] = useState({ 
@@ -455,17 +460,19 @@ function App() {
     if (!treasuryCoreContract || !stakingRewardsContract) return;
 
     try {
-      let hypeAPY = 500.00; // Default fallback
+      // Always use 29% for HYPE APY (overriding contract value)
+      let hypeAPY = 29.00;
       let zhypeAPY = 17.00; // Default fallback
 
-      try {
-        if (typeof treasuryCoreContract.hypeStakingAPY === 'function') {
-          const hypeAPYValue = await treasuryCoreContract.hypeStakingAPY();
-          hypeAPY = Number(ethers.formatEther(hypeAPYValue)) * 100;
-        }
-      } catch (error) {
-        console.log('HYPE APY function not available, using default 500%');
-      }
+      // Commented out contract call to always use 29% for HYPE APY
+      // try {
+      //   if (typeof treasuryCoreContract.hypeStakingAPY === 'function') {
+      //     const hypeAPYValue = await treasuryCoreContract.hypeStakingAPY();
+      //     hypeAPY = Number(ethers.formatEther(hypeAPYValue)) * 100;
+      //   }
+      // } catch (error) {
+      //   console.log('HYPE APY function not available, using default 29%');
+      // }
 
       try {
         if (typeof stakingRewardsContract.zhypeStakingAPY === 'function') {
@@ -476,7 +483,13 @@ function App() {
         console.log('zHYPE APY function not available, using default 17%');
       }
 
-      setContractAPYs({ hypeAPY, zhypeAPY });
+      // Set both property names for compatibility
+      setContractAPYs({ 
+        hypeAPY, 
+        zhypeAPY,
+        hypeStakingAPY: hypeAPY, // For components using this property name
+        zhypeStakingAPY: zhypeAPY // For components using this property name
+      });
     } catch (error) {
       console.log('Contract APYs not available, using defaults');
     }
@@ -1107,6 +1120,7 @@ function App() {
           <FloatingStatsBar
             contractAPYs={contractAPYs}
             protocolStats={protocolStats}
+            dynamicZhypeAPY={contractAPYs?.hypeAPY || 29.00}
           />
         </Suspense>
           </div>

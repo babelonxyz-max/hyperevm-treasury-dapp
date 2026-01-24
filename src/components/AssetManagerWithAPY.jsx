@@ -131,7 +131,7 @@ const AssetManagerWithAPY = ({ account, provider, signer, contractAddresses, tre
       decimals: 18,
       color: '#FF6B35',
       isNative: true,
-      apy: contractAPYs?.hypeAPY || 500.00
+      apy: contractAPYs?.hypeAPY || 29.00
     }
   ];
 
@@ -799,7 +799,7 @@ const AssetManagerWithAPY = ({ account, provider, signer, contractAddresses, tre
             </div>
             <div className="apy-display">
               <span className="apy-label">APY</span>
-              <span className="apy-amount">500%</span>
+              <span className="apy-amount">29%</span>
             </div>
           </div>
           
@@ -889,7 +889,7 @@ const AssetManagerWithAPY = ({ account, provider, signer, contractAddresses, tre
             </div>
             <div className="stat-row">
               <span className="stat-label">Annual APR</span>
-              <span className="stat-value accent">500%</span>
+              <span className="stat-value accent">29%</span>
             </div>
             <div className="stat-row">
               <span className="stat-label">Last Claim</span>
@@ -910,7 +910,7 @@ const AssetManagerWithAPY = ({ account, provider, signer, contractAddresses, tre
           <div className="stat-card primary">
             <div className="stat-icon">📈</div>
             <div className="stat-content">
-              <span className="stat-value">500%</span>
+              <span className="stat-value">29%</span>
               <span className="stat-label">APY</span>
             </div>
           </div>

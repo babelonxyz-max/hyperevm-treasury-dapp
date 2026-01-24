@@ -17,7 +17,7 @@ const WalletConnect = ({ onConnect }) => {
             </h1>
             <p className="wallet-hero-subtitle">
               Ancient wisdom meets modern DeFi. The most advanced liquid staking protocol on Hyperliquid. 
-              Earn up to 500% APY with instant liquidity and institutional-grade security.
+              Earn up to 29% APY with instant liquidity and institutional-grade security.
             </p>
             <div className="wallet-hero-actions">
               <button className="btn btn-primary btn-lg animate-bounce-in" onClick={onConnect}>
@@ -32,7 +32,7 @@ const WalletConnect = ({ onConnect }) => {
             </div>
             <div className="wallet-hero-stats">
               <div className="hero-stat">
-                <div className="hero-stat-value">500%</div>
+                <div className="hero-stat-value">29%</div>
                 <div className="hero-stat-label">Max APY</div>
               </div>
               <div className="hero-stat">
@@ -63,9 +63,9 @@ const WalletConnect = ({ onConnect }) => {
               </div>
               <h3 className="feature-title">High APY Rewards</h3>
               <p className="feature-description">
-                Earn up to 500% APY on your deposits with our advanced rewards system
+                Earn up to 29% APY on your deposits with our advanced rewards system
               </p>
-              <div className="feature-highlight">Up to 500% APY</div>
+              <div className="feature-highlight">Up to 29% APY</div>
             </div>
             
             <div className="feature-card hover-lift">
@@ -137,7 +137,7 @@ const WalletConnect = ({ onConnect }) => {
               <div className="stat-icon">
                 <TrendingUp size={24} />
               </div>
-              <div className="stat-value">500%</div>
+              <div className="stat-value">29%</div>
               <div className="stat-label">Maximum APY</div>
               <div className="stat-change positive">+0.00%</div>
             </div>
